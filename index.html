@@ -118,218 +118,26 @@
   </div>
 </div>
 
+<!-- Firebase (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+
+<!-- Config Firebase -->
 <script>
-const USE_EXTERNAL_JSON = true;
-const EXTERNAL_JSON_URL = './materias_admin.json';
-
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-
-const stateKey = "grilla-admin-v1";
-let state = {
-  aprobadas: new Set(),
-  cursando: new Set(),
-  data: { areas:[], materias:[] }
-};
-
-function saveState(){
-  const obj = {
-    aprobadas: Array.from(state.aprobadas),
-    cursando: Array.from(state.cursando)
+  window.FB_CONFIG = {
+    apiKey: "...",
+    authDomain: "...",
+    projectId: "...",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "...",
+    measurementId: "..."
   };
-  localStorage.setItem(stateKey, JSON.stringify(obj));
-}
-function loadState(){
-  const raw = localStorage.getItem(stateKey);
-  if(!raw) return;
-  try{
-    const obj = JSON.parse(raw);
-    state.aprobadas = new Set(obj.aprobadas||[]);
-    state.cursando = new Set(obj.cursando||[]);
-  }catch{}
-}
-
-function areaName(id){ return (state.data.areas.find(a=>a.id===id)||{}).nombre || id; }
-
-function buildFilters(){
-  const años = [...new Set(state.data.materias.map(m=>m.anio))].sort((a,b)=>a-b);
-  const sems = [...new Set(state.data.materias.map(m=>m.semestre))].sort((a,b)=>a-b);
-  const $anio = $('#f-anio'), $sem = $('#f-sem'), $area = $('#f-area');
-  años.forEach(v=>{$anio.insertAdjacentHTML('beforeend', `<option value="${v}">${v}°</option>`);});
-  sems.forEach(v=>{$sem.insertAdjacentHTML('beforeend', `<option value="${v}">${v}°</option>`);});
-  state.data.areas.forEach(a=>{$area.insertAdjacentHTML('beforeend', `<option value="${a.id}">${a.nombre}</option>`);});
-
-  const $areasList = $('#areas-list');
-  $areasList.innerHTML = '';
-  state.data.areas.forEach(a=>{
-    const span = document.createElement('span');
-    span.className = 'tag';
-    span.textContent = `${a.id} · ${a.nombre}`;
-    $areasList.appendChild(span);
-  });
-
-  $('#quick-ob').addEventListener('click', (e)=>{e.preventDefault(); $('#f-tipo').value='OB'; render();});
-  $('#quick-op').addEventListener('click', (e)=>{e.preventDefault(); $('#f-tipo').value='OP'; render();});
-  $('#quick-clear').addEventListener('click', (e)=>{e.preventDefault(); $$('#f-anio,#f-sem,#f-area,#f-tipo,#f-estado').forEach(el=>el.value=''); $('#q').value=''; render();});
-}
-
-function matchesFilters(m){
-  const q = $('#q').value.trim().toLowerCase();
-  const fa = $('#f-anio').value;
-  const fs = $('#f-sem').value;
-  const far = $('#f-area').value;
-  const ft = $('#f-tipo').value;
-  const fe = $('#f-estado').value;
-
-  if(q && !(m.nombre.toLowerCase().includes(q) || m.codigo.toLowerCase().includes(q))) return false;
-  if(fa && String(m.anio)!==fa) return false;
-  if(fs && String(m.semestre)!==fs) return false;
-  if(far && m.area!==far) return false;
-  if(ft && m.tipo!==ft) return false;
-
-  if(fe){
-    const est = getEstado(m.codigo);
-    if(est!==fe) return false;
-  }
-  return true;
-}
-
-function getEstado(cod){
-  if(state.aprobadas.has(cod)) return 'aprobada';
-  if(state.cursando.has(cod)) return 'cursando';
-  return 'pendiente';
-}
-
-function canTake(m){
-  return (m.previas||[]).every(c=>state.aprobadas.has(c));
-}
-
-function render(){
-  const list = $('#list');
-  const items = state.data.materias.filter(matchesFilters)
-     .sort((a,b)=> (a.anio-b.anio) || (a.semestre-b.semestre) || a.codigo.localeCompare(b.codigo));
-
-  list.innerHTML = '';
-  if(!items.length){
-    list.innerHTML = `<div class="empty">No hay materias que coincidan con los filtros.</div>`;
-  }else{
-    items.forEach(m=>{
-      const est = getEstado(m.codigo);
-      const locked = !canTake(m) && est!=='aprobada' && est!=='cursando';
-      const prevText = (m.previas&&m.previas.length)
-        ? `Previas: ${m.previas.map(c=>`<code>${c}</code>`).join(', ')}`
-        : 'Sin previas';
-
-      const badgeClass = est==='aprobada'?'ok':(est==='cursando'?'cur':'pen');
-      const disabled = locked ? 'disabled' : '';
-      const lockMsg = locked ? `<div class="muted" style="font-size:12px">Debes aprobar ${m.previas.map(c=>`<b>${c}</b>`).join(', ')} para cursar.</div>` : '';
-
-      list.insertAdjacentHTML('beforeend', `
-        <div class="course ${locked?'locked':''}">
-          <div class="meta">
-            <span class="badge ${badgeClass}">${est.charAt(0).toUpperCase()+est.slice(1)} </span>
-            <span class="area">${m.area} · ${areaName(m.area)}</span>
-            <span class="badge">${m.anio}° año · ${m.semestre}° sem</span>
-            <span class="badge">Créditos: ${m.creditos}</span>
-            <span class="badge">${m.tipo==='OB'?'Obligatoria':'Opcional'}</span>
-          </div>
-          <div style="flex:1">
-            <h3>${m.codigo} — ${m.nombre}</h3>
-            <small class="muted">${prevText}</small>
-            ${lockMsg}
-          </div>
-          <div class="act">
-            <label class="muted">Cursando <input type="checkbox" data-cur="${m.codigo}" ${state.cursando.has(m.codigo)?'checked':''} ${disabled}></label>
-            <label class="muted">Aprobada <input type="checkbox" data-ok="${m.codigo}" ${state.aprobadas.has(m.codigo)?'checked':''}></label>
-          </div>
-        </div>
-      `);
-    });
-  }
-
-  $$('input[data-cur]').forEach(el=>{
-    el.onchange = ()=>{
-      const cod = el.getAttribute('data-cur');
-      if(el.checked){ state.cursando.add(cod); } else { state.cursando.delete(cod); }
-      saveState(); updateProgress(); render();
-    };
-  });
-  $$('input[data-ok]').forEach(el=>{
-    el.onchange = ()=>{
-      const cod = el.getAttribute('data-ok');
-      if(el.checked){ state.aprobadas.add(cod); state.cursando.delete(cod); }
-      else { state.aprobadas.delete(cod); }
-      saveState(); updateProgress(); render();
-    };
-  });
-
-  updateKpis();
-}
-
-function updateKpis(){
-  const total = state.data.materias.length;
-  const aprobadas = state.data.materias.filter(m=>state.aprobadas.has(m.codigo)).length;
-  const credTot = state.data.materias.reduce((s,m)=>s+Number(m.creditos||0),0);
-  const credOk = state.data.materias.filter(m=>state.aprobadas.has(m.codigo))
-                  .reduce((s,m)=>s+Number(m.creditos||0),0);
-
-  document.getElementById('kpi-aprobadas').textContent = aprobadas;
-  document.getElementById('kpi-totales').textContent = total;
-  document.getElementById('kpi-creditos').textContent = credOk;
-
-  const pct = credTot? Math.round(credOk/credTot*100):0;
-  document.getElementById('progress-label').textContent = `${pct}% · ${credOk}/${credTot} créditos`;
-  document.getElementById('bar').style.width = pct+'%';
-}
-
-function updateProgress(){ updateKpis(); }
-
-function wireUI(){
-  $$('#q,#f-anio,#f-sem,#f-area,#f-tipo,#f-estado').forEach(el=>{
-    el.addEventListener('input', render);
-    el.addEventListener('change', render);
-  });
-  document.getElementById('btn-reset').onclick = ()=>{
-    if(confirm('Esto borrará tu progreso guardado en este navegador. ¿Deseas continuar?')){
-      localStorage.removeItem(stateKey);
-      state.aprobadas.clear(); state.cursando.clear();
-      render(); updateProgress();
-    }
-  };
-
-  const seenKey = 'grilla-admin-onb';
-  const $ob = document.getElementById('onboarding');
-  function openOnb(){ $ob.style.display='flex'; }
-  function closeOnb(){ $ob.style.display='none'; localStorage.setItem(seenKey,'1'); }
-  document.getElementById('btn-onboarding').onclick = openOnb;
-  document.getElementById('ob-close').onclick = closeOnb;
-  $ob.addEventListener('click', (e)=>{ if(e.target=== $ob) closeOnb(); });
-  if(!localStorage.getItem(seenKey)) openOnb();
-}
-
-async function init(){
-  loadState();
-  let json = null;
-  try {
-    const r = await fetch(EXTERNAL_JSON_URL);
-    json = await r.json();
-  } catch(e) {
-    console.error('No se pudo cargar el JSON externo', e);
-    json = { areas:[], materias:[] };
-  }
-  json.materias = (json.materias||[]).map(m=>({
-    ...m,
-    previas: Array.isArray(m.previas) ? m.previas : (typeof m.previas==='string' && m.previas.trim()? m.previas.split(/[,\s;]+/).filter(Boolean):[])
-  }));
-  state.data = json;
-
-  buildFilters();
-  wireUI();
-  render();
-  updateProgress();
-}
-
-init();
+  if (!firebase.apps?.length) firebase.initializeApp(window.FB_CONFIG);
 </script>
+
+<!-- App -->
+<script src="js/app.js" defer></script>
 </body>
 </html>
