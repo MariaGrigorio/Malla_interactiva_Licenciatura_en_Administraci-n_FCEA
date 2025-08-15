@@ -1,159 +1,34 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Grilla · Administración (UDELAR)</title>
-
-  <!-- (Opcional) Tu hoja de estilos global -->
-  <!-- <link rel="stylesheet" href="css/styles.css"> -->
-
-  <style>
-    /* ====== Estilos mínimos para que se vea prolijo ====== */
-    :root{ --bg:#0b0d12; --card:#121521; --muted:#94a3b8; --txt:#e2e8f0; --brand:#7c3aed; --chip:#1f2433; }
-    html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg,#0a0c11, #0f1421 45%, #0a0c11 100%);color:var(--txt);font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.4;}
-    .wrap{max-width:1100px;margin:0 auto;padding:24px}
-    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:16px}
-    header h1{font-size:20px;margin:0;font-weight:700}
-    header small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-    .pill{background:rgba(124,58,237,.15);color:#d6bcff;border:1px solid rgba(124,58,237,.35);padding:6px 10px;border-radius:999px;font-size:12px}
-    .card{background:var(--card);border:1px solid #23283a;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-    .grid{display:grid;grid-template-columns:1fr;gap:16px}
-    @media (min-width:980px){.grid{grid-template-columns: 1fr 320px}}
-    .progress{padding:16px}
-    .bar{height:10px;background:#1f2636;border-radius:999px;overflow:hidden;position:relative}
-    .bar>span{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--brand),#22c55e);border-radius:999px;transition:width .5s ease}
-    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-    .kpi{background:#111628;padding:10px;border-radius:12px;border:1px solid #222a40}
-    .kpi b{font-size:18px;display:block}
-    .filters{padding:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .filters select,.filters input[type="search"]{background:#12192a;color:var(--txt);border:1px solid #232b44;padding:10px;border-radius:10px}
-    .tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
-    .tag{background:var(--chip);border:1px solid #2b3247;color:#c7d2fe;padding:6px 8px;border-radius:999px;font-size:12px}
-    .list{padding:16px}
-    .course{display:flex;gap:12px;align-items:flex-start;background:#0f1424;border:1px solid #202746;border-radius:14px;padding:12px;margin:10px 0}
-    .course.locked{opacity:.7}
-    .course h3{margin:0 0 4px 0;font-size:16px}
-    .course small{color:var(--muted)}
-    .badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid #2a2f47;background:#151b2d}
-    .badge.ok{color:#c7ffd1;border-color:rgba(22,163,74,.45);background:rgba(22,163,74,.12)}
-    .badge.cur{color:#ffe7b3;border-color:rgba(245,158,11,.45);background:rgba(245,158,11,.12)}
-    .badge.pen{color:#ffc0c0;border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12)}
-    .area{font-size:11px;padding:4px 8px;border-radius:8px;border:1px solid #2a2f47;background:#0f1526;color:#c7d2fe}
-    .meta{display:flex;gap:8px;flex-wrap:wrap}
-    .act{margin-left:auto;display:flex;gap:8px;align-items:center}
-    button,.btn{background:#141b2f;color:#e5e7eb;border:1px solid #253051;padding:9px 12px;border-radius:10px;cursor:pointer}
-    .muted{color:var(--muted)}
-    .empty{padding:22px;text-align:center;color:#94a3b8}
-
-    /* Modal */
-    .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
-    .modal{max-width:720px;width:100%}
-    .modal .card{padding:18px}
-    .modal h2{margin:0 0 8px}
-    .modal p{margin:0 0 6px}
-    .modal .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Avance en Facultad</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Grilla · Administración</h1>
-        <small>Facultad de Ciencias Económicas y de Administración · UDELAR</small>
-      </div>
-      <span class="pill">Hecho con 💜 por Notegood.uy</span>
-    </header>
+  <header class="header">
+    <h1>📚 Mi Avance Académico</h1>
+    <p>Seguimiento de materias y progreso general</p>
+  </header>
 
-    <div class="grid">
-      <!-- Columna principal -->
-      <section class="card">
-        <div class="progress">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div>
-              <b>Tu avance:</b>
-              <span class="muted" id="progress-label">0% · 0/0 créditos</span>
-            </div>
-            <div>
-              <button id="btn-onboarding">Guía rápida</button>
-              <button id="btn-reset">Borrar progreso</button>
-            </div>
-          </div>
-          <div class="bar"><span id="bar"></span></div>
-          <div class="kpis">
-            <div class="kpi"><small>Materias aprobadas</small><b id="kpi-aprobadas">0</b></div>
-            <div class="kpi"><small>Materias totales</small><b id="kpi-totales">0</b></div>
-            <div class="kpi"><small>Créditos aprobados</small><b id="kpi-creditos">0</b></div>
-          </div>
-        </div>
+  <main class="landing">
+    <section class="intro">
+      <h2>Bienvenido/a</h2>
+      <p>
+        Aquí podrás llevar el control de todas las materias de tu carrera, marcar cuáles ya aprobaste, agregar notas y
+        calificaciones, y visualizar tu progreso total en una grilla interactiva.
+      </p>
+    </section>
 
-        <div class="filters">
-          <input id="q" type="search" placeholder="Buscar por código o nombre…" />
-          <select id="f-estado">
-            <option value="">Estado: Todos</option>
-            <option value="aprobada">Aprobada</option>
-            <option value="cursando">Cursando</option>
-            <option value="pendiente">Pendiente</option>
-          </select>
-          <select id="f-anio"><option value="">Año: Todos</option></select>
-          <select id="f-sem"><option value="">Semestre: Todos</option></select>
-          <select id="f-area"><option value="">Área: Todas</option></select>
-          <select id="f-tipo">
-            <option value="">Tipo: Todas</option>
-            <option value="OB">Obligatoria</option>
-            <option value="OP">Opcional</option>
-          </select>
-        </div>
+    <section class="cta">
+      <a class="btn-primary" href="malla.html">Ir a mi grilla</a>
+    </section>
+  </main>
 
-        <div class="list" id="list"></div>
-      </section>
-
-      <!-- Lateral -->
-      <aside class="card" style="padding:16px">
-        <h3 style="margin-top:0">Leyenda y notas</h3>
-        <div class="tags">
-          <span class="badge ok">Aprobada</span>
-          <span class="badge cur">Cursando</span>
-          <span class="badge pen">Pendiente</span>
-        </div>
-        <p class="muted" style="margin-top:10px">
-          Marca como <b>Aprobada</b> para sumar créditos. Si una materia tiene <b>previas</b>,
-          verás el detalle y se bloqueará hasta que las cumplas.
-        </p>
-        <hr style="border-color:#202746;border-top:none;margin:16px 0" />
-        <h4>Áreas</h4>
-        <div id="areas-list" class="tags"></div>
-        <hr style="border-color:#202746;border-top:none;margin:16px 0" />
-        <h4>Accesos rápidos</h4>
-        <div class="tags">
-          <a class="tag" href="#" id="quick-ob">Solo obligatorias</a>
-          <a class="tag" href="#" id="quick-op">Solo opcionales</a>
-          <a class="tag" href="#" id="quick-clear">Limpiar filtros</a>
-        </div>
-      </aside>
-    </div>
-  </div>
-
-  <!-- Modal onboarding -->
-  <div class="modal-back" id="onboarding">
-    <div class="modal">
-      <div class="card">
-        <h2>Bienvenida 👋</h2>
-        <p>Esta es tu grilla interactiva de <b>Administración</b>. Marca tus materias como <b>Aprobada</b> o <b>Cursando</b> y observa cómo se actualiza tu avance y créditos.</p>
-        <ul>
-          <li>El progreso se guarda en tu navegador (puedes borrarlo con <i>Borrar progreso</i>).</li>
-          <li>Si una materia tiene <b>previas</b>, no podrás marcarla hasta cumplirlas.</li>
-          <li>Filtra por <i>año, semestre, área, tipo</i> o busca por nombre/código.</li>
-        </ul>
-        <div class="foot">
-          <button id="ob-close">Entendido</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tu app (no dejes scripts inline duplicados) -->
-  <script src="js/app.js" defer></script>
+  <footer class="footer">
+    <p>Hecho con 💜 y muuucho café por <strong>Notegood.uy</strong> — <a href="https://instagram.com/notegood.uy" target="_blank">@notegood.uy</a></p>
+  </footer>
 </body>
 </html>
+
