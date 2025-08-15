@@ -3,36 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notegood · Malla Interactiva – Administración</title>
-  <meta name="description" content="Malla interactiva: marcá materias, desbloqueá correlativas, agregá notas y guardá tu progreso (local + nube). by Notegood.uy">
+  <title>Malla Interactiva – Administración</title>
+  <meta name="description" content="Malla interactiva para la carrera de Administración. Guarda tu progreso y desbloquea correlativas.">
 
-  <!-- Fuente Notegood -->
+  <!-- Fuente y estilos -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Estilos -->
-  <link rel="stylesheet" href="css/styles.css?v=41">
-
-  <style>
-    /* toques visuales del hero */
-    body.landing .hero{
-      position:relative;overflow:hidden;
-      background:
-        radial-gradient(1200px 600px at 90% -10%, rgba(108,92,231,.12), transparent 60%),
-        radial-gradient(900px 500px at -10% 0%, rgba(0,191,166,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg) 0%, rgba(108,92,231,.06) 100%);
-    }
-    .hero-title .brand{
-      background:linear-gradient(90deg, var(--brand), var(--accent));
-      -webkit-background-clip:text;background-clip:text;color:transparent;
-    }
-    .feature-cards .card h3{display:flex;gap:.4rem;align-items:center;margin-top:0}
-    .closing{max-width:820px;margin:18px auto 0;padding:0 16px;text-align:center;color:var(--muted);font-style:italic}
-  </style>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="landing">
+
   <!-- Header -->
-  <header class="ng-header" role="banner" aria-label="Encabezado Notegood">
+  <header class="ng-header">
     <div class="header-top container">
-      <a href="index.html" class="logo">Notegood.uy ✨</a>
+      <a href="index.html" class="logo">Malla Administración ✨</a>
       <div class="controls">
         <button id="themeToggle" class="btn ghost" title="Modo oscuro">🌙</button>
       </div>
@@ -40,89 +23,76 @@
   </header>
 
   <!-- Hero -->
-  <main class="hero" role="main">
+  <main class="hero">
     <section class="hero-inner container">
-      <h1 class="hero-title">✨ Tu <span class="brand">Malla Interactiva</span> de Administración</h1>
-      <p class="hero-sub">
-        Marcá, organizá, anotá y motivate viendo tu avance paso a paso. Con estilo Notegood 💜
-      </p>
+      <h1 class="hero-title">✨ Tu <span class="brand">Malla Interactiva</span></h1>
+      <p class="hero-sub">Marca tus materias, desbloquea correlativas y guarda tu progreso con tu cuenta de Google.</p>
 
       <div class="hero-cta">
-        <!-- Botón de login Google -->
-        <button id="loginGoogle" class="btn-pri" aria-label="Empezar con Google">
-          <span>🚀 Empezar mi malla →</span>
+        <button id="loginGoogle" class="btn-pri">
+          🚀 Empezar con Google
         </button>
-        <!-- (fallback sin login) -->
-        <a id="skipLink" href="malla.html" class="btn ghost" style="display:none">Entrar sin login</a>
       </div>
 
-      <ul class="hero-list" aria-label="Beneficios">
-        <li>📁 Guardá tu progreso (local + nube)</li>
-        <li>🔓 Correlativas que se desbloquean solas</li>
-        <li>📝 Notas y calificaciones por materia</li>
-        <li>🎉 Confeti cuando completás el plan</li>
+      <ul class="hero-list">
+        <li>📁 Progreso guardado en la nube</li>
+        <li>🔓 Correlativas automáticas</li>
+        <li>📝 Notas y calificaciones</li>
+        <li>🎉 Confeti al completar la carrera</li>
       </ul>
     </section>
-
-    <section class="feature-cards container" aria-label="Características">
-      <article class="card"><h3>🌱 Empezá sin enredos</h3><p>Marcá tus materias y desbloqueá lo que sigue.</p></article>
-      <article class="card"><h3>✍️ Recordá lo importante</h3><p>Notas y calificaciones quedan asociadas a tu usuario.</p></article>
-      <article class="card"><h3>📊 Motivación visual</h3><p>Barra y copys de progreso estilo Notegood.</p></article>
-    </section>
-
-    <p class="closing">🫶 Estudiar es duro, pero no estás sola/o.</p>
   </main>
 
+  <!-- Footer -->
   <footer class="ng-footer">
-    <p>Hecho con 💜 y muuucho café por Notegood.uy — <a href="https://www.instagram.com/notegood.uy/" target="_blank" rel="noopener">@notegood.uy</a></p>
+    <p>Hecho con 💜 por Notegood.uy</p>
   </footer>
 
-  <!-- Firebase (Compat) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+  <!-- Firebase v12 (modular) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
 
-  <!-- Configuración Firebase -->
-  <script>
-    /* Puedes cambiar esta config por la de tu propio proyecto si querés */
-    window.FB_CONFIG = {
-      apiKey: "AIzaSyB80csmSE6YMXkNyyBo9y8j6iIT3pHsebs",
-      authDomain: "notegood-uy.firebaseapp.com",
-      projectId: "notegood-uy",
-      storageBucket: "notegood-uy.firebasestorage.app",
-      messagingSenderId: "690615845783",
-      appId: "1:690615845783:web:6f6bfacc9f3d77d1dfbad2",
-      measurementId: "G-4SL4JL2GH5"
+    // Configuración de tu proyecto Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHAKPNdi8J0XfZZ0oHQ-gmWF9DPbvRhiQ",
+      authDomain: "malla-fcea.firebaseapp.com",
+      projectId: "malla-fcea",
+      storageBucket: "malla-fcea.firebasestorage.app",
+      messagingSenderId: "546418390812",
+      appId: "1:546418390812:web:38d4dbefde6f9829e6acd9",
+      measurementId: "G-HS9BMBSB20"
     };
-    if (!firebase.apps?.length) firebase.initializeApp(window.FB_CONFIG);
-  </script>
 
-  <!-- Lógica de landing + login -->
-  <script>
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-    // Si ya hay sesión, entra directo a la malla
-    auth.onAuthStateChanged((u) => {
-      if (u) location.href = 'malla.html';
-      else document.getElementById('skipLink').style.display = 'inline-block';
-    });
-
-    // Login con popup y redirección
-    document.getElementById('loginGoogle')?.addEventListener('click', async () => {
-      try {
-        await auth.signInWithPopup(provider);
-        location.href = 'malla.html';
-      } catch (e) {
-        console.error(e);
-        alert(`No se pudo iniciar sesión.\n${e.message || e}`);
+    // Si ya hay sesión → ir a la malla
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        location.href = "malla.html";
       }
     });
 
-    // Toggle tema (no persistente)
-    document.getElementById('themeToggle')?.addEventListener('click', () => {
-      document.body.classList.toggle('dark');
+    // Click en botón login Google
+    document.getElementById("loginGoogle").addEventListener("click", async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        location.href = "malla.html";
+      } catch (e) {
+        alert("Error al iniciar sesión: " + e.message);
+        console.error(e);
+      }
+    });
+
+    // Toggle tema claro/oscuro
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
     });
   </script>
 </body>
 </html>
-
