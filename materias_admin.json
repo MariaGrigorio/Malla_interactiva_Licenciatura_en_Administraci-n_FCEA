@@ -1,0 +1,1084 @@
+{
+  "areas": [
+    {
+      "id": "C",
+      "nombre": "CONTABILIDAD E IMPUESTOS"
+    },
+    {
+      "id": "MC",
+      "nombre": "MÉTODOS CUANTITATIVOS"
+    },
+    {
+      "id": "E",
+      "nombre": "ECONOMÍCA"
+    },
+    {
+      "id": "I",
+      "nombre": "ACTIVIDADES INTEGRADORAS"
+    },
+    {
+      "id": "S",
+      "nombre": "CIENCIAS SOCIALES Y HUMANÍSTICAS"
+    },
+    {
+      "id": "J",
+      "nombre": "JURÍDICA"
+    }
+  ],
+  "materias": [
+    {
+      "codigo": "A10",
+      "nombre": "Adm. y Gestión de las Organizaciones I",
+      "anio": 1,
+      "semestre": 1,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "C10",
+      "nombre": "Conceptos Contables",
+      "anio": 1,
+      "semestre": 1,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "C",
+      "previas": []
+    },
+    {
+      "codigo": "MC10",
+      "nombre": "Cálculo I",
+      "anio": 1,
+      "semestre": 1,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "MC",
+      "previas": []
+    },
+    {
+      "codigo": "114A",
+      "nombre": "Cálculo I/A (doble dictado)",
+      "anio": 1,
+      "semestre": 1,
+      "tipo": "OB",
+      "creditos": 5,
+      "area": "MC",
+      "previas": []
+    },
+    {
+      "codigo": "128A",
+      "nombre": "Cálculo I/B (doble dictado)",
+      "anio": 1,
+      "semestre": 1,
+      "tipo": "OB",
+      "creditos": 5,
+      "area": "MC",
+      "previas": [
+        "114A"
+      ]
+    },
+    {
+      "codigo": "E10",
+      "nombre": "Introducción a la Microeconomía",
+      "anio": 1,
+      "semestre": 1,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "E",
+      "previas": []
+    },
+    {
+      "codigo": "E11",
+      "nombre": "Análisis de las Interacciones Economicas",
+      "anio": 1,
+      "semestre": 1,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "E",
+      "previas": []
+    },
+    {
+      "codigo": "A20",
+      "nombre": "Adm. y Gestión de las Organizaciones II",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A10"
+      ]
+    },
+    {
+      "codigo": "C20",
+      "nombre": "Contabilidad General I",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C10"
+      ]
+    },
+    {
+      "codigo": "E20",
+      "nombre": "Economía Descriptiva",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "E",
+      "previas": []
+    },
+    {
+      "codigo": "MC31",
+      "nombre": "Cálculo II",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC10"
+      ]
+    },
+    {
+      "codigo": "MC20",
+      "nombre": "Álgebra Lineal",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": []
+    },
+    {
+      "codigo": "I137",
+      "nombre": "Curso-taller de Introducción a la Extensión Universitaria",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    },
+    {
+      "codigo": "ASA14",
+      "nombre": "Transformación Digital de las Organizaciones",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 8,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "S90",
+      "nombre": "Sociología Económica",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "S",
+      "previas": []
+    },
+    {
+      "codigo": "S46",
+      "nombre": "Sociología Contemporánea",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "S",
+      "previas": []
+    },
+    {
+      "codigo": "S21",
+      "nombre": "Ciencia Política",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "S",
+      "previas": []
+    },
+    {
+      "codigo": "S22",
+      "nombre": "Desarrollo y Bienestar",
+      "anio": 1,
+      "semestre": 2,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "S",
+      "previas": []
+    },
+    {
+      "codigo": "A30",
+      "nombre": "Procesos y Sistemas de Información",
+      "anio": 2,
+      "semestre": 3,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "114A"
+      ]
+    },
+    {
+      "codigo": "E30",
+      "nombre": "Macroeconomía I",
+      "anio": 2,
+      "semestre": 3,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "E",
+      "previas": [
+        "E10",
+        "E11"
+      ]
+    },
+    {
+      "codigo": "MC40",
+      "nombre": "Introducción a la Estadística",
+      "anio": 2,
+      "semestre": 3,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC10",
+        "114A"
+      ]
+    },
+    {
+      "codigo": "J21",
+      "nombre": "Derecho del Empresario",
+      "anio": 2,
+      "semestre": 3,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "J",
+      "previas": []
+    },
+    {
+      "codigo": "I40",
+      "nombre": "Taller de iniciación a la investigación",
+      "anio": 2,
+      "semestre": 3,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    },
+    {
+      "codigo": "A31",
+      "nombre": "Emprender desde la profesión",
+      "anio": 2,
+      "semestre": 3,
+      "tipo": "OP",
+      "creditos": 5,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "C30",
+      "nombre": "Contabilidad General II",
+      "anio": 2,
+      "semestre": 3,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": []
+    },
+    {
+      "codigo": "A40",
+      "nombre": "Administración de RRHH",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A20"
+      ]
+    },
+    {
+      "codigo": "MC30",
+      "nombre": "Matemática Financiera",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC10",
+        "128A",
+        "MC40"
+      ]
+    },
+    {
+      "codigo": "A41",
+      "nombre": "Sistemas de Información",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A10",
+        "C20"
+      ]
+    },
+    {
+      "codigo": "A42",
+      "nombre": "Diseño Organizacional",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A30",
+        "A20"
+      ]
+    },
+    {
+      "codigo": "C40",
+      "nombre": "Contabilidad General III",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C20"
+      ]
+    },
+    {
+      "codigo": "MC42",
+      "nombre": "Estadística I (Prob. y Est. Descriptiva)",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC31"
+      ]
+    },
+    {
+      "codigo": "E40",
+      "nombre": "Macroeconomía II",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "E",
+      "previas": [
+        "E30"
+      ]
+    },
+    {
+      "codigo": "I41",
+      "nombre": "Economía Circular",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    },
+    {
+      "codigo": "S42",
+      "nombre": "Sociología de la Empresa y Management",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "S",
+      "previas": [
+        "A10",
+        "E10"
+      ]
+    },
+    {
+      "codigo": "J61N",
+      "nombre": "Derecho Digital",
+      "anio": 2,
+      "semestre": 4,
+      "tipo": "OP",
+      "creditos": 5,
+      "area": "J",
+      "previas": [
+        "J21"
+      ]
+    },
+    {
+      "codigo": "A61",
+      "nombre": "Marketing Básico",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "C31",
+      "nombre": "Costos para la Gestión",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C20"
+      ]
+    },
+    {
+      "codigo": "E53",
+      "nombre": "Economía de las Decisiones Empresariales",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "E",
+      "previas": [
+        "MC30",
+        "E30"
+      ]
+    },
+    {
+      "codigo": "I50",
+      "nombre": "Taller de Ética y Responsabilidad Social",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OB",
+      "creditos": 5,
+      "area": "I",
+      "previas": [
+        "A30"
+      ]
+    },
+    {
+      "codigo": "A50",
+      "nombre": "Análisis Institucional y Planificación en el Sector Público",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "A85",
+      "nombre": "Taller de Gestión de Cargos y Remuneraciones",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 5,
+      "area": "A",
+      "previas": [
+        "A40"
+      ]
+    },
+    {
+      "codigo": "MC51",
+      "nombre": "Estadística II",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC42"
+      ]
+    },
+    {
+      "codigo": "338N",
+      "nombre": "Seguros de vida",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC30",
+        "MC40"
+      ]
+    },
+    {
+      "codigo": "MC45",
+      "nombre": "Análisis de Datos en Administración",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC40",
+        "MC51"
+      ]
+    },
+    {
+      "codigo": "I112N",
+      "nombre": "EFI: Cooperativas de Trabajo y Colectivos Autogestionados",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    },
+    {
+      "codigo": "O31T",
+      "nombre": "Introducción a los Sistemas de Producción Agropecuarios (CUT por videoconferencia)",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 5,
+      "area": "E",
+      "previas": []
+    },
+    {
+      "codigo": "O33T",
+      "nombre": "Introducción a la Economía de los Recursos Naturales (CUT por videoconferencia)",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "E",
+      "previas": []
+    },
+    {
+      "codigo": "I111N",
+      "nombre": "EFI: MicroCECEA",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    },
+    {
+      "codigo": "A86",
+      "nombre": "Transformación Cultural",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "J50",
+      "nombre": "Derecho Tributario",
+      "anio": 3,
+      "semestre": 5,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "J",
+      "previas": []
+    },
+    {
+      "codigo": "C64",
+      "nombre": "Contabilidad Gerencial (***)",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C31",
+        "MC30"
+      ]
+    },
+    {
+      "codigo": "S60",
+      "nombre": "Admin. de las Relaciones de Trabajo",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "S",
+      "previas": []
+    },
+    {
+      "codigo": "A44",
+      "nombre": "Compras Públicas para el Desarrollo",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "MC72",
+      "nombre": "Métodos Cuantitativos en Decisiones Gerenciales",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC30"
+      ]
+    },
+    {
+      "codigo": "MC32",
+      "nombre": "Modelos de Comportamiento Estratégico",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "MC",
+      "previas": [
+        "MC40"
+      ]
+    },
+    {
+      "codigo": "A62",
+      "nombre": "Gestión de la Innovación y la Tecnología",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "A63",
+      "nombre": "Comercio Internacional",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "MC30"
+      ]
+    },
+    {
+      "codigo": "A65",
+      "nombre": "Introducción al emprendedurismo",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "A66",
+      "nombre": "Gestión de Proyectos",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 5,
+      "area": "A",
+      "previas": [
+        "C31",
+        "A40",
+        "A30"
+      ]
+    },
+    {
+      "codigo": "A67",
+      "nombre": "Gestión Financiera del Estado",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "A72",
+      "nombre": "Marketing Estratégico",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A61"
+      ]
+    },
+    {
+      "codigo": "C60",
+      "nombre": "Contabilidad Superior I",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": []
+    },
+    {
+      "codigo": "C61",
+      "nombre": "Control Interno",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "A30"
+      ]
+    },
+    {
+      "codigo": "C63",
+      "nombre": "Interpretac. y Análisis de Informac. Contable",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C10"
+      ]
+    },
+    {
+      "codigo": "E52",
+      "nombre": "Economía y Finanzas Públicas",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "E",
+      "previas": [
+        "E10",
+        "E11"
+      ]
+    },
+    {
+      "codigo": "I97",
+      "nombre": "EFI - Contabilidad en las Escuelas(doble dictado)",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": [
+        "C30"
+      ]
+    },
+    {
+      "codigo": "I141",
+      "nombre": "EFI - Emprendimientos productivos en contexto de encierro",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    },
+    {
+      "codigo": "I114D",
+      "nombre": "EFI - Costos para la Gestión de Emprendimientos Sociales y Comunitarios",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": [
+        "C31"
+      ]
+    },
+    {
+      "codigo": "I132",
+      "nombre": "EFI - en el marco de la UC Control Interno",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": [
+        "A30"
+      ]
+    },
+    {
+      "codigo": "J60OP",
+      "nombre": "Derecho Público",
+      "anio": 3,
+      "semestre": 6,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "J",
+      "previas": []
+    },
+    {
+      "codigo": "A70",
+      "nombre": "Comportamiento Organizacional",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "A71",
+      "nombre": "Finanzas Corporativas",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A10",
+        "MC30",
+        "MC40",
+        "MC42"
+      ]
+    },
+    {
+      "codigo": "A52",
+      "nombre": "Marketing de Servicios",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A72"
+      ]
+    },
+    {
+      "codigo": "A73",
+      "nombre": "Administración y Gestión Empresas Familiares",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 5,
+      "area": "A",
+      "previas": [
+        "A20"
+      ]
+    },
+    {
+      "codigo": "A76",
+      "nombre": "Administración de Producción y Operaciones",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "MC42",
+        "MC40",
+        "A20",
+        "C31"
+      ]
+    },
+    {
+      "codigo": "A77",
+      "nombre": "Marketing digital",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A72"
+      ]
+    },
+    {
+      "codigo": "C70",
+      "nombre": "Auditoría I",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "J21",
+        "S60",
+        "C60",
+        "C61"
+      ]
+    },
+    {
+      "codigo": "C73",
+      "nombre": "Contabilidad Bancaria",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": []
+    },
+    {
+      "codigo": "C75",
+      "nombre": "Contabilidad Social y Ambiental",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C20"
+      ]
+    },
+    {
+      "codigo": "C76",
+      "nombre": "Contabilidad Gerencial Avanzada",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C64"
+      ]
+    },
+    {
+      "codigo": "E77",
+      "nombre": "Economía y Género",
+      "anio": 4,
+      "semestre": 7,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "E",
+      "previas": [
+        "S22",
+        "E30",
+        "E53"
+      ]
+    },
+    {
+      "codigo": "A80",
+      "nombre": "Dirección Estratégica de Empresas",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A71",
+        "A61"
+      ]
+    },
+    {
+      "codigo": "A83N",
+      "nombre": "Cambio Organizacional",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A10"
+      ]
+    },
+    {
+      "codigo": "A81",
+      "nombre": "Proyectos de Inversión",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OB",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A71"
+      ]
+    },
+    {
+      "codigo": "A84",
+      "nombre": "Ec. y Gestión de Organizaciones de Salud",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": []
+    },
+    {
+      "codigo": "A82",
+      "nombre": "Mercados Financieros",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "A",
+      "previas": [
+        "A71"
+      ]
+    },
+    {
+      "codigo": "A89",
+      "nombre": "Taller Personas y Trabajo  (se ofrece en años pares)",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 5,
+      "area": "A",
+      "previas": [
+        "A70",
+        "A40"
+      ]
+    },
+    {
+      "codigo": "C83",
+      "nombre": "Costos y Gestión de Actividades",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C31"
+      ]
+    },
+    {
+      "codigo": "C87",
+      "nombre": "Logística y cadena de suministro",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "C",
+      "previas": [
+        "C64"
+      ]
+    },
+    {
+      "codigo": "I140",
+      "nombre": "CCEEmprende",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": [
+        "A10",
+        "MC30",
+        "MC40",
+        "MC42"
+      ]
+    },
+    {
+      "codigo": "I87",
+      "nombre": "Prospectiva estratégica: con la mirada en el Futuro",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    },
+    {
+      "codigo": "I88",
+      "nombre": "Información Analítica para la gestión",
+      "anio": 4,
+      "semestre": 8,
+      "tipo": "OP",
+      "creditos": 10,
+      "area": "I",
+      "previas": []
+    }
+  ]
+}
