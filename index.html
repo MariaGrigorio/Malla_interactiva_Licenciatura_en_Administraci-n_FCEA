@@ -2,33 +2,78 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mi Avance en Facultad</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notegood · Mi Malla Interactiva</title>
+
+  <!-- Fuente usada por Notegood -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Notegood (asegúrate de usar el styles.css con las clases de landing y malla) -->
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-  <header class="header">
-    <h1>📚 Mi Avance Académico</h1>
-    <p>Seguimiento de materias y progreso general</p>
+<body class="landing">
+  <!-- Header Notegood -->
+  <header class="ng-header" role="banner" aria-label="Encabezado Notegood">
+    <div class="header-top container">
+      <a href="index.html" class="logo">Notegood.uy ✨</a>
+      <div class="controls">
+        <button id="themeToggle" class="btn ghost" title="Modo oscuro">🌙</button>
+      </div>
+    </div>
   </header>
 
-  <main class="landing">
-    <section class="intro">
-      <h2>Bienvenido/a</h2>
-      <p>
-        Aquí podrás llevar el control de todas las materias de tu carrera, marcar cuáles ya aprobaste, agregar notas y
-        calificaciones, y visualizar tu progreso total en una grilla interactiva.
+  <!-- Hero -->
+  <main class="hero" role="main">
+    <section class="hero-inner container">
+      <h1 class="hero-title">✨ Tu <span class="brand">Malla Interactiva</span> de Administración</h1>
+      <p class="hero-sub">
+        Hecha por y para estudiantes reales. Marcá, organizá, anotá y motivate viendo tu avance paso a paso.
+        Con estilo Notegood 💜
       </p>
+
+      <div class="hero-cta">
+        <a class="btn-pri" href="malla.html"><span>🚀 Empezar mi malla →</span></a>
+      </div>
+
+      <ul class="hero-list" aria-label="Beneficios">
+        <li>📁 Guardá tu progreso (local)</li>
+        <li>🔓 Correlativas inteligentes que se desbloquean solas</li>
+        <li>📝 Notas y calificaciones por materia</li>
+        <li>🎉 Confeti cuando completes tu plan</li>
+      </ul>
     </section>
 
-    <section class="cta">
-      <a class="btn-primary" href="malla.html">Ir a mi grilla</a>
+    <!-- Tarjetas de features -->
+    <section class="feature-cards container" aria-label="Características">
+      <article class="card">
+        <h3>🌱 Empezá sin enredos</h3>
+        <p>Marcá tus materias y desbloqueá lo que sigue. Sin fórmulas raras.</p>
+      </article>
+      <article class="card">
+        <h3>✍️ Recordá lo importante</h3>
+        <p>Guardá notas y calificaciones, todo queda en tu dispositivo.</p>
+      </article>
+      <article class="card">
+        <h3>📊 Motivación visual</h3>
+        <p>Contadores y barra de avance estilo Notegood.</p>
+      </article>
     </section>
+
+    <p class="closing">🫶 Que estudiar sea difícil no significa hacerlo sola/o.</p>
   </main>
 
-  <footer class="footer">
-    <p>Hecho con 💜 y muuucho café por <strong>Notegood.uy</strong> — <a href="https://instagram.com/notegood.uy" target="_blank">@notegood.uy</a></p>
+  <!-- Footer -->
+  <footer class="ng-footer">
+    <p>Hecho con 💜 y muuucho café por Notegood.uy — <a href="https://www.instagram.com/notegood.uy/" target="_blank" rel="noopener">@notegood.uy</a></p>
   </footer>
+
+  <!-- Toggle de tema (claro/oscuro) -->
+  <script>
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+  </script>
 </body>
 </html>
+
 
