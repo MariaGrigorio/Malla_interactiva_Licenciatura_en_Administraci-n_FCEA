@@ -24,6 +24,7 @@
   const state = {
     aprobadas: new Set(),
     cursando: new Set(),
+    planeadas: new Set(), // NUEVO: Guarda los códigos de las materias opcionales elegidas "A cursar"
     data: { areas: [], materias: [] },
   };
 
@@ -33,6 +34,7 @@
       const obj = {
         aprobadas: Array.from(state.aprobadas),
         cursando: Array.from(state.cursando),
+        planeadas: Array.from(state.planeadas), // NUEVO: Persiste las opcionales planeadas
       };
       localStorage.setItem(stateKey, JSON.stringify(obj));
     } catch (e) {
@@ -47,6 +49,7 @@
       const obj = JSON.parse(raw);
       state.aprobadas = new Set(obj.aprobadas || []);
       state.cursando = new Set(obj.cursando || []);
+      state.planeadas = new Set(obj.planeadas || []); // NUEVO: Recupera las opcionales planeadas
     } catch (e) {
       console.warn("No se pudo cargar el estado:", e);
     }
@@ -71,9 +74,9 @@
   }
 
   /**
-   * NUEVO: Efecto Dominó (Limpieza Recursiva)
+   * Efecto Dominó (Limpieza Recursiva)
    * Recorre consecutivamente la malla curricular. Si detecta materias que están
-   * marcadas como aprobadas o cursando pero perdieron sus previas obligatorias,
+   * marcadas como aprobadas, cursando o planeadas pero perdieron sus previas obligatorias,
    * las remueve automáticamente de los listados de progreso.
    */
   function limpiarMateriasHuerfanas() {
@@ -83,20 +86,20 @@
       huboCambios = false;
 
       state.data.materias.forEach((materia) => {
-        // Si el estudiante tiene la materia registrada en progreso pero ya no cumple los requisitos...
+        // Si el estudiante tiene la materia registrada en progreso/planeada pero ya no cumple los requisitos...
         if (
-          (state.aprobadas.has(materia.codigo) || state.cursando.has(materia.codigo)) &&
+          (state.aprobadas.has(materia.codigo) || state.cursando.has(materia.codigo) || state.planeadas.has(materia.codigo)) &&
           !canTake(materia)
         ) {
-          // Desmarcamos de forma proactiva la materia afectada
+          // Desmarcamos proactivamente la materia afectada en todos sus estados
           state.aprobadas.delete(materia.codigo);
           state.cursando.delete(materia.codigo);
+          state.planeadas.delete(materia.codigo); // Se remueve también de la planificación de opcionales
 
-          // Encendemos la bandera para hacer una nueva revisión (por si esta cascada afecta a más materias adelante)
           huboCambios = true;
         }
       });
-    } while (huboCambios); // El bucle se detiene cuando una pasada completa no arroje ninguna baja
+    } while (huboCambios);
   }
 
   function matchesFilters(m) {
@@ -133,10 +136,19 @@
     const aprobadas = state.data.materias.filter((m) =>
       state.aprobadas.has(m.codigo)
     ).length;
-    const credTot = state.data.materias.reduce(
-      (s, m) => s + Number(m.creditos || 0),
-      0
-    );
+
+    // NUEVO: El total de créditos meta ahora se calcula de forma dinámica:
+    // Incluye el 100% de las obligatorias (OB) + ÚNICAMENTE las opcionales (OP) seleccionadas, cursando o ya aprobadas.
+    const credTot = state.data.materias.reduce((s, m) => {
+      const esObligatoria = m.tipo === "OB";
+      const esOpcionalElegida = m.tipo === "OP" && (state.planeadas.has(m.codigo) || state.cursando.has(m.codigo) || state.aprobadas.has(m.codigo));
+      
+      if (esObligatoria || esOpcionalElegida) {
+        return s + Number(m.creditos || 0);
+      }
+      return s;
+    }, 0);
+
     const credOk = state.data.materias
       .filter((m) => state.aprobadas.has(m.codigo))
       .reduce((s, m) => s + Number(m.creditos || 0), 0);
@@ -147,7 +159,7 @@
 
     const pct = credTot ? Math.round((credOk / credTot) * 100) : 0;
     $("#progress-label") &&
-      ($("#progress-label").textContent = `${pct}% · ${credOk}/${credTot} créditos`);
+      ($("#progress-label").textContent = `${pct}% · ${credOk}/${credTot} créditos meta`);
     $("#bar") && ($("#bar").style.width = pct + "%");
   }
 
@@ -250,9 +262,6 @@
 
     items.forEach((m) => {
       const est = getEstado(m.codigo);
-      
-      // NUEVO: La materia se bloquea si el alumno no cuenta con las correlativas salvadas.
-      // Ya no exceptuamos si est === "aprobada" o "cursando" para prevenir que queden desfasadas manualmente.
       const locked = !canTake(m); 
       
       const prev = Array.isArray(m.previas) ? m.previas : [];
@@ -261,9 +270,15 @@
         : "Sin previas";
 
       const badgeClass = est === "aprobada" ? "ok" : est === "cursando" ? "cur" : "pen";
-      
-      // MODIFICACIÓN: Atributo condicional para deshabilitar checkboxes si tiene previas trancadas
       const disabledAttr = locked ? "disabled" : "";
+
+      // NUEVO: Generar el bloque HTML del checkbox "A cursar" condicionalmente si es opcional (OP)
+      const opcionalCheckHTML = m.tipo === "OP" 
+        ? `<label class="muted" style="color: #c7d2fe;">
+             <input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}> 
+             A cursar
+           </label>` 
+        : "";
 
       const wrapper = document.createElement("div");
       wrapper.className = `course ${locked ? "locked" : ""}`;
@@ -287,10 +302,10 @@
           }
         </div>
         <div class="act">
+          ${opcionalCheckHTML}
           <label class="muted">Cursando <input type="checkbox" data-cur="${m.codigo}" ${
         state.cursando.has(m.codigo) ? "checked" : ""
       } ${disabledAttr}></label>
-          
           <label class="muted">Aprobada <input type="checkbox" data-ok="${m.codigo}" ${
         state.aprobadas.has(m.codigo) ? "checked" : ""
       } ${disabledAttr}></label>
@@ -302,6 +317,18 @@
 
     list.appendChild(frag);
 
+    // NUEVO: Escuchador de eventos para el checkbox "A cursar"
+    $$('input[data-plan]').forEach((el) => {
+      el.onchange = () => {
+        const cod = el.getAttribute("data-plan");
+        if (el.checked) state.planeadas.add(cod);
+        else state.planeadas.delete(cod);
+        saveState();
+        updateKpis(); // Recalcula inmediatamente la barra de créditos totales
+        render();
+      };
+    });
+
     // Eventos de checks (Cursando)
     $$('input[data-cur]').forEach((el) => {
       el.onchange = () => {
@@ -310,7 +337,7 @@
         else state.cursando.delete(cod);
         saveState();
         updateKpis();
-        render(); // re-render para evaluar interbloqueos visuales
+        render(); 
       };
     });
     
@@ -325,12 +352,10 @@
           state.aprobadas.delete(cod);
         }
 
-        // NUEVO: Al alterar las aprobadas, ejecutamos la cascada dominó para arrastrar dependencias truncadas
         limpiarMateriasHuerfanas();
-        
         saveState();
         updateKpis();
-        render(); // Refrescamos por completo la pantalla con el estado depurado
+        render(); 
       };
     });
 
@@ -339,9 +364,7 @@
 
   // ---------- Wire de UI ----------
   function wireUI() {
-    // Filtros
     $$("#q,#f-anio,#f-sem,#f-area,#f-tipo,#f-estado").forEach((el) => {
-      // Debounce simple para búsqueda
       let t;
       el.addEventListener("input", () => {
         clearTimeout(t);
@@ -361,6 +384,7 @@
           localStorage.removeItem(stateKey);
           state.aprobadas.clear();
           state.cursando.clear();
+          state.planeadas.clear(); // Limpia también la planificación
           render();
           updateKpis();
         }
@@ -388,9 +412,7 @@
   // ---------- Carga de datos ----------
   async function loadData() {
     if (!USE_EXTERNAL_JSON) {
-      console.error(
-        "Config: USE_EXTERNAL_JSON=false. Ajusta el código si vas a incrustar datos locales."
-      );
+      console.error("Config: USE_EXTERNAL_JSON=false.");
       state.data = { areas: [], materias: [] };
       return;
     }
@@ -399,13 +421,12 @@
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const json = await r.json();
 
-      // Normalizar previas a array
       const materias = (json.materias || []).map((m) => ({
         ...m,
         previas: Array.isArray(m.previas)
           ? m.previas
           : typeof m.previas === "string" && m.previas.trim()
-          ? m.previas.split(/[,\s;]+/).filter(Boolean)
+          ? m.previas.split(/[,\\s;]+/).filter(Boolean)
           : [],
       }));
 
@@ -433,7 +454,6 @@
     updateKpis();
   }
 
-  // GO!
   document.readyState !== "loading"
     ? init()
     : document.addEventListener("DOMContentLoaded", init);
