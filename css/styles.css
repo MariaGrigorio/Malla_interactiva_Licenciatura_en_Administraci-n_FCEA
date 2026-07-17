@@ -121,27 +121,58 @@ header .pill{margin-left:auto}
 
 /* Listado de materias */
 .list{padding:16px}
+
+/* Tarjeta de materia: Separación por extremos (Información vs Controles) */
 .course{
-  display:flex;gap:12px;align-items:flex-start;
-  background:#0f1424;border:1px solid var(--line-2);
-  border-radius:14px;padding:12px;margin:10px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  background:#0f1424;
+  border:1px solid var(--line-2);
+  border-radius:14px;
+  padding:16px;
+  margin:12px 0;
 }
 .course:hover{border-color:#2a3150}
 
-/* MODIFICADO: Estilos para reflejar de forma clara el bloqueo de correlativas */
-.course.locked{
-  opacity: .5;                /* Opacidad más baja para dar sensación de apagado */
-  cursor: not-allowed;        /* Cursor de bloqueo en toda la tarjeta */
+/* Distribución vertical interna de la información */
+.course-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1; /* Ocupa todo el espacio horizontal disponible */
 }
-/* NUEVO: Forzar el cursor de bloqueo en los textos correlativos y los checkboxes deshabilitados */
+
+/* Estilos para reflejar de forma clara el bloqueo de correlativas */
+.course.locked{
+  opacity: .5;                
+  cursor: not-allowed;        
+}
 .course.locked input[type="checkbox"],
 .course.locked label {
   cursor: not-allowed;
 }
 
-.course h3{margin:0 0 4px 0;font-size:16px}
+/* Estructura textual */
+.course h3{
+  margin: 0;
+  font-size:16px;
+  font-weight: 600;
+}
+.course-footer {
+  display: flex;
+  flex-direction: column;
+}
 .course small{color:var(--muted)}
-.meta{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Fila de Atributos superiores */
+.meta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin: 0 0 2px 0;
+}
 .area{
   font-size:11px;padding:4px 8px;border-radius:8px;
   border:1px solid #2a2f47;background:#0f1526;color:#c7d2fe
@@ -159,7 +190,28 @@ header .pill{margin-left:auto}
 .badge.pen{
   color:#ffc0c0;border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12)
 }
-.act{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* Área de acciones: Checkboxes uno debajo del otro, alineados a la derecha */
+.act{
+  display:flex;
+  flex-direction: column;
+  gap:8px;           
+  align-items: flex-start;
+  min-width: 110px; /* Previene distorsión por anchos variables de texto */
+}
+
+/* Etiquetas internas de los controles */
+.act label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%; /* Empuja el checkbox al extremo derecho de su columnita */
+  gap: 10px;
+  font-size: 13px;
+  user-select: none;
+  cursor: pointer;
+}
+
 button,.btn{
   background:#141b2f;color:#e5e7eb;border:1px solid #253051;
   padding:9px 12px;border-radius:10px;cursor:pointer;transition:filter .15s ease, transform .02s ease;
@@ -182,12 +234,13 @@ button:active,.btn:active{transform:translateY(1px)}
 .modal p{margin:0 0 6px}
 .modal .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 
-/* Checkboxes (ligera mejora visual) */
+/* Checkboxes */
 input[type="checkbox"]{
   width:18px;height:18px;border-radius:4px;accent-color:var(--brand);
+  cursor: pointer;
 }
 
-/* ====== Toasts / Notas (si las usas) ====== */
+/* ====== Toasts / Notas ====== */
 .toast{
   position:fixed;right:16px;bottom:16px;z-index:60;
   background:#0f1526;border:1px solid #2b3247;color:var(--txt);
@@ -206,7 +259,7 @@ input[type="checkbox"]{
 .toast .btn-cancel:hover{filter:brightness(1.15)}
 .toast .btn-ok:hover{filter:brightness(1.05)}
 
-/* ====== Confetti layer (si usas canvas de confetti) ====== */
+/* ====== Confetti layer ====== */
 .confetti-layer{
   position:fixed;inset:0;pointer-events:none;z-index:100;
 }
