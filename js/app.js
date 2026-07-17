@@ -70,6 +70,35 @@
     return "pendiente";
   }
 
+  /**
+   * NUEVO: Efecto Dominó (Limpieza Recursiva)
+   * Recorre consecutivamente la malla curricular. Si detecta materias que están
+   * marcadas como aprobadas o cursando pero perdieron sus previas obligatorias,
+   * las remueve automáticamente de los listados de progreso.
+   */
+  function limpiarMateriasHuerfanas() {
+    let huboCambios = false;
+
+    do {
+      huboCambios = false;
+
+      state.data.materias.forEach((materia) => {
+        // Si el estudiante tiene la materia registrada en progreso pero ya no cumple los requisitos...
+        if (
+          (state.aprobadas.has(materia.codigo) || state.cursando.has(materia.codigo)) &&
+          !canTake(materia)
+        ) {
+          // Desmarcamos de forma proactiva la materia afectada
+          state.aprobadas.delete(materia.codigo);
+          state.cursando.delete(materia.codigo);
+
+          // Encendemos la bandera para hacer una nueva revisión (por si esta cascada afecta a más materias adelante)
+          huboCambios = true;
+        }
+      });
+    } while (huboCambios); // El bucle se detiene cuando una pasada completa no arroje ninguna baja
+  }
+
   function matchesFilters(m) {
     const q = ($("#q")?.value || "").trim().toLowerCase();
     const fa = $("#f-anio")?.value || "";
@@ -221,13 +250,19 @@
 
     items.forEach((m) => {
       const est = getEstado(m.codigo);
-      const locked = !canTake(m) && est !== "aprobada" && est !== "cursando";
+      
+      // NUEVO: La materia se bloquea si el alumno no cuenta con las correlativas salvadas.
+      // Ya no exceptuamos si est === "aprobada" o "cursando" para prevenir que queden desfasadas manualmente.
+      const locked = !canTake(m); 
+      
       const prev = Array.isArray(m.previas) ? m.previas : [];
       const prevText = prev.length
         ? `Previas: ${prev.map((c) => `<code>${c}</code>`).join(", ")}`
         : "Sin previas";
 
       const badgeClass = est === "aprobada" ? "ok" : est === "cursando" ? "cur" : "pen";
+      
+      // MODIFICACIÓN: Atributo condicional para deshabilitar checkboxes si tiene previas trancadas
       const disabledAttr = locked ? "disabled" : "";
 
       const wrapper = document.createElement("div");
@@ -245,9 +280,9 @@
           <small class="muted">${prevText}</small>
           ${
             locked
-              ? `<div class="muted" style="font-size:12px">Debes aprobar ${prev
+              ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444;">Debes aprobar ${prev
                   .map((c) => `<b>${c}</b>`)
-                  .join(", ")} para cursar.</div>`
+                  .join(", ")} para cursar o aprobar.</div>`
               : ""
           }
         </div>
@@ -255,9 +290,10 @@
           <label class="muted">Cursando <input type="checkbox" data-cur="${m.codigo}" ${
         state.cursando.has(m.codigo) ? "checked" : ""
       } ${disabledAttr}></label>
+          
           <label class="muted">Aprobada <input type="checkbox" data-ok="${m.codigo}" ${
         state.aprobadas.has(m.codigo) ? "checked" : ""
-      }></label>
+      } ${disabledAttr}></label>
         </div>
       `;
 
@@ -266,7 +302,7 @@
 
     list.appendChild(frag);
 
-    // Eventos de checks
+    // Eventos de checks (Cursando)
     $$('input[data-cur]').forEach((el) => {
       el.onchange = () => {
         const cod = el.getAttribute("data-cur");
@@ -274,9 +310,11 @@
         else state.cursando.delete(cod);
         saveState();
         updateKpis();
-        render(); // re-render para actualizar bloqueos
+        render(); // re-render para evaluar interbloqueos visuales
       };
     });
+    
+    // Eventos de checks (Aprobada)
     $$('input[data-ok]').forEach((el) => {
       el.onchange = () => {
         const cod = el.getAttribute("data-ok");
@@ -286,9 +324,13 @@
         } else {
           state.aprobadas.delete(cod);
         }
+
+        // NUEVO: Al alterar las aprobadas, ejecutamos la cascada dominó para arrastrar dependencias truncadas
+        limpiarMateriasHuerfanas();
+        
         saveState();
         updateKpis();
-        render();
+        render(); // Refrescamos por completo la pantalla con el estado depurado
       };
     });
 
