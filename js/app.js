@@ -25,6 +25,7 @@
     aprobadas: new Set(),
     cursando: new Set(),
     planeadas: new Set(), // Guarda los códigos de las materias opcionales elegidas "A cursar"
+    trayectoriaCalculo: null, // NUEVO: 'MC10' (Cálculo I), 'AB' (Cálculo I/A y I/B) o null (No definido)
     data: { areas: [], materias: [] },
   };
 
@@ -35,6 +36,7 @@
         aprobadas: Array.from(state.aprobadas),
         cursando: Array.from(state.cursando),
         planeadas: Array.from(state.planeadas),
+        trayectoriaCalculo: state.trayectoriaCalculo, // NUEVO: Persiste la elección de trayectoria
       };
       localStorage.setItem(stateKey, JSON.stringify(obj));
     } catch (e) {
@@ -50,6 +52,7 @@
       state.aprobadas = new Set(obj.aprobadas || []);
       state.cursando = new Set(obj.cursando || []);
       state.planeadas = new Set(obj.planeadas || []);
+      state.trayectoriaCalculo = obj.trayectoriaCalculo || null; // NUEVO: Carga la elección previa
     } catch (e) {
       console.warn("No se pudo cargar el estado:", e);
     }
@@ -101,6 +104,14 @@
   }
 
   function matchesFilters(m) {
+    // NUEVO: Lógica de exclusión de trayectorias de cálculo en el listado
+    if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) {
+      return false; // Si hace Cálculo I, ocultamos las versiones A y B
+    }
+    if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") {
+      return false; // Si hace el camino dividido, ocultamos Cálculo I estándar
+    }
+
     const q = ($("#q")?.value || "").trim().toLowerCase();
     const fa = $("#f-anio")?.value || "";
     const fs = $("#f-sem")?.value || "";
@@ -130,14 +141,20 @@
 
   // ---------- UI: KPIs y barra ----------
   function updateKpis() {
-    const total = state.data.materias.length;
-    const aprobadas = state.data.materias.filter((m) =>
+    // NUEVO: Filtramos las materias totales basándonos en la trayectoria activa para que los KPIs no sumen duplicados
+    const materiasFiltradasPorCamino = state.data.materias.filter((m) => {
+      if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
+      if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
+      return true;
+    });
+
+    const total = materiasFiltradasPorCamino.length;
+    const aprobadas = materiasFiltradasPorCamino.filter((m) =>
       state.aprobadas.has(m.codigo)
     ).length;
 
-    // El total de créditos meta se calcula dinámicamente:
-    // Incluye el 100% de las obligatorias (OB) + ÚNICAMENTE las opcionales (OP) seleccionadas, cursando o aprobadas.
-    const credTot = state.data.materias.reduce((s, m) => {
+    // El total de créditos meta se calcula de forma dinámica:
+    const credTot = materiasFiltradasPorCamino.reduce((s, m) => {
       const esObligatoria = m.tipo === "OB";
       const esOpcionalElegida = m.tipo === "OP" && (state.planeadas.has(m.codigo) || state.cursando.has(m.codigo) || state.aprobadas.has(m.codigo));
       
@@ -147,7 +164,7 @@
       return s;
     }, 0);
 
-    const credOk = state.data.materias
+    const credOk = materiasFiltradasPorCamino
       .filter((m) => state.aprobadas.has(m.codigo))
       .reduce((s, m) => s + Number(m.creditos || 0), 0);
 
@@ -161,7 +178,7 @@
     $("#bar") && ($("#bar").style.width = pct + "%");
   }
 
-  // ---------- UI: Filtros ----------
+  // ---------- UI: Filtros y Selector de Trayectoria ----------
   function buildFilters() {
     const años = [...new Set(state.data.materias.map((m) => m.anio))].sort(
       (a, b) => a - b
@@ -208,6 +225,28 @@
         span.textContent = `${a.id} · ${a.nombre}`;
         $areasList.appendChild(span);
       });
+
+      // NUEVO: Renderizado del bloque interactivo de Trayectoria de Cálculo justo debajo del listado de Leyenda y Áreas
+      const divCalculo = document.createElement("div");
+      divCalculo.style.marginTop = "24px";
+      divCalculo.style.paddingTop = "16px";
+      divCalculo.style.borderTop = "1px solid var(--line)";
+      divCalculo.innerHTML = `
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--txt);">¿Cursas Cálculo I o Cálculo I/A y I/B?</h4>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button id="btn-tray-mc10" class="btn" style="text-align: left; font-size: 13px; width: 100%;">
+            ${state.trayectoriaCalculo === "MC10" ? "● " : "○ "} Opción: Cálculo I (MC10)
+          </button>
+          <button id="btn-tray-ab" class="btn" style="text-align: left; font-size: 13px; width: 100%;">
+            ${state.trayectoriaCalculo === "AB" ? "● " : "○ "} Opción: Cálculo I/A (114A) y I/B (128A)
+          </button>
+        </div>
+      `;
+      $areasList.parentNode.appendChild(divCalculo);
+
+      // Eventos de selección de trayectoria
+      $("#btn-tray-mc10").onclick = () => cambiarTrayectoria("MC10");
+      $("#btn-tray-ab").onclick = () => cambiarTrayectoria("AB");
     }
 
     // Accesos rápidos
@@ -232,6 +271,34 @@
         $("#q") && ($("#q").value = "");
         render();
       });
+  }
+
+  // NUEVO: Cambiar de trayectoria de cálculo limpiando la contraria de forma preventiva
+  function cambiarTrayectoria(tipo) {
+    if (state.trayectoriaCalculo === tipo) return;
+    
+    state.trayectoriaCalculo = tipo;
+
+    // Limpieza preventiva para evitar créditos fantasmas de la opción abandonada
+    if (tipo === "MC10") {
+      state.aprobadas.delete("114A"); state.cursando.delete("114A");
+      state.aprobadas.delete("128A"); state.cursando.delete("128A");
+    } else if (tipo === "AB") {
+      state.aprobadas.delete("MC10"); state.cursando.delete("MC10");
+    }
+
+    saveState();
+    updateKpis();
+    
+    // Volvemos a construir los filtros para actualizar los círculos de los botones (● / ○)
+    const areas = $("#areas-list");
+    if (areas && areas.parentNode) {
+      const lastNode = areas.parentNode.lastChild;
+      if (lastNode && lastNode.nodeType === 1) areas.parentNode.removeChild(lastNode);
+    }
+    
+    buildFilters();
+    render();
   }
 
   // ---------- UI: Render listado ----------
@@ -270,7 +337,6 @@
       const badgeClass = est === "aprobada" ? "ok" : est === "cursando" ? "cur" : "pen";
       const disabledAttr = locked ? "disabled" : "";
 
-      // Generar el bloque HTML del checkbox "A cursar" condicionalmente si es opcional (OP)
       const opcionalCheckHTML = m.tipo === "OP" 
         ? `<label class="muted" style="color: #c7d2fe;">
              A cursar
@@ -384,6 +450,7 @@
           state.aprobadas.clear();
           state.cursando.clear();
           state.planeadas.clear();
+          state.trayectoriaCalculo = null; // Limpia también la definición de Cálculo
           render();
           updateKpis();
         }
