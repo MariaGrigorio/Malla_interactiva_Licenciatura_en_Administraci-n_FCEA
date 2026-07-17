@@ -24,7 +24,7 @@
   const state = {
     aprobadas: new Set(),
     cursando: new Set(),
-    planeadas: new Set(), // NUEVO: Guarda los códigos de las materias opcionales elegidas "A cursar"
+    planeadas: new Set(), // Guarda los códigos de las materias opcionales elegidas "A cursar"
     data: { areas: [], materias: [] },
   };
 
@@ -34,7 +34,7 @@
       const obj = {
         aprobadas: Array.from(state.aprobadas),
         cursando: Array.from(state.cursando),
-        planeadas: Array.from(state.planeadas), // NUEVO: Persiste las opcionales planeadas
+        planeadas: Array.from(state.planeadas),
       };
       localStorage.setItem(stateKey, JSON.stringify(obj));
     } catch (e) {
@@ -49,7 +49,7 @@
       const obj = JSON.parse(raw);
       state.aprobadas = new Set(obj.aprobadas || []);
       state.cursando = new Set(obj.cursando || []);
-      state.planeadas = new Set(obj.planeadas || []); // NUEVO: Recupera las opcionales planeadas
+      state.planeadas = new Set(obj.planeadas || []);
     } catch (e) {
       console.warn("No se pudo cargar el estado:", e);
     }
@@ -86,15 +86,13 @@
       huboCambios = false;
 
       state.data.materias.forEach((materia) => {
-        // Si el estudiante tiene la materia registrada en progreso/planeada pero ya no cumple los requisitos...
         if (
           (state.aprobadas.has(materia.codigo) || state.cursando.has(materia.codigo) || state.planeadas.has(materia.codigo)) &&
           !canTake(materia)
         ) {
-          // Desmarcamos proactivamente la materia afectada en todos sus estados
           state.aprobadas.delete(materia.codigo);
           state.cursando.delete(materia.codigo);
-          state.planeadas.delete(materia.codigo); // Se remueve también de la planificación de opcionales
+          state.planeadas.delete(materia.codigo);
 
           huboCambios = true;
         }
@@ -137,8 +135,8 @@
       state.aprobadas.has(m.codigo)
     ).length;
 
-    // NUEVO: El total de créditos meta ahora se calcula de forma dinámica:
-    // Incluye el 100% de las obligatorias (OB) + ÚNICAMENTE las opcionales (OP) seleccionadas, cursando o ya aprobadas.
+    // El total de créditos meta se calcula dinámicamente:
+    // Incluye el 100% de las obligatorias (OB) + ÚNICAMENTE las opcionales (OP) seleccionadas, cursando o aprobadas.
     const credTot = state.data.materias.reduce((s, m) => {
       const esObligatoria = m.tipo === "OB";
       const esOpcionalElegida = m.tipo === "OP" && (state.planeadas.has(m.codigo) || state.cursando.has(m.codigo) || state.aprobadas.has(m.codigo));
@@ -272,43 +270,44 @@
       const badgeClass = est === "aprobada" ? "ok" : est === "cursando" ? "cur" : "pen";
       const disabledAttr = locked ? "disabled" : "";
 
-      // NUEVO: Generar el bloque HTML del checkbox "A cursar" condicionalmente si es opcional (OP)
+      // Generar el bloque HTML del checkbox "A cursar" condicionalmente si es opcional (OP)
       const opcionalCheckHTML = m.tipo === "OP" 
         ? `<label class="muted" style="color: #c7d2fe;">
-             <input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}> 
              A cursar
+             <input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}> 
            </label>` 
         : "";
 
       const wrapper = document.createElement("div");
       wrapper.className = `course ${locked ? "locked" : ""}`;
       wrapper.innerHTML = `
-        <div class="meta">
-          <span class="badge ${badgeClass}">${est[0].toUpperCase()}${est.slice(1)}</span>
-          <span class="area">${m.area} · ${areaName(m.area)}</span>
-          <span class="badge">${m.anio}° año · ${m.semestre}° sem</span>
-          <span class="badge">Créditos: ${m.creditos}</span>
-          <span class="badge">${m.tipo === "OB" ? "Obligatoria" : "Opcional"}</span>
-        </div>
-        <div style="flex:1">
+        <div class="course-info">
+          <div class="meta">
+            <span class="badge ${badgeClass}">${est[0].toUpperCase()}${est.slice(1)}</span>
+            <span class="area">${m.area} · ${areaName(m.area)}</span>
+            <span class="badge">${m.anio}° año · ${m.semestre}° sem</span>
+            <span class="badge">Créditos: ${m.creditos}</span>
+            <span class="badge">${m.tipo === "OB" ? "Obligatoria" : "Opcional"}</span>
+          </div>
+          
           <h3>${m.codigo} — ${m.nombre}</h3>
-          <small class="muted">${prevText}</small>
-          ${
-            locked
-              ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444;">Debes aprobar ${prev
-                  .map((c) => `<b>${c}</b>`)
-                  .join(", ")} para cursar o aprobar.</div>`
-              : ""
-          }
+          
+          <div class="course-footer">
+            <small class="muted">${prevText}</small>
+            ${
+              locked
+                ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444;">Debes aprobar ${prev
+                    .map((c) => `<b>${c}</b>`)
+                    .join(", ")} para cursar o aprobar.</div>`
+                : ""
+            }
+          </div>
         </div>
+
         <div class="act">
           ${opcionalCheckHTML}
-          <label class="muted">Cursando <input type="checkbox" data-cur="${m.codigo}" ${
-        state.cursando.has(m.codigo) ? "checked" : ""
-      } ${disabledAttr}></label>
-          <label class="muted">Aprobada <input type="checkbox" data-ok="${m.codigo}" ${
-        state.aprobadas.has(m.codigo) ? "checked" : ""
-      } ${disabledAttr}></label>
+          <label class="muted">Cursando <input type="checkbox" data-cur="${m.codigo}" ${state.cursando.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>
+          <label class="muted">Aprobada <input type="checkbox" data-ok="${m.codigo}" ${state.aprobadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>
         </div>
       `;
 
@@ -317,14 +316,14 @@
 
     list.appendChild(frag);
 
-    // NUEVO: Escuchador de eventos para el checkbox "A cursar"
+    // Escuchador de eventos para el checkbox "A cursar"
     $$('input[data-plan]').forEach((el) => {
       el.onchange = () => {
         const cod = el.getAttribute("data-plan");
         if (el.checked) state.planeadas.add(cod);
         else state.planeadas.delete(cod);
         saveState();
-        updateKpis(); // Recalcula inmediatamente la barra de créditos totales
+        updateKpis();
         render();
       };
     });
@@ -384,7 +383,7 @@
           localStorage.removeItem(stateKey);
           state.aprobadas.clear();
           state.cursando.clear();
-          state.planeadas.clear(); // Limpia también la planificación
+          state.planeadas.clear();
           render();
           updateKpis();
         }
