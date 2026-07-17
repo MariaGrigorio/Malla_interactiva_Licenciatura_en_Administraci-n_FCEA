@@ -127,7 +127,18 @@ header .pill{margin-left:auto}
   border-radius:14px;padding:12px;margin:10px 0;
 }
 .course:hover{border-color:#2a3150}
-.course.locked{opacity:.75}
+
+/* MODIFICADO: Estilos para reflejar de forma clara el bloqueo de correlativas */
+.course.locked{
+  opacity: .5;                /* Opacidad más baja para dar sensación de apagado */
+  cursor: not-allowed;        /* Cursor de bloqueo en toda la tarjeta */
+}
+/* NUEVO: Forzar el cursor de bloqueo en los textos correlativos y los checkboxes deshabilitados */
+.course.locked input[type="checkbox"],
+.course.locked label {
+  cursor: not-allowed;
+}
+
 .course h3{margin:0 0 4px 0;font-size:16px}
 .course small{color:var(--muted)}
 .meta{display:flex;gap:8px;flex-wrap:wrap}
