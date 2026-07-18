@@ -225,7 +225,7 @@
         $areasList.appendChild(span);
       });
 
-      // MODIFICADO: Inyección dinámica con clases CSS condicionales para resaltar visiblemente el botón activo
+      // Inyección dinámica con clases CSS condicionales para resaltar visiblemente el botón activo
       const divCalculo = document.createElement("div");
       divCalculo.className = "calculo-selector-container";
       divCalculo.innerHTML = `
@@ -270,12 +270,44 @@
       });
   }
 
-  // Cambiar de trayectoria de cálculo limpiando la contraria de forma preventiva
+  /**
+   * Cambiar de trayectoria de cálculo con confirmación y limpieza recursiva.
+   * NUEVO: Si el usuario ya tenía progreso guardado en las materias del camino actual,
+   * se le pide confirmación antes de descartar y limpiar el avance.
+   */
   function cambiarTrayectoria(tipo) {
     if (state.trayectoriaCalculo === tipo) return;
     
+    // Si ya había seleccionado un camino anteriormente, evaluamos si tiene progreso que podría perderse
+    if (state.trayectoriaCalculo !== null) {
+      let tieneProgresoEnTrayectoriaActual = false;
+
+      if (state.trayectoriaCalculo === "MC10") {
+        // Verifica si tiene registrada la materia estándar
+        if (state.aprobadas.has("MC10") || state.cursando.has("MC10")) {
+          tieneProgresoEnTrayectoriaActual = true;
+        }
+      } else if (state.trayectoriaCalculo === "AB") {
+        // Verifica si tiene alguna de las dos materias del camino dividido
+        if (state.aprobadas.has("114A") || state.cursando.has("114A") || state.aprobadas.has("128A") || state.cursando.has("128A")) {
+          tieneProgresoEnTrayectoriaActual = true;
+        }
+      }
+
+      // Si se detectó progreso, alertamos con una ventana interactiva
+      if (tieneProgresoEnTrayectoriaActual) {
+        const confirmarCambio = confirm(
+          "Atención: Si cambias de trayectoria de cálculo, se restablecerá y perderá todo el progreso (aprobado/cursando) que tengas registrado en el camino que abandonas. ¿Deseas continuar?"
+        );
+        // Si el usuario cancela la operación, detenemos la ejecución y dejamos todo intacto
+        if (!confirmarCambio) return;
+      }
+    }
+
+    // Si pasó la validación o no tenía progreso previo, aplicamos la redefinición
     state.trayectoriaCalculo = tipo;
 
+    // Limpieza selectiva para evitar créditos fantasmas
     if (tipo === "MC10") {
       state.aprobadas.delete("114A"); state.cursando.delete("114A");
       state.aprobadas.delete("128A"); state.cursando.delete("128A");
@@ -283,10 +315,13 @@
       state.aprobadas.delete("MC10"); state.cursando.delete("MC10");
     }
 
+    // Ejecutamos también el dominó por si alguna materia avanzada requería específicamente de las que acabamos de borrar
+    limpiarMateriasHuerfanas();
+
     saveState();
     updateKpis();
     
-    // Remover nodo viejo del selector antes de reconstruir filtros
+    // Remover nodo viejo del selector antes de reconstruir filtros laterales
     const areas = $("#areas-list");
     if (areas && areas.parentNode) {
       const lastNode = areas.parentNode.lastChild;
