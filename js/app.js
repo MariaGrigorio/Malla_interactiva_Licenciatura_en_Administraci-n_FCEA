@@ -1,11 +1,6 @@
 /* =========================================================
    Grilla · Administración (UDELAR)
    Fuente de datos: /data/materias_admin.json
-   Requisitos de DOM (IDs):
-     progress-label, bar, kpi-aprobadas, kpi-totales, kpi-creditos
-     q, f-estado, f-anio, f-sem, f-area, f-tipo
-     list, areas-list, sidebar-aside
-     btn-reset, btn-onboarding, onboarding, ob-close
    ========================================================= */
 
 (function () {
@@ -14,21 +9,18 @@
   const USE_EXTERNAL_JSON = true;
   const EXTERNAL_JSON_URL = "data/materias_admin.json";
 
-  // Utils DOM
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-  // Estado
   const stateKey = "grilla-admin-v1";
   const state = {
     aprobadas: new Set(),
     cursando: new Set(),
-    planeadas: new Set(), // Guarda los códigos de las materias opcionales elegidas "A cursar"
-    trayectoriaCalculo: null, // 'MC10' (Cálculo I), 'AB' (Cálculo I/A y I/B) o null (No definido)
+    planeadas: new Set(),
+    trayectoriaCalculo: null,
     data: { areas: [], materias: [] },
   };
 
-  // ---------- Persistencia ----------
   function saveState() {
     try {
       const obj = {
@@ -57,13 +49,11 @@
     }
   }
 
-  // ---------- Helpers ----------
   function areaName(id) {
     const a = state.data.areas.find((x) => x.id === id);
     return (a && a.nombre) || id || "";
   }
 
-  // Previas cumplidas = TODAS las previas están en aprobadas
   function canTake(m) {
     const prev = Array.isArray(m.previas) ? m.previas : [];
     return prev.every((c) => state.aprobadas.has(String(c).trim()));
@@ -75,18 +65,10 @@
     return "pendiente";
   }
 
-  /**
-   * Efecto Dominó (Limpieza Recursiva)
-   * Recorre consecutivamente la malla curricular. Si detecta materias que están
-   * marcadas como aprobadas, cursando o planeadas pero perdieron sus previas obligatorias,
-   * las remueve automáticamente de los listados de progreso.
-   */
   function limpiarMateriasHuerfanas() {
     let huboCambios = false;
-
     do {
       huboCambios = false;
-
       state.data.materias.forEach((materia) => {
         if (
           (state.aprobadas.has(materia.codigo) || state.cursando.has(materia.codigo) || state.planeadas.has(materia.codigo)) &&
@@ -95,7 +77,6 @@
           state.aprobadas.delete(materia.codigo);
           state.cursando.delete(materia.codigo);
           state.planeadas.delete(materia.codigo);
-
           huboCambios = true;
         }
       });
@@ -103,13 +84,8 @@
   }
 
   function matchesFilters(m) {
-    // Lógica de exclusión de trayectorias de cálculo en el listado
-    if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) {
-      return false; 
-    }
-    if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") {
-      return false; 
-    }
+    if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
+    if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
 
     const q = ($("#q")?.value || "").trim().toLowerCase();
     const fa = $("#f-anio")?.value || "";
@@ -118,27 +94,16 @@
     const ft = $("#f-tipo")?.value || "";
     const fe = $("#f-estado")?.value || "";
 
-    if (
-      q &&
-      !(
-        String(m.nombre).toLowerCase().includes(q) ||
-        String(m.codigo).toLowerCase().includes(q)
-      )
-    )
-      return false;
+    if (q && !(String(m.nombre).toLowerCase().includes(q) || String(m.codigo).toLowerCase().includes(q))) return false;
     if (fa && String(m.anio) !== fa) return false;
     if (fs && String(m.semestre) !== fs) return false;
     if (far && String(m.area) !== far) return false;
     if (ft && String(m.tipo) !== ft) return false;
+    if (fe && getEstado(m.codigo) !== fe) return false;
 
-    if (fe) {
-      const est = getEstado(m.codigo);
-      if (est !== fe) return false;
-    }
     return true;
   }
 
-  // ---------- UI: KPIs y barra ----------
   function updateKpis() {
     const materiasFiltradasPorCamino = state.data.materias.filter((m) => {
       if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
@@ -147,35 +112,25 @@
     });
 
     const total = materiasFiltradasPorCamino.length;
-    const aprobadas = materiasFiltradasPorCamino.filter((m) =>
-      state.aprobadas.has(m.codigo)
-    ).length;
+    const aprobadas = materiasFiltradasPorCamino.filter((m) => state.aprobadas.has(m.codigo)).length;
 
     const credTot = materiasFiltradasPorCamino.reduce((s, m) => {
       const esObligatoria = m.tipo === "OB";
       const esOpcionalElegida = m.tipo === "OP" && (state.planeadas.has(m.codigo) || state.cursando.has(m.codigo) || state.aprobadas.has(m.codigo));
-      
-      if (esObligatoria || esOpcionalElegida) {
-        return s + Number(m.creditos || 0);
-      }
-      return s;
+      return (esObligatoria || esOpcionalElegida) ? s + Number(m.creditos || 0) : s;
     }, 0);
 
-    const credOk = materiasFiltradasPorCamino
-      .filter((m) => state.aprobadas.has(m.codigo))
-      .reduce((s, m) => s + Number(m.creditos || 0), 0);
+    const credOk = materiasFiltradasPorCamino.filter((m) => state.aprobadas.has(m.codigo)).reduce((s, m) => s + Number(m.creditos || 0), 0);
 
     $("#kpi-aprobadas") && ($("#kpi-aprobadas").textContent = aprobadas);
     $("#kpi-totales") && ($("#kpi-totales").textContent = total);
     $("#kpi-creditos") && ($("#kpi-creditos").textContent = credOk);
 
     const pct = credTot ? Math.round((credOk / credTot) * 100) : 0;
-    $("#progress-label") &&
-      ($("#progress-label").textContent = `${pct}% · ${credOk}/${credTot} créditos meta`);
+    $("#progress-label") && ($("#progress-label").textContent = `${pct}% · ${credOk}/${credTot} cr`);
     $("#bar") && ($("#bar").style.width = pct + "%");
   }
 
-  // ---------- UI: Filtros y Selector de Trayectoria ----------
   function buildFilters() {
     const años = [...new Set(state.data.materias.map((m) => m.anio))].sort((a, b) => a - b);
     const sems = [...new Set(state.data.materias.map((m) => m.semestre))].sort((a, b) => a - b);
@@ -183,24 +138,17 @@
 
     if ($anio) {
       $anio.innerHTML = '<option value="">Año: Todos</option>';
-      años.forEach((v) => {
-        $anio.insertAdjacentHTML("beforeend", `<option value="${v}">${v}° Año</option>`);
-      });
+      años.forEach((v) => $anio.insertAdjacentHTML("beforeend", `<option value="${v}">${v}° Año</option>`));
     }
     if ($sem) {
       $sem.innerHTML = '<option value="">Semestre: Todos</option>';
-      sems.forEach((v) => {
-        $sem.insertAdjacentHTML("beforeend", `<option value="${v}">${v}° Semestre</option>`);
-      });
+      sems.forEach((v) => $sem.insertAdjacentHTML("beforeend", `<option value="${v}">${v}° Semestre</option>`));
     }
     if ($area) {
       $area.innerHTML = '<option value="">Área: Todas</option>';
-      state.data.areas.forEach((a) => {
-        $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`);
-      });
+      state.data.areas.forEach((a) => $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`));
     }
 
-    // Lateral: listado de áreas y orden jerárquico del Sidebar
     const $areasList = $("#areas-list");
     const $sidebar = $("#sidebar-aside");
 
@@ -215,11 +163,9 @@
         $areasList.appendChild(span);
       });
 
-      // Limpieza por clase para evitar duplicados del selector
       const selectorViejo = $(".calculo-selector-container");
       if (selectorViejo) selectorViejo.remove();
 
-      // Creamos la tarjeta del selector y la forzamos en la posición Nº 1 de la barra lateral
       const divCalculo = document.createElement("div");
       divCalculo.className = "card calculo-selector-container";
       divCalculo.style.marginBottom = "16px";
@@ -234,7 +180,6 @@
           </button>
         </div>
       `;
-      // Inserta el bloque como el primer elemento hijo directo de la barra lateral
       $sidebar.insertBefore(divCalculo, $sidebar.firstChild);
 
       $("#btn-tray-mc10").onclick = () => cambiarTrayectoria("MC10");
@@ -246,54 +191,33 @@
     if (state.trayectoriaCalculo === tipo) return;
     
     if (state.trayectoriaCalculo !== null) {
-      let tieneProgresoEnTrayectoriaActual = false;
-      if (state.trayectoriaCalculo === "MC10") {
-        if (state.aprobadas.has("MC10") || state.cursando.has("MC10")) tieneProgresoEnTrayectoriaActual = true;
-      } else if (state.trayectoriaCalculo === "AB") {
-        if (state.aprobadas.has("114A") || state.cursando.has("114A") || state.aprobadas.has("128A") || state.cursando.has("128A")) tieneProgresoEnTrayectoriaActual = true;
-      }
+      let tieneProgreso = false;
+      if (state.trayectoriaCalculo === "MC10" && (state.aprobadas.has("MC10") || state.cursando.has("MC10"))) tieneProgreso = true;
+      if (state.trayectoriaCalculo === "AB" && (state.aprobadas.has("114A") || state.cursando.has("114A") || state.aprobadas.has("128A") || state.cursando.has("128A"))) tieneProgreso = true;
 
-      if (tieneProgresoEnTrayectoriaActual) {
-        const confirmarCambio = confirm(
-          "Atención: Si cambias de trayectoria de cálculo, se restablecerá y perderá todo el progreso (aprobado/cursando) que tengas registrado en el camino que abandonas. ¿Deseas continuar?"
-        );
-        if (!confirmarCambio) return;
+      if (tieneProgreso) {
+        if (!confirm("Atención: Si cambias de trayectoria se restablecerá tu progreso en el camino que abandonas. ¿Continuar?")) return;
       }
     }
 
     state.trayectoriaCalculo = tipo;
-
-    if (tipo === "MC10") {
-      state.aprobadas.delete("114A"); state.cursando.delete("114A");
-      state.aprobadas.delete("128A"); state.cursando.delete("128A");
-    } else if (tipo === "AB") {
-      state.aprobadas.delete("MC10"); state.cursando.delete("MC10");
-    }
+    if (tipo === "MC10") { state.aprobadas.delete("114A"); state.cursando.delete("114A"); state.aprobadas.delete("128A"); state.cursando.delete("128A"); }
+    else { state.aprobadas.delete("MC10"); state.cursando.delete("MC10"); }
 
     limpiarMateriasHuerfanas();
     saveState();
     updateKpis();
-    
     const selectorViejo = $(".calculo-selector-container");
     if (selectorViejo) selectorViejo.remove();
-    
     buildFilters();
     render();
   }
 
-  // ---------- UI: Render listado ----------
   function render() {
     const list = $("#list");
     if (!list) return;
 
-    const items = state.data.materias
-      .filter(matchesFilters)
-      .sort(
-        (a, b) =>
-          a.anio - b.anio ||
-          a.semestre - b.semestre ||
-          String(a.codigo).localeCompare(String(b.codigo))
-      );
+    const items = state.data.materias.filter(matchesFilters).sort((a, b) => a.anio - b.anio || a.semestre - b.semestre || String(a.codigo).localeCompare(String(b.codigo)));
 
     list.innerHTML = "";
     if (!items.length) {
@@ -303,155 +227,94 @@
     }
 
     const frag = document.createDocumentFragment();
-
     items.forEach((m) => {
       const est = getEstado(m.codigo);
       const locked = !canTake(m); 
-      
       const prev = Array.isArray(m.previas) ? m.previas : [];
-      const prevText = prev.length
-        ? `Previas: ${prev.map((c) => `<code>${c}</code>`).join(", ")}`
-        : "Sin previas";
-
+      const prevText = prev.length ? `Previas: ${prev.map((c) => `<code>${c}</code>`).join(", ")}` : "Sin previas";
       const badgeClass = est === "aprobada" ? "ok" : est === "cursando" ? "cur" : "pen";
       const disabledAttr = locked ? "disabled" : "";
 
       const opcionalCheckHTML = m.tipo === "OP" 
-        ? `<label class="muted" style="color: #c7d2fe;">
-             A cursar
-             <input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}> 
-           </label>` 
-        : "";
+        ? `<label class="muted">A cursar <input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>` : "";
 
       const wrapper = document.createElement("div");
       wrapper.className = `card course ${locked ? "locked" : ""} ${est === "aprobada" ? "is-aprobada" : est === "cursando" ? "is-cursando" : ""}`;
       wrapper.innerHTML = `
         <div class="course-info">
           <div class="meta">
-            <span class="badge ${badgeClass}">${est[0].toUpperCase()}${est.slice(1)}</span>
+            <span class="badge ${badgeClass}">${est}</span>
             <span class="area">${m.area} · ${areaName(m.area)}</span>
             <span class="badge">${m.anio}° año · ${m.semestre}° sem</span>
-            <span class="badge">Créditos: ${m.creditos}</span>
+            <span class="badge">${m.creditos} cr</span>
             <span class="badge">${m.tipo === "OB" ? "Obligatoria" : "Opcional"}</span>
           </div>
-          
           <h3>${m.codigo} — ${m.nombre}</h3>
-          
           <div class="course-footer">
             <small class="muted">${prevText}</small>
-            ${
-              locked
-                ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444; font-weight: 500;">Debes aprobar ${prev
-                    .map((c) => `<b>${c}</b>`)
-                    .join(", ")} para cursar o aprobar.</div>`
-                : ""
-            }
+            ${locked ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444; font-weight: 500;">Bloqueada por previas.</div>` : ""}
           </div>
         </div>
-
         <div class="act">
           ${opcionalCheckHTML}
           <label class="muted">Cursando <input type="checkbox" data-cur="${m.codigo}" ${state.cursando.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>
           <label class="muted">Aprobada <input type="checkbox" data-ok="${m.codigo}" ${state.aprobadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>
         </div>
       `;
-
       frag.appendChild(wrapper);
     });
 
     list.appendChild(frag);
 
-    // Escuchadores de eventos para checks
-    $$('input[data-plan]').forEach((el) => {
-      el.onchange = () => {
-        const cod = el.getAttribute("data-plan");
-        if (el.checked) state.planeadas.add(cod);
-        else state.planeadas.delete(cod);
-        saveState(); updateKpis(); render();
-      };
-    });
-
-    $$('input[data-cur]').forEach((el) => {
-      el.onchange = () => {
-        const cod = el.getAttribute("data-cur");
-        if (el.checked) state.cursando.add(cod);
-        else state.cursando.delete(cod);
-        saveState(); updateKpis(); render(); 
-      };
-    });
-    
-    $$('input[data-ok]').forEach((el) => {
-      el.onchange = () => {
-        const cod = el.getAttribute("data-ok");
-        if (el.checked) { state.aprobadas.add(cod); state.cursando.delete(cod); }
-        else { state.aprobadas.delete(cod); }
-        limpiarMateriasHuerfanas(); saveState(); updateKpis(); render(); 
-      };
-    });
+    $$('input[data-plan]').forEach((el) => el.onchange = () => { const c = el.getAttribute("data-plan"); el.checked ? state.planeadas.add(c) : state.planeadas.delete(c); saveState(); updateKpis(); });
+    $$('input[data-cur]').forEach((el) => el.onchange = () => { const c = el.getAttribute("data-cur"); el.checked ? state.cursando.add(c) : state.cursando.delete(c); saveState(); updateKpis(); render(); });
+    $$('input[data-ok]').forEach((el) => el.onchange = () => { const c = el.getAttribute("data-ok"); if (el.checked) { state.aprobadas.add(c); state.cursando.delete(c); } else { state.aprobadas.delete(c); } limpiarMateriasHuerfanas(); saveState(); updateKpis(); render(); });
 
     updateKpis();
   }
 
-  // ---------- Wire de UI ----------
   function wireUI() {
     $$("#q,#f-anio,#f-sem,#f-area,#f-tipo,#f-estado").forEach((el) => {
-      let t;
-      el.addEventListener("input", () => { clearTimeout(t); t = setTimeout(render, 120); });
+      let t; el.addEventListener("input", () => { clearTimeout(t); t = setTimeout(render, 120); });
       el.addEventListener("change", render);
     });
 
+    // Controladores de apertura/cierre del panel de filtros en Móvil
+    const btnToggle = document.getElementById("btn-toggle-filters");
+    const btnClose = document.getElementById("btn-close-filters");
+    const filtersPanel = document.getElementById("filters-container");
+
+    btnToggle?.addEventListener("click", () => filtersPanel?.classList.add("open"));
+    btnClose?.addEventListener("click", () => filtersPanel?.classList.remove("open"));
+
     $("#btn-reset") && ($("#btn-reset").onclick = () => {
-      if (confirm("Esto borrará tu progreso guardado en este navegador. ¿Deseas continuar?")) {
+      if (confirm("¿Borrar todo el progreso guardado?")) {
         localStorage.removeItem(stateKey);
-        state.aprobadas.clear(); state.cursando.clear(); state.planeadas.clear();
-        state.trayectoriaCalculo = null;
+        state.aprobadas.clear(); state.cursando.clear(); state.planeadas.clear(); state.trayectoriaCalculo = null;
         render(); updateKpis();
       }
     });
 
-    const seenKey = "grilla-admin-onb";
     const $ob = $("#onboarding");
-    function openOnb() { if ($ob) $ob.style.display = "flex"; }
-    function closeOnb() { if ($ob) $ob.style.display = "none"; localStorage.setItem(seenKey, "1"); }
-    $("#btn-onboarding") && ($("#btn-onboarding").onclick = openOnb);
-    $("#ob-close") && ($("#ob-close").onclick = closeOnb);
-    $ob && $ob.addEventListener("click", (e) => { if (e.target === $ob) closeOnb(); });
-    if ($ob && !localStorage.getItem(seenKey)) openOnb();
+    $("#btn-onboarding") && ($("#btn-onboarding").onclick = () => $ob && ($ob.style.display = "flex"));
+    $("#ob-close") && ($("#ob-close").onclick = () => $ob && ($ob.style.display = "none"));
+    if ($ob && !localStorage.getItem("grilla-admin-onb")) { $ob.style.display = "flex"; localStorage.setItem("grilla-admin-onb", "1"); }
   }
 
   async function loadData() {
-    if (!USE_EXTERNAL_JSON) { state.data = { areas: [], materias: [] }; return; }
+    if (!USE_EXTERNAL_JSON) return;
     try {
       const r = await fetch(EXTERNAL_JSON_URL, { cache: "no-store" });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const json = await r.json();
-
-      const materias = (json.materias || []).map((m) => ({
-        ...m,
-        previas: Array.isArray(m.previas)
-          ? m.previas
-          : typeof m.previas === "string" && m.previas.trim()
-          ? m.previas.split(/[,\\s;]+/).filter(Boolean)
-          : [],
-      }));
-
-      state.data = { areas: Array.isArray(json.areas) ? json.areas : [], materias };
+      state.data = {
+        areas: json.areas || [],
+        materias: (json.materias || []).map((m) => ({ ...m, previas: Array.isArray(m.previas) ? m.previas : String(m.previas || "").split(/[,\\s;]+/).filter(Boolean) }))
+      };
     } catch (e) {
-      console.error("No se pudo cargar el JSON externo:", e);
-      state.data = { areas: [], materias: [] };
-      const list = $("#list");
-      if (list) list.innerHTML = '<div class="empty">Error cargando la malla. Revisa la ruta <code>data/materias_admin.json</code>.</div>';
+      console.error(e);
     }
   }
 
-  async function init() {
-    loadState();
-    await loadData();
-    buildFilters();
-    wireUI();
-    render();
-    updateKpis();
-  }
-
+  async function init() { loadState(); await loadData(); buildFilters(); wireUI(); render(); }
   document.readyState !== "loading" ? init() : document.addEventListener("DOMContentLoaded", init);
 })();
