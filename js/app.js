@@ -1,11 +1,10 @@
 /* =========================================================
-   Grilla · Administración (UDELAR)
+   Grilla · Administración (UDELAR) - Unificado con Firebase
    ========================================================= */
 
 (function () {
   "use strict";
 
-  const USE_EXTERNAL_JSON = true;
   const EXTERNAL_JSON_URL = "data/materias_admin.json";
 
   const $ = (sel) => document.querySelector(sel);
@@ -22,6 +21,63 @@
 
   let filtroSemestreActual = "1"; 
 
+  // ==========================================
+  // 1. INICIALIZACIÓN DE FIREBASE
+  // ==========================================
+  if (!firebase.apps || !firebase.apps.length) {
+    firebase.initializeApp(window.FB_CONFIG || {});
+  }
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const badge = document.getElementById('userBadge');
+
+  loginBtn?.addEventListener('click', async () => {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      await auth.signInWithPopup(provider);
+    } catch (e) { console.error(e); }
+  });
+
+  logoutBtn?.addEventListener('click', async () => {
+    await auth.signOut();
+    location.reload();
+  });
+
+  // Referencia al progreso del usuario en la base de datos
+  const progressRef = () => auth.currentUser ? db.collection('progress').doc(auth.currentUser.uid) : null;
+
+  let saveTimer = null;
+  function cloudSaveDebounced(ms = 600) {
+    const r = progressRef(); 
+    if (!r) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try {
+        const payload = {
+          aprobadas: Array.from(state.aprobadas),
+          cursando: Array.from(state.cursando),
+          planeadas: Array.from(state.planeadas),
+          trayectoriaCalculo: state.trayectoriaCalculo,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await r.set(payload, { merge: true });
+      } catch(e) { console.error("Error al guardar en la nube", e); }
+    }, ms);
+  }
+
+  async function cloudLoad() {
+    const r = progressRef();
+    if (!r) return null;
+    const s = await r.get();
+    return s.exists ? s.data() : null;
+  }
+
+  // ==========================================
+  // 2. MANEJO DE ESTADO (LOCAL Y NUBE)
+  // ==========================================
   function saveState() {
     try {
       const obj = {
@@ -31,26 +87,33 @@
         trayectoriaCalculo: state.trayectoriaCalculo,
       };
       localStorage.setItem(stateKey, JSON.stringify(obj));
-    } catch (e) { console.warn("No se pudo guardar:", e); }
+    } catch (e) { console.warn("No se pudo guardar local:", e); }
+    
+    // Guardar en Firebase si hay sesión iniciada
+    if (auth.currentUser) {
+        cloudSaveDebounced();
+    }
   }
 
-  function loadState() {
-    const raw = localStorage.getItem(stateKey);
-    if (!raw) return;
-    try {
-      const obj = JSON.parse(raw);
+  function loadStateFromObj(obj) {
       state.aprobadas = new Set(obj.aprobadas || []);
       state.cursando = new Set(obj.cursando || []);
       state.planeadas = new Set(obj.planeadas || []);
       state.trayectoriaCalculo = obj.trayectoriaCalculo || null;
-    } catch (e) { console.warn("Error carga:", e); }
   }
 
-  function areaName(id) {
-    const a = state.data.areas.find((x) => x.id === id);
-    return (a && a.nombre) || id || "";
+  function loadLocalState() {
+    const raw = localStorage.getItem(stateKey);
+    if (raw) {
+      try {
+        loadStateFromObj(JSON.parse(raw));
+      } catch (e) { console.warn("Error carga local:", e); }
+    }
   }
 
+  // ==========================================
+  // 3. LÓGICA DE LA MALLA
+  // ==========================================
   function canTake(m) {
     const prev = Array.isArray(m.previas) ? m.previas : [];
     return prev.every((c) => state.aprobadas.has(String(c).trim()));
@@ -80,8 +143,6 @@
     if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
     
     if (filtroSemestreActual !== "todos" && m.semestre.toString() !== filtroSemestreActual) return false;
-
-    // Filtro Optativas: Si es OP, solo mostrar si el usuario la seleccionó
     if (m.tipo === 'OP' && !state.planeadas.has(m.codigo)) return false;
 
     const q = ($("#q")?.value || "").trim().toLowerCase();
@@ -103,13 +164,13 @@
     const credTot = state.data.materias.reduce((s, m) => (m.tipo === "OB" || state.planeadas.has(m.codigo)) ? s + Number(m.creditos || 0) : s, 0);
     const credOk = state.data.materias.filter((m) => state.aprobadas.has(m.codigo)).reduce((s, m) => s + Number(m.creditos || 0), 0);
 
-    $("#kpi-aprobadas") && ($("#kpi-aprobadas").textContent = aprobadas);
-    $("#kpi-totales") && ($("#kpi-totales").textContent = total);
-    $("#kpi-creditos") && ($("#kpi-creditos").textContent = credOk);
+    if ($("#kpi-aprobadas")) $("#kpi-aprobadas").textContent = aprobadas;
+    if ($("#kpi-totales")) $("#kpi-totales").textContent = total;
+    if ($("#kpi-creditos")) $("#kpi-creditos").textContent = credOk;
 
     const pct = credTot ? Math.round((credOk / credTot) * 100) : 0;
-    $("#progress-label") && ($("#progress-label").textContent = `${pct}%`);
-    $("#bar") && ($("#bar").style.width = pct + "%");
+    if ($("#progress-label")) $("#progress-label").textContent = `${pct}%`;
+    if ($("#bar")) $("#bar").style.width = pct + "%";
   }
 
   function buildFilters() {
@@ -145,7 +206,6 @@
     });
     list.appendChild(frag);
 
-    // Listeners de Checkbox
     $$('input[data-cur]').forEach(el => el.onchange = (e) => { 
         e.target.checked ? state.cursando.add(e.target.dataset.cur) : state.cursando.delete(e.target.dataset.cur);
         saveState(); updateKpis(); 
@@ -159,10 +219,8 @@
   }
 
   function wireUI() {
-    // Listeners de filtros
     $$("#q,#f-area,#f-tipo,#f-estado").forEach(el => el.oninput = el.onchange = render);
     
-    // Botones Semestre
     $$(".btn-semestre").forEach(btn => btn.onclick = (e) => {
       $$(".btn-semestre").forEach(b => b.classList.remove("active"));
       e.currentTarget.classList.add("active");
@@ -170,29 +228,46 @@
       render();
     });
 
-    // Lógica Optativas
-    $("#btn-open-optativas").onclick = () => {
-      const list = $("#optativas-list");
-      list.innerHTML = "";
-      state.data.materias.filter(m => m.tipo === 'OP').forEach(m => {
-        list.insertAdjacentHTML('beforeend', `<div><input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? 'checked' : ''}> ${m.nombre} (Sem ${m.semestre})</div>`);
-      });
-      $("#modal-optativas").style.display = "flex";
-    };
+    if ($("#btn-open-optativas")) {
+        $("#btn-open-optativas").onclick = () => {
+          const list = $("#optativas-list");
+          list.innerHTML = "";
+          state.data.materias.filter(m => m.tipo === 'OP').forEach(m => {
+            list.insertAdjacentHTML('beforeend', `<div><input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? 'checked' : ''}> ${m.nombre} (Sem ${m.semestre})</div>`);
+          });
+          $("#modal-optativas").style.display = "flex";
+        };
+    }
 
-    $("#btn-close-optativas").onclick = () => {
-      $("#modal-optativas").style.display = "none";
-      $("#optativas-list").querySelectorAll('input').forEach(i => {
-        i.checked ? state.planeadas.add(i.dataset.plan) : state.planeadas.delete(i.dataset.plan);
-      });
-      saveState(); render();
-    };
+    if ($("#btn-close-optativas")) {
+        $("#btn-close-optativas").onclick = () => {
+          $("#modal-optativas").style.display = "none";
+          $("#optativas-list").querySelectorAll('input').forEach(i => {
+            i.checked ? state.planeadas.add(i.dataset.plan) : state.planeadas.delete(i.dataset.plan);
+          });
+          saveState(); render();
+        };
+    }
 
-    // Botones Mobile
     $("#btn-toggle-filters")?.addEventListener("click", () => $("#filters-container").classList.add("open"));
     $("#btn-close-filters")?.addEventListener("click", () => $("#filters-container").classList.remove("open"));
     $("#btn-toggle-semestres")?.addEventListener("click", () => $("#semestres-container").classList.add("open"));
     $("#btn-close-semestres")?.addEventListener("click", () => $("#semestres-container").classList.remove("open"));
+    
+    // Botón borrar progreso
+    $("#btn-reset")?.addEventListener('click', async () => {
+      if(!confirm('¿Seguro que querés borrar TODO tu avance?')) return;
+      state.aprobadas.clear();
+      state.cursando.clear();
+      state.planeadas.clear();
+      saveState();
+      
+      if (auth.currentUser) {
+        const r = progressRef();
+        if (r) await r.set({ aprobadas: [], cursando: [], planeadas: [], updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      render();
+    });
   }
 
   async function loadData() {
@@ -200,25 +275,54 @@
       const r = await fetch(EXTERNAL_JSON_URL, { cache: "no-store" });
       const json = await r.json();
       state.data = { areas: json.areas || [], materias: json.materias || [] };
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Error al cargar JSON de materias", e); }
   }
 
-// Asegúrate de que wireUI solo corra cuando el DOM esté listo
+  // ==========================================
+  // 4. ARRANQUE (INIT)
+  // ==========================================
   function init() { 
-      loadState(); 
+      // 1. Cargar datos locales primero para mostrar algo rápido
+      loadLocalState(); 
+      
+      // 2. Buscar las materias del JSON
       loadData().then(() => {
           buildFilters(); 
           wireUI(); 
           render();
           
-          // FORZAR verificación de Firebase Auth aquí si es necesario
-          if(typeof firebase !== 'undefined') {
-              console.log("Firebase inicializado correctamente");
-          }
+          // 3. Revisar si hay un usuario conectado
+          auth.onAuthStateChanged(async (u) => {
+            if (u) {
+              if (loginBtn) loginBtn.style.display = 'none';
+              if (logoutBtn) logoutBtn.style.display = 'inline-block';
+              if (badge) { badge.style.display = 'inline-block'; badge.textContent = `Hola, ${u.displayName?.split(' ')[0] || 'Usuario'}`; }
+              
+              // Actualizar fecha de última visita del usuario
+              await db.collection('users').doc(u.uid).set({
+                email: u.email,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+              }, { merge: true });
+              
+              // Cargar progreso desde la nube
+              const cloudData = await cloudLoad();
+              if (cloudData) {
+                  loadStateFromObj(cloudData); // Pisar estado local con la nube
+                  saveState(); // Forzar guardado en LocalStorage
+                  render(); // Redibujar materias
+              } else {
+                  // Si no tiene datos en la nube pero sí locales, subirlos
+                  cloudSaveDebounced(0);
+              }
+              
+            } else {
+              if (loginBtn) loginBtn.style.display = 'inline-block';
+              if (logoutBtn) logoutBtn.style.display = 'none';
+              if (badge) badge.style.display = 'none';
+            }
+          });
       });
   }
 
-  // Cambio: Usar DOMContentLoaded explícito para evitar que el script corra antes de tiempo
   document.addEventListener("DOMContentLoaded", init);
-})();
 })();
