@@ -324,3 +324,15 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
 #modal-optativas { z-index: 999999 !important; }
 #optativas-list div { padding: 8px; border-bottom: 1px solid var(--line); }
 .btn-opt { cursor: pointer; border: none; border-radius: 6px; }
+
+/* Color para materias aprobadas (Verde) */
+.card.course.aprobada {
+    border-left: 5px solid #28a745;
+    background-color: rgba(40, 167, 69, 0.05); /* Un fondo verde muy suavecito */
+}
+
+/* Color para materias en curso (Naranja) */
+.card.course.cursando {
+    border-left: 5px solid #fd7e14;
+    background-color: rgba(253, 126, 20, 0.05); /* Un fondo naranja muy suavecito */
+}
