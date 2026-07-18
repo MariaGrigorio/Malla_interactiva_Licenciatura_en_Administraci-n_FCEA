@@ -134,6 +134,7 @@
   }
 
   function matchesFilters(m) {
+    // Lógica para filtrar las trayectorias de cálculo elegidas
     if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
     if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
     
@@ -206,7 +207,7 @@
 
     $$('input[data-cur]').forEach(el => el.onchange = (e) => { 
         e.target.checked ? state.cursando.add(e.target.dataset.cur) : state.cursando.delete(e.target.dataset.cur);
-        saveState(); updateKpis(); render(); // Volvemos a renderizar para que cambie el color
+        saveState(); updateKpis(); render(); 
     });
     $$('input[data-ok]').forEach(el => el.onchange = (e) => { 
         if(e.target.checked) { state.aprobadas.add(e.target.dataset.ok); state.cursando.delete(e.target.dataset.ok); }
@@ -219,6 +220,17 @@
   function wireUI() {
     $$("#q,#f-area,#f-tipo,#f-estado").forEach(el => el.oninput = el.onchange = render);
     
+    // === LÓGICA DEL SELECTOR DE CÁLCULO ===
+    const selCalculo = $("#f-trayectoria-calculo");
+    if (selCalculo) {
+        selCalculo.value = state.trayectoriaCalculo || ""; 
+        selCalculo.onchange = (e) => {
+            state.trayectoriaCalculo = e.target.value; 
+            saveState(); 
+            render();    
+        };
+    }
+
     $$(".btn-semestre").forEach(btn => btn.onclick = (e) => {
       $$(".btn-semestre").forEach(b => b.classList.remove("active"));
       e.currentTarget.classList.add("active");
@@ -290,24 +302,21 @@
           guardarSeleccionOptativas();
           $("#modal-optativas").style.display = "none";
         };
-    } // <-- LLAVE CORREGIDA AQUÍ
+    } 
 
-    // Botón para resetear todas las optativas
     if ($("#btn-reset-optativas")) {
         $("#btn-reset-optativas").onclick = () => {
           if(!confirm('¿Seguro que quieres desmarcar todas las optativas?')) return;
           
-          // 1. Desmarcar visualmente todos los checkboxes en el modal
           $("#optativas-list").querySelectorAll('input[data-plan]').forEach(i => {
               i.checked = false;
           });
           
-          // 2. Limpiar el estado interno y guardar en Firebase/Local
           state.data.materias.filter(m => m.tipo === 'OP').forEach(m => {
               state.planeadas.delete(m.codigo);
           });
           saveState(); 
-          render(); // Actualizar la grilla de fondo
+          render(); 
         };  
     }
 
@@ -346,6 +355,12 @@
           wireUI(); 
           render();
           
+          // Al cargar datos, nos aseguramos de reflejar la trayectoria de cálculo en el elemento select visual
+          const selCalculo = $("#f-trayectoria-calculo");
+          if (selCalculo) {
+              selCalculo.value = state.trayectoriaCalculo || "";
+          }
+
           auth.onAuthStateChanged(async (u) => {
             if (u) {
               if (loginBtn) loginBtn.style.display = 'none';
@@ -360,6 +375,7 @@
               const cloudData = await cloudLoad();
               if (cloudData) {
                   loadStateFromObj(cloudData); 
+                  if (selCalculo) selCalculo.value = state.trayectoriaCalculo || "";
                   saveState(); 
                   render(); 
               } else {
