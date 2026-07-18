@@ -44,37 +44,38 @@ body {
 /* Envoltura interna del contenido del bloque fijo superior */
 .wrap-top {
   max-width: 1200px;
-  padding: 16px 24px; /* paddings simétricos alineados con las materias */
+  padding: 16px 24px 0 24px; /* Ajustado el relleno inferior */
   margin: 0 auto;
 }
 
 /* =========================================================
-   FIJACIÓN SUPERIOR PANORÁMICA (FONDO 100% ANCHO EN PC)
+   FIJACIÓN SUPERIOR PANORÁMICA (CORREGIDA)
    ========================================================= */
 .sticky-top-container {
   position: relative;
   width: 100%;
   background: var(--bg-grad-1);
-  padding-bottom: 16px;
+  padding-bottom: 12px; /* Reducido para compactar en móvil */
   border-bottom: 1px solid rgba(35, 40, 58, 0.6);
   z-index: 100;
 }
 
 @media (min-width: 900px) {
   .sticky-top-container {
-    position: fixed !important; /* Congelado absoluto e inmóvil en monitor */
+    position: fixed !important;
     top: 0;
     left: 0;
     right: 0;
-    width: 100% !important; /* Forzado de punta a punta de la pantalla */
-    background: #07090d !important; /* Color sólido unificado sin fugas en los laterales */
+    width: 100% !important;
+    background: #07090d !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
     z-index: 999;
+    padding-bottom: 4px; /* REQUERIDO: Compacta drásticamente la finalización del bloque fijo */
   }
 
-  /* Colchón superior ampliado para evitar que las materias queden ocultas */
+  /* REQUERIDO: Más margen para que la primer materia no quede oculta ni pegada */
   body {
-    padding-top: 300px; 
+    padding-top: 315px; 
   }
 }
 
@@ -108,7 +109,7 @@ header small { color: var(--muted); font-size: 12px; }
   gap: 10px;
 }
 
-/* FILA 2: FILTROS (6 COLUMNAS) */
+/* FILA 2: FILTROS */
 .filters-panel { width: 100%; }
 .filters-layout-grid {
   display: grid;
@@ -245,11 +246,17 @@ button:hover, .btn:hover { background: var(--line); }
 input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
 
 /* =========================================================
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE (CORREGIDO)
    ========================================================= */
 @media (max-width: 900px) {
   .wrap-top { padding: 12px 12px 0 12px; }
   
+  /* REQUERIDO: Espacio inferior al final de la página para que la 
+     última materia suba y nunca sea tapada por las acciones flotantes */
+  .wrap {
+    padding-bottom: 110px !important;
+  }
+
   .mobile-floating-actions {
     display: flex;
     position: fixed;
