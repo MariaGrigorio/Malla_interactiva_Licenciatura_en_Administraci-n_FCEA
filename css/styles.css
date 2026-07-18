@@ -34,34 +34,39 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Envoltura de contenido para la sección de las materias */
 .wrap {
-  max-width: 1400px;
+  max-width: 100%;
+  padding: 0 24px;
   margin: 0 auto;
-  padding: 0 16px;
 }
 
+/* Envoltura interna de elementos superiores del dashboard */
 .wrap-top {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 16px 16px 0 16px;
+  max-width: 100%;
+  padding: 16px 24px;
 }
 
 /* =========================================================
-   STICKY CONFIGURADO EN EL FLUJO CORRECTO DE CAPAS
+   STICKY PANORÁMICO INDEPENDIENTE DE FLUJO (CORREGIDO)
    ========================================================= */
 .sticky-top-container {
   position: relative;
+  width: 100%;
   background: var(--bg-grad-1);
-  padding-bottom: 12px;
+  padding-bottom: 16px;
   border-bottom: 1px solid rgba(35, 40, 58, 0.6);
-  z-index: 90;
+  z-index: 100;
 }
 
 @media (min-width: 900px) {
   .sticky-top-container {
-    position: sticky !important; /* Forzado de fijación absoluta al scroll */
+    position: -webkit-sticky !important;
+    position: sticky !important; /* Forzado absoluto de fijación superior */
     top: 0;
-    background: #07090d !important; 
+    left: 0;
+    right: 0;
+    background: #07090d !important; /* Capa sólida unificada al 100% del ancho */
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   }
 }
@@ -72,17 +77,17 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
 header small { color: var(--muted); font-size: 12px; }
 
-/* REESTRUCTURACIÓN FILA 1 PANORÁMICA */
+/* FILA 1: DASHBOARD DE CONTROL */
 .top-dashboard-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
   gap: 16px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   align-items: stretch;
 }
 
@@ -96,12 +101,18 @@ header small { color: var(--muted); font-size: 12px; }
   gap: 10px;
 }
 
-/* REESTRUCTURACIÓN FILA 2: NUEVA DISTRIBUCIÓN ADAPTATIVA DE 7 COLUMNAS */
-.filters-panel { width: 100%; }
+/* =========================================================
+   FILA 2: FILTROS UNIFICADOS EN 7 COLUMNAS RECONSTRUIDAS (CORREGIDO)
+   ========================================================= */
+.filters-panel { 
+  width: 100%; 
+}
+
 .filters-layout-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, 1fr) !important; /* Forzado estricto de una única línea */
   gap: 10px;
+  width: 100%;
 }
 
 .filters-layout-grid input[type="search"],
@@ -117,20 +128,20 @@ header small { color: var(--muted); font-size: 12px; }
   outline: none;
   transition: border-color 0.2s;
 }
+
 .filters-layout-grid input[type="search"]:focus,
 .filters-layout-grid select:focus {
   border-color: var(--brand);
   background: var(--surface);
 }
 
-/* Resaltador estético para el select de cálculo en PC */
 .calculo-col-container select {
-  border-color: rgba(124, 58, 237, 0.4);
-  background: rgba(124, 58, 237, 0.05);
-  font-weight: 500;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  background: rgba(124, 58, 237, 0.08) !important;
+  font-weight: 600;
 }
 
-/* Listado de materias extendido */
+/* LISTADO DE ASIGNATURAS CONTINUO */
 #list {
   display: grid;
   grid-template-columns: 1fr;
@@ -138,7 +149,7 @@ header small { color: var(--muted); font-size: 12px; }
   width: 100%;
 }
 
-/* TARJETAS DE MATERIA */
+/* TARJETAS DE MATERIAS */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -147,7 +158,7 @@ header small { color: var(--muted); font-size: 12px; }
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-.course { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 14px 16px; }
+.course { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 14px 16px; margin-bottom: 4px; }
 .course-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .course h3 { margin: 0; font-size: 15px; font-weight: 600; }
 .course-footer { display: flex; flex-direction: column; }
@@ -164,7 +175,7 @@ header small { color: var(--muted); font-size: 12px; }
 
 /* Barras y KPIs */
 .progress { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
-.progress .bar { background: var(--line); height: 8px; border-radius: 999px; overflow: hidden; position: relative; }
+.progress .bar { background: var(--line); height: 8px; border-radius: 99px; overflow: hidden; position: relative; }
 .progress .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #a78bfa); width: 0%; transition: width 0.4s; }
 
 .kpi { background: var(--surface); border: 1px solid var(--line); padding: 8px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
@@ -184,21 +195,20 @@ button:hover, .btn:hover { background: var(--line); }
 
 .tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .tag { background: var(--chip); border: 1px solid var(--line); color: var(--txt); padding: 3px 8px; border-radius: 6px; font-size: 11px; }
-
 .empty { padding: 20px; text-align: center; color: #94a3b8; }
 
-/* MODAL / GUÍA PERFECCIONADO (Z-INDEX SUPERIOR TOTAL) */
+/* MODAL DE AYUDA / GUÍA */
 .modal-back {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8) !important;
+  background: rgba(0, 0, 0, 0.85) !important;
   display: none;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 99999 !important; /* Capa definitiva sobre paneles fijos */
+  z-index: 999999 !important; /* Máxima capa posible sobre elementos fijos */
 }
-.modal { max-width: 600px; width: 100%; z-index: 100000; }
+.modal { max-width: 600px; width: 100%; z-index: 1000000; }
 .modal .card { padding: 24px; border-color: var(--brand-line); background: #131726; }
 .modal h2 { margin: 0 0 12px 0; font-size: 20px; }
 .modal p { margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; }
@@ -206,7 +216,7 @@ button:hover, .btn:hover { background: var(--line); }
 input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
 
 /* =========================================================
-   ESTILOS EXCLUSIVOS MOBILE (MODAL DE CAPAS UNIFICADO)
+   ESTILOS EXCLUSIVOS MOBILE (MODAL COMPLETO DE CAPAS)
    ========================================================= */
 @media (max-width: 900px) {
   .wrap-top { padding: 12px 12px 0 12px; }
@@ -218,7 +228,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 2000 !important;
+    z-index: 5000 !important; /* Capa prioritaria flotante móvil */
     background-color: var(--brand);
     color: #ffffff;
     border: none;
@@ -237,7 +247,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     border-top: 2px solid var(--brand);
     border-radius: 20px 20px 0 0;
     padding: 24px 20px;
-    z-index: 3000 !important;
+    z-index: 6000 !important; /* Abre siempre por delante del FAB */
     box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
     max-height: 85vh;
     overflow-y: auto;
@@ -248,8 +258,15 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
   .filters-header-mobile h3 { margin: 0; font-size: 16px; }
   .btn-close-x { background: transparent; border: none; color: var(--muted); font-size: 20px; }
 
-  .filters-layout-grid { display: flex; flex-direction: column; gap: 12px; }
-  .filters-layout-grid input, .filters-layout-grid select { width: 100% !important; }
+  /* En celulares colapsa de forma adaptativa vertical */
+  .filters-layout-grid { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+  }
+  .filters-layout-grid input, .filters-layout-grid select { 
+    width: 100% !important; 
+  }
 }
 
 @keyframes slideUp {
