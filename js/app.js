@@ -5,7 +5,6 @@
      progress-label, bar, kpi-aprobadas, kpi-totales, kpi-creditos
      q, f-estado, f-anio, f-sem, f-area, f-tipo
      list, areas-list, sidebar-aside
-     quick-ob, quick-op, quick-clear
      btn-reset, btn-onboarding, onboarding, ob-close
    ========================================================= */
 
@@ -216,11 +215,11 @@
         $areasList.appendChild(span);
       });
 
-      // Limpieza proactiva por clase para evitar duplicar el bloque de cálculo al re-renderizar
+      // Limpieza por clase para evitar duplicados del selector
       const selectorViejo = $(".calculo-selector-container");
       if (selectorViejo) selectorViejo.remove();
 
-      // NUEVO: Se define la tarjeta del selector y se fuerza al principio del Sidebar (Posición Nº 1)
+      // Creamos la tarjeta del selector y la forzamos en la posición Nº 1 de la barra lateral
       const divCalculo = document.createElement("div");
       divCalculo.className = "card calculo-selector-container";
       divCalculo.style.marginBottom = "16px";
@@ -235,22 +234,12 @@
           </button>
         </div>
       `;
-      // Inserta el bloque como el primer elemento hijo directo de la barra lateral (encima de accesos rápidos)
+      // Inserta el bloque como el primer elemento hijo directo de la barra lateral
       $sidebar.insertBefore(divCalculo, $sidebar.firstChild);
 
       $("#btn-tray-mc10").onclick = () => cambiarTrayectoria("MC10");
       $("#btn-tray-ab").onclick = () => cambiarTrayectoria("AB");
     }
-
-    // Accesos rápidos
-    $("#quick-ob") && $("#quick-ob").addEventListener("click", (e) => { e.preventDefault(); $("#f-tipo").value = "OB"; render(); });
-    $("#quick-op") && $("#quick-op").addEventListener("click", (e) => { e.preventDefault(); $("#f-tipo").value = "OP"; render(); });
-    $("#quick-clear") && $("#quick-clear").addEventListener("click", (e) => {
-      e.preventDefault();
-      $$("#f-anio,#f-sem,#f-area,#f-tipo,#f-estado").forEach((el) => el.value = "");
-      if ($("#q")) $("#q").value = "";
-      render();
-    });
   }
 
   function cambiarTrayectoria(tipo) {
@@ -285,7 +274,6 @@
     saveState();
     updateKpis();
     
-    // CORRECCIÓN: Limpieza precisa por selector de clase antes de reconstruir
     const selectorViejo = $(".calculo-selector-container");
     if (selectorViejo) selectorViejo.remove();
     
