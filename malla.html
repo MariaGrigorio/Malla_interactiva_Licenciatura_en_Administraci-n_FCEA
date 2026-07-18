@@ -28,8 +28,14 @@
         
         <div class="card progress" style="margin: 0;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <b style="font-size: 16px;">Tu Progreso General</b>
-            <span id="progress-label" class="pill">0%</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <b style="font-size: 16px;">Tu Progreso General</b>
+              <span id="progress-label" class="pill">0%</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-onboarding">Guía rápida</button>
+              <button id="btn-reset">Borrar progreso</button>
+            </div>
           </div>
           <div class="bar">
             <span id="bar" style="width: 0%;"></span>
@@ -107,20 +113,6 @@
       <main id="list"></main>
 
       <aside class="sidebar-sticky" id="sidebar-aside">
-        <div class="card" style="margin-bottom: 16px;">
-          <h4 style="margin-top: 0; margin-bottom: 12px;">Accesos rápidos</h4>
-          <div class="tags" style="display: flex; flex-direction: column; gap: 8px;">
-            <button id="quick-ob" class="btn" style="text-align: left; width: 100%;">Solo obligatorias</button>
-            <button id="quick-op" class="btn" style="text-align: left; width: 100%;">Solo opcionales</button>
-            <button id="quick-clear" class="btn" style="text-align: left; width: 100%; background: rgba(239, 68, 68, 0.05); color: #f87171; border-color: rgba(239, 68, 68, 0.15);">Limpiar filtros</button>
-          </div>
-          <hr style="margin: 12px 0;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <button id="btn-onboarding" style="font-size: 11px; padding: 4px 8px;">ℹ️ Guía</button>
-            <button id="btn-reset">Reiniciar</button>
-          </div>
-        </div>
-
         <div class="card">
           <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px;">Áreas de conocimiento</h3>
           <div id="areas-list" class="tags" style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px;"></div>
