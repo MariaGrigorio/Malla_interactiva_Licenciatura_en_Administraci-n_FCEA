@@ -34,21 +34,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Envoltura de contenido para la sección de las materias */
+/* Envoltura de contenido para la sección de las materias inferiores */
 .wrap {
-  max-width: 100%;
+  max-width: 1400px;
   padding: 0 24px;
   margin: 0 auto;
 }
 
 /* Envoltura interna de elementos superiores del dashboard */
 .wrap-top {
-  max-width: 100%;
+  max-width: 1400px;
   padding: 16px 24px;
+  margin: 0 auto;
 }
 
 /* =========================================================
-   STICKY PANORÁMICO INDEPENDIENTE DE FLUJO (CORREGIDO)
+   SOLUCIÓN DEFINITIVA: Bloque Superior Totalmente Fijo en PC (Fixed)
    ========================================================= */
 .sticky-top-container {
   position: relative;
@@ -61,13 +62,20 @@ body {
 
 @media (min-width: 900px) {
   .sticky-top-container {
-    position: -webkit-sticky !important;
-    position: sticky !important; /* Forzado absoluto de fijación superior */
+    position: fixed !important; /* Fixed absoluto: NADA lo puede mover del monitor en PC */
     top: 0;
     left: 0;
     right: 0;
-    background: #07090d !important; /* Capa sólida unificada al 100% del ancho */
+    width: 100%;
+    background: #07090d !important; /* Capa sólida opaca que tapa las materias al subir */
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    z-index: 999; /* Por delante de las materias en todo momento */
+  }
+
+  /* Compensación de espacio en el flujo del body para que 
+     el bloque fixed de arriba no pise las primeras materias */
+  body {
+    padding-top: 230px; /* Si quedan muy arriba o abajo, se puede regular desde este valor */
   }
 }
 
@@ -82,7 +90,7 @@ header {
 header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
 header small { color: var(--muted); font-size: 12px; }
 
-/* FILA 1: DASHBOARD DE CONTROL */
+/* FILA 1: DASHBOARD DE CONTROL (PC) */
 .top-dashboard-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
@@ -102,7 +110,7 @@ header small { color: var(--muted); font-size: 12px; }
 }
 
 /* =========================================================
-   FILA 2: FILTROS UNIFICADOS EN 7 COLUMNAS RECONSTRUIDAS (CORREGIDO)
+   FILA 2: FILTROS UNIFICADOS EN MULTICOLUMNA ESTRICTA DE 7 FILTROS
    ========================================================= */
 .filters-panel { 
   width: 100%; 
@@ -110,7 +118,7 @@ header small { color: var(--muted); font-size: 12px; }
 
 .filters-layout-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr) !important; /* Forzado estricto de una única línea */
+  grid-template-columns: repeat(7, 1fr) !important; /* Forzado de fila horizontal única en PC */
   gap: 10px;
   width: 100%;
 }
@@ -135,13 +143,14 @@ header small { color: var(--muted); font-size: 12px; }
   background: var(--surface);
 }
 
+/* Color destacado interactivo para la columna del select de trayectoria de cálculo */
 .calculo-col-container select {
   border-color: rgba(124, 58, 237, 0.5) !important;
   background: rgba(124, 58, 237, 0.08) !important;
   font-weight: 600;
 }
 
-/* LISTADO DE ASIGNATURAS CONTINUO */
+/* LISTADO DE ASIGNATURAS BAJO MÁXIMO ANCHO */
 #list {
   display: grid;
   grid-template-columns: 1fr;
@@ -173,9 +182,9 @@ header small { color: var(--muted); font-size: 12px; }
 .card.course.is-aprobada { border-color: rgba(22, 163, 74, 0.35); background: linear-gradient(135deg, var(--card), rgba(22, 163, 74, 0.04)); }
 .card.course.is-cursando { border-color: rgba(245, 158, 11, 0.35); background: linear-gradient(135deg, var(--card), rgba(245, 158, 11, 0.04)); }
 
-/* Barras y KPIs */
+/* Barras y KPIs de progreso */
 .progress { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
-.progress .bar { background: var(--line); height: 8px; border-radius: 99px; overflow: hidden; position: relative; }
+.progress .bar { background: var(--line); height: 8px; border-radius: 999px; overflow: hidden; position: relative; }
 .progress .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #a78bfa); width: 0%; transition: width 0.4s; }
 
 .kpi { background: var(--surface); border: 1px solid var(--line); padding: 8px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
@@ -197,7 +206,9 @@ button:hover, .btn:hover { background: var(--line); }
 .tag { background: var(--chip); border: 1px solid var(--line); color: var(--txt); padding: 3px 8px; border-radius: 6px; font-size: 11px; }
 .empty { padding: 20px; text-align: center; color: #94a3b8; }
 
-/* MODAL DE AYUDA / GUÍA */
+/* =========================================================
+   MODAL DE AYUDA / GUÍA RÁPIDA (Z-INDEX CRÍTICO ABSOLUTO)
+   ========================================================= */
 .modal-back {
   position: fixed;
   inset: 0;
@@ -206,7 +217,7 @@ button:hover, .btn:hover { background: var(--line); }
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 999999 !important; /* Máxima capa posible sobre elementos fijos */
+  z-index: 999999 !important; /* Capa definitiva por encima del contenedor fixed superior */
 }
 .modal { max-width: 600px; width: 100%; z-index: 1000000; }
 .modal .card { padding: 24px; border-color: var(--brand-line); background: #131726; }
@@ -216,11 +227,12 @@ button:hover, .btn:hover { background: var(--line); }
 input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
 
 /* =========================================================
-   ESTILOS EXCLUSIVOS MOBILE (MODAL COMPLETO DE CAPAS)
+   ESTILOS EXCLUSIVOS MOBILE (FAB Y DESPLEGABLE MÓVIL)
    ========================================================= */
 @media (max-width: 900px) {
   .wrap-top { padding: 12px 12px 0 12px; }
   
+  /* Botón flotante siempre visible e interactivo */
   .fab-filters {
     display: flex;
     align-items: center;
@@ -228,7 +240,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 5000 !important; /* Capa prioritaria flotante móvil */
+    z-index: 5000 !important; /* Por encima de las cartas de materias */
     background-color: var(--brand);
     color: #ffffff;
     border: none;
@@ -239,6 +251,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     box-shadow: 0 8px 24px rgba(124, 58, 237, 0.6);
   }
 
+  /* Modal desplegable inferior para filtros y cálculo */
   .filters-panel {
     display: none; 
     position: fixed;
@@ -247,7 +260,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     border-top: 2px solid var(--brand);
     border-radius: 20px 20px 0 0;
     padding: 24px 20px;
-    z-index: 6000 !important; /* Abre siempre por delante del FAB */
+    z-index: 6000 !important; /* Por delante de cualquier otro elemento en celular */
     box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
     max-height: 85vh;
     overflow-y: auto;
