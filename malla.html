@@ -97,14 +97,18 @@
     <div class="modal">
       <div class="card" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px; width: 100%;">
         <div style="border-bottom: 1px solid var(--border, #eee); padding-bottom: 8px;">
-          <h2 style="margin: 0;">Asignaturas Optativas</h2>
+          <h2 style="margin: 0; margin-bottom: 5px;">Asignaturas Optativas</h2>
+          <p style="margin: 0; font-size: 13px; color: var(--muted, #666);">Selecciona todas las asignaturas optativas que quieres cursar durante tu carrera.</p>
         </div>
         
-        <div id="optativas-list" style="max-height: 350px; overflow-y: auto; padding-right: 5px;"></div>
+        <div id="optativas-list" class="custom-scroll" style="max-height: 350px; overflow-y: auto; padding-right: 10px;"></div>
         
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border, #eee); padding-top: 12px;">
-          <button id="btn-close-optativas" class="btn ghost" style="padding: 8px 16px;">Cerrar</button>
-          <button id="btn-save-optativas" class="btn-pri" style="padding: 8px 16px; background: var(--brand, #6f42c1); color: white; border:none; border-radius: 6px; cursor:pointer;">Guardar</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid var(--border, #eee); padding-top: 12px;">
+          <button id="btn-reset-optativas" class="btn ghost" style="padding: 8px 12px; color: #dc3545; font-size: 13px;">Resetear</button>
+          <div style="display: flex; gap: 10px;">
+            <button id="btn-close-optativas" class="btn ghost" style="padding: 8px 16px;">Cerrar</button>
+            <button id="btn-save-optativas" class="btn-pri" style="padding: 8px 16px; background: var(--brand, #6f42c1); color: white; border:none; border-radius: 6px; cursor:pointer;">Guardar</button>
+          </div>
         </div>
       </div>
     </div>
