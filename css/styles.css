@@ -54,20 +54,31 @@ body {
   padding: 24px 16px;
 }
 
-/* Contenedor Fijo Superior Invisible */
+/* =========================================================
+   CORREGIDO: Contenedor Fijo Superior Activo (Dashboard + Filtros)
+   Ahora tiene una capa sólida y desenfoque para tapar limpiamente 
+   las materias que suben en el scroll sin romper la estética.
+   ========================================================= */
 .sticky-top-container {
   position: sticky;
   top: 0;
-  background: transparent;
-  z-index: 40;
-  padding-bottom: 8px;
+  /* Capa de fondo oscura que machea el body + desenfoque de fondo */
+  background: linear-gradient(180deg, var(--bg-grad-1) 85%, rgba(10, 12, 17, 0.95) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  /* Z-index dominante para que NADA se pase por encima de este bloque */
+  z-index: 100; 
+  padding-top: 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(35, 40, 58, 0.5);
 }
 
 /* Panel superior de Filtros totalmente integrado al fondo */
 .filters-panel {
   background: transparent;
   border: none;
-  padding: 12px 0;
+  padding: 4px 0 0 0;
   margin: 0;
   width: 100%;
 }
@@ -77,7 +88,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   background: transparent;
 }
 
@@ -98,7 +109,7 @@ header small {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 @media (max-width: 768px) {
@@ -113,8 +124,7 @@ header small {
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   width: 100%;
-  margin-top: 4px;
-  margin-bottom: 16px;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -135,7 +145,6 @@ header small {
   border-radius: 10px;
   font-size: 14px;
   outline: none;
-  backdrop-filter: blur(8px);
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
@@ -152,7 +161,7 @@ header small {
   grid-template-columns: 3fr 1fr;
   gap: 20px;
   align-items: start;
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 @media (max-width: 900px) {
@@ -161,11 +170,14 @@ header small {
   }
 }
 
-/* Columna lateral sticky */
+/* =========================================================
+   CORREGIDO: Columna lateral sticky alineada por debajo de los filtros
+   ========================================================= */
 .sidebar-sticky {
   position: sticky;
-  top: 260px;
-  z-index: 30;
+  /* Se calcula dinámicamente en base al alto aproximado del bloque fijo superior */
+  top: 310px; 
+  z-index: 30; /* Menor que el top container para pasar limpiamente por debajo */
 }
 
 /* TARJETAS SÓLIDAS OSCURAS ORIGINALES */
@@ -178,7 +190,7 @@ header small {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* DISEÑO VERTICAL DE CADA FILA DE ASIGNATURA (NUEVO) */
+/* DISEÑO VERTICAL DE CADA FILA DE ASIGNATURA */
 .course {
   display: flex;
   justify-content: space-between;
@@ -399,9 +411,8 @@ button:hover {
 
 /* Selector de cálculo interactivo lateral */
 .calculo-selector-container {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  margin-top: 0;
+  padding: 20px;
   width: 100%;
 }
 .calculo-title {
