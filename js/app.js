@@ -290,9 +290,7 @@
           guardarSeleccionOptativas();
           $("#modal-optativas").style.display = "none";
         };
-    }
-
-     // Botón para resetear todas las optativas
+ // Botón para resetear todas las optativas
     if ($("#btn-reset-optativas")) {
         $("#btn-reset-optativas").onclick = () => {
           if(!confirm('¿Seguro que quieres desmarcar todas las optativas?')) return;
@@ -308,7 +306,7 @@
           });
           saveState(); 
           render(); // Actualizar la grilla de fondo
-        };
+        };  
     }
 
     $("#btn-toggle-filters")?.addEventListener("click", () => $("#filters-container").classList.add("open"));
