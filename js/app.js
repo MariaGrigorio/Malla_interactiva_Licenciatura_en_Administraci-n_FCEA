@@ -4,7 +4,7 @@
    Requisitos de DOM (IDs):
      progress-label, bar, kpi-aprobadas, kpi-totales, kpi-creditos
      q, f-estado, f-anio, f-sem, f-area, f-tipo
-     list, areas-list
+     list, areas-list, sidebar-aside
      quick-ob, quick-op, quick-clear
      btn-reset, btn-onboarding, onboarding, ob-close
    ========================================================= */
@@ -178,15 +178,9 @@
 
   // ---------- UI: Filtros y Selector de Trayectoria ----------
   function buildFilters() {
-    const años = [...new Set(state.data.materias.map((m) => m.anio))].sort(
-      (a, b) => a - b
-    );
-    const sems = [...new Set(state.data.materias.map((m) => m.semestre))].sort(
-      (a, b) => a - b
-    );
-    const $anio = $("#f-anio"),
-      $sem = $("#f-sem"),
-      $area = $("#f-area");
+    const años = [...new Set(state.data.materias.map((m) => m.anio))].sort((a, b) => a - b);
+    const sems = [...new Set(state.data.materias.map((m) => m.semestre))].sort((a, b) => a - b);
+    const $anio = $("#f-anio"), $sem = $("#f-sem"), $area = $("#f-area");
 
     if ($anio) {
       $anio.innerHTML = '<option value="">Año: Todos</option>';
@@ -207,9 +201,11 @@
       });
     }
 
-    // Lateral: listado de áreas
+    // Lateral: listado de áreas y orden jerárquico del Sidebar
     const $areasList = $("#areas-list");
-    if ($areasList) {
+    const $sidebar = $("#sidebar-aside");
+
+    if ($areasList && $sidebar) {
       $areasList.innerHTML = "";
       state.data.areas.forEach((a) => {
         const span = document.createElement("span");
@@ -220,21 +216,27 @@
         $areasList.appendChild(span);
       });
 
-      // Inyección dinámica del Selector de Trayectoria de Cálculo
+      // Limpieza proactiva por clase para evitar duplicar el bloque de cálculo al re-renderizar
+      const selectorViejo = $(".calculo-selector-container");
+      if (selectorViejo) selectorViejo.remove();
+
+      // NUEVO: Se define la tarjeta del selector y se fuerza al principio del Sidebar (Posición Nº 1)
       const divCalculo = document.createElement("div");
-      divCalculo.className = "calculo-selector-container";
+      divCalculo.className = "card calculo-selector-container";
+      divCalculo.style.marginBottom = "16px";
       divCalculo.innerHTML = `
-        <h4 class="calculo-title">¿Cursas Cálculo I o Cálculo I/A y I/B?</h4>
+        <h4 class="calculo-title" style="margin-top:0; margin-bottom: 12px;">¿Cursas Cálculo I o Cálculo I/A y I/B?</h4>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <button id="btn-tray-mc10" class="btn ${state.trayectoriaCalculo === 'MC10' ? 'btn-tray-active' : ''}">
+          <button id="btn-tray-mc10" class="btn ${state.trayectoriaCalculo === 'MC10' ? 'btn-tray-active' : ''}" style="text-align: left; width: 100%;">
             Cálculo I (MC10)
           </button>
-          <button id="btn-tray-ab" class="btn ${state.trayectoriaCalculo === 'AB' ? 'btn-tray-active' : ''}">
+          <button id="btn-tray-ab" class="btn ${state.trayectoriaCalculo === 'AB' ? 'btn-tray-active' : ''}" style="text-align: left; width: 100%;">
             Cálculo I/A (114A) y I/B (128A)
           </button>
         </div>
       `;
-      $areasList.parentNode.appendChild(divCalculo);
+      // Inserta el bloque como el primer elemento hijo directo de la barra lateral (encima de accesos rápidos)
+      $sidebar.insertBefore(divCalculo, $sidebar.firstChild);
 
       $("#btn-tray-mc10").onclick = () => cambiarTrayectoria("MC10");
       $("#btn-tray-ab").onclick = () => cambiarTrayectoria("AB");
@@ -283,11 +285,9 @@
     saveState();
     updateKpis();
     
-    const areas = $("#areas-list");
-    if (areas && areas.parentNode) {
-      const lastNode = areas.parentNode.lastChild;
-      if (lastNode && lastNode.nodeType === 1) areas.parentNode.removeChild(lastNode);
-    }
+    // CORRECCIÓN: Limpieza precisa por selector de clase antes de reconstruir
+    const selectorViejo = $(".calculo-selector-container");
+    if (selectorViejo) selectorViejo.remove();
     
     buildFilters();
     render();
@@ -335,7 +335,6 @@
            </label>` 
         : "";
 
-      // TARJETA DE MATERIA: Recupera la clase card y inyecta la distribución por niveles
       const wrapper = document.createElement("div");
       wrapper.className = `card course ${locked ? "locked" : ""} ${est === "aprobada" ? "is-aprobada" : est === "cursando" ? "is-cursando" : ""}`;
       wrapper.innerHTML = `
