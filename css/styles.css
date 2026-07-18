@@ -43,9 +43,22 @@ body{
 
 .wrap{max-width:1100px;margin:0 auto;padding:24px}
 
+/* =========================================================
+   NUEVO: Contenedor Superior Fijo (Header + Barra de Avance)
+   ========================================================= */
+.sticky-top-container {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--bg-grad-1); /* Sólido para que las tarjetas no se transparenten por detrás */
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+
 /* Header */
 header{
-  display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:16px
+  display:flex;gap:16px;align-items:center;justify-content:space-between;padding: 12px 0 8px 0;
 }
 header h1{font-size:20px;margin:0;font-weight:700}
 header small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
@@ -74,8 +87,27 @@ header .pill{margin-left:auto}
 }
 
 /* Grid principal */
-.grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media (min-width:980px){.grid{grid-template-columns: 1fr 320px}}
+.grid{display:grid;grid-template-columns:1fr;gap:16px;align-items: flex-start;}
+
+/* =========================================================
+   NUEVO: Bloque Derecho Fijo (Columna Lateral)
+   Solo se activa en pantallas de escritorio donde hay dos columnas.
+   ========================================================= */
+@media (min-width:980px){
+  .grid{grid-template-columns: 1fr 320px}
+  
+  .sidebar-sticky {
+    position: sticky;
+    /* Se posiciona abajo de la barra superior fija (header + avance ocupan aprox 160px) */
+    top: 180px; 
+    max-height: calc(100vh - 200px);
+    overflow-y: auto; /* Por si la pantalla es chica, permite scroll interno en la leyenda */
+    padding-right: 4px;
+  }
+  
+  /* Ocultar barra de scroll interna de la barra lateral para mantenerlo limpio */
+  .sidebar-sticky::-webkit-scrollbar { width: 0px; }
+}
 
 /* Progreso */
 .progress{padding:16px}
@@ -240,7 +272,7 @@ input[type="checkbox"]{
   cursor: pointer;
 }
 
-/* ====== NUEVO: Contenedor y Botones de Trayectoria de Cálculo ====== */
+/* ====== Contenedor y Botones de Trayectoria de Cálculo ====== */
 .calculo-selector-container {
   margin-top: 24px;
   padding-top: 16px;
@@ -253,7 +285,6 @@ input[type="checkbox"]{
   color: var(--txt);
   letter-spacing: 0.3px;
 }
-/* Estilo interactivo dinámico para resaltar el botón seleccionado */
 .btn.btn-tray-active {
   background: var(--brand) !important;
   color: #ffffff !important;
