@@ -290,7 +290,9 @@
           guardarSeleccionOptativas();
           $("#modal-optativas").style.display = "none";
         };
- // Botón para resetear todas las optativas
+    } // <-- LLAVE CORREGIDA AQUÍ
+
+    // Botón para resetear todas las optativas
     if ($("#btn-reset-optativas")) {
         $("#btn-reset-optativas").onclick = () => {
           if(!confirm('¿Seguro que quieres desmarcar todas las optativas?')) return;
