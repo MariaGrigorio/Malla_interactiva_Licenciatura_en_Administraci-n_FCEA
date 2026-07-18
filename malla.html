@@ -1,423 +1,161 @@
-/* ================================================
-   Notegood · Grilla Interactiva (styles.css)
-   Estética dark limpia + acentos violeta
-   ================================================ */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notegood · Malla de Administración</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
 
-:root {
-  /* Colores base */
-  --bg: #0b0d12;
-  --bg-grad-1: #0a0c11;
-  --bg-grad-2: #0f1421;
-  --card: #121521;
-  --surface: #111628;
-  --line: #23283a;
-  --line-2: #202746;
-  --muted: #94a3b8;
-  --txt: #e2e8f0;
+  <div class="wrap">
+    
+    <div class="sticky-top-container">
+      
+      <header>
+        <div>
+          <h1>Malla Administración <span class="pill">FCEA</span></h1>
+          <small class="muted">Gestión de créditos, asignaturas y correlativas</small>
+        </div>
+        <div class="materia-actions">
+          <span id="userBadge" class="pill" style="display: none;"></span>
+          <button id="logoutBtn" style="display: none;">Cerrar sesión</button>
+        </div>
+      </header>
 
-  /* Acentos */
-  --brand: #7c3aed;        /* violeta Notegood */
-  --brand-weak: rgba(124, 58, 237, .15);
-  --brand-line: rgba(124, 58, 237, .35);
+      <div class="filters-panel">
+        <div class="filters-3-col">
+          <div>
+            <input id="q" type="search" placeholder="Buscar por código o nombre…" autocomplete="off">
+          </div>
+          <div>
+            <select id="f-estado">
+              <option value="">Estado: Todos</option>
+              <option value="aprobada">Aprobada ✅</option>
+              <option value="cursando">Cursando ⏳</option>
+              <option value="pendiente">Pendiente</option>
+            </select>
+          </div>
+          
+          <div>
+            <select id="f-anio">
+              <option value="">Año: Todos</option>
+              <option value="1">1º Año</option>
+              <option value="2">2º Año</option>
+              <option value="3">3º Año</option>
+              <option value="4">4º Año</option>
+            </select>
+          </div>
+          <div>
+            <select id="f-sem">
+              <option value="">Semestre: Todos</option>
+              <option value="1">1º Semestre</option>
+              <option value="2">2º Semestre</option>
+              <option value="3">3º Semestre</option>
+              <option value="4">4º Semestre</option>
+              <option value="5">5º Semestre</option>
+              <option value="6">6º Semestre</option>
+              <option value="7">7º Semestre</option>
+              <option value="8">8º Semestre</option>
+            </select>
+          </div>
+          
+          <div>
+            <select id="f-area">
+              <option value="">Área: Todas</option>
+            </select>
+          </div>
+          <div>
+            <select id="f-tipo">
+              <option value="">Tipo: Todas</option>
+              <option value="OB">Obligatoria</option>
+              <option value="OP">Opcional</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-  /* Estados */
-  --ok: #16a34a;
-  --warn: #f59e0b;
-  --bad: #ef4444;
+    </div> <div class="top-dashboard-grid">
+      
+      <div class="card progress">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <b style="font-size: 16px;">Tu Progreso General</b>
+          <span id="progress-label" class="pill">0%</span>
+        </div>
+        <div class="bar">
+          <span id="bar" style="width: 0%;"></span>
+        </div>
+        <div class="kpis">
+          <div class="kpi">
+            <small>Aprobadas</small>
+            <b id="kpi-aprobadas">0</b>
+          </div>
+          <div class="kpi">
+            <small>Créditos</small>
+            <b id="kpi-creditos">0</b>
+          </div>
+          <div class="kpi">
+            <small>Totales</small>
+            <b id="kpi-totales">0</b>
+          </div>
+        </div>
+      </div>
 
-  /* Chips */
-  --chip: #1f2433;
-}
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+        <div>
+          <b style="font-size: 14px; display: block; margin-bottom: 8px;">Accesos Rápidos</b>
+          <div class="tags">
+            <button id="quick-ob" class="tag">Ver Obligatorias</button>
+            <button id="quick-op" class="tag">Ver Opcionales</button>
+            <button id="quick-clear" class="tag">Limpiar Filtros</button>
+          </div>
+        </div>
+        <hr>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-onboarding">ℹ️ Ayuda</button>
+          <button id="btn-reset">Reiniciar Todo</button>
+        </div>
+      </div>
 
-/* Layout general */
-* {
-  box-sizing: border-box;
-}
+    </div>
 
-html, body {
-  height: 100%;
-}
+    <div class="grid">
+      
+      <main id="list">
+        <div class="empty">Cargando asignaturas y plan de estudios...</div>
+      </main>
 
-body {
-  margin: 0;
-  background: linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2) 45%, var(--bg-grad-1) 100%);
-  background-attachment: fixed;
-  color: var(--txt);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
+      <aside class="sidebar-sticky">
+        <div class="card">
+          <h3 style="margin-top: 0; font-size: 16px;">Áreas de Conocimiento</h3>
+          <div id="areas-list" class="tags" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+            </div>
+        </div>
+      </aside>
 
-/* Envoltura principal */
-.wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
+    </div>
 
-/* Contenedor Fijo Superior Invisible */
-.sticky-top-container {
-  position: sticky;
-  top: 0;
-  background: transparent;
-  z-index: 40;
-  padding-bottom: 8px;
-}
+  </div> <div id="onboarding" class="modal-back">
+    <div class="modal">
+      <div class="card">
+        <h2>✨ ¡Bienvenido a tu Malla Interactiva!</h2>
+        <p>Esta herramienta te permite mapear el progreso de tu carrera de forma visual e inteligente.</p>
+        <p>🔹 <b>Guardado Automático:</b> Tus datos se sincronizan con tu cuenta de Google y almacenamiento local.</p>
+        <p>🔹 <b>Correlativas automáticas:</b> Al marcar una asignatura como aprobada, se comprobarán los prerrequisitos necesarios para destrabar los cursos avanzados.</p>
+        <div class="foot">
+          <button id="ob-close" class="pill" style="background: var(--brand); color: #fff; border: none; padding: 8px 20px;">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-/* NUEVA CLASE: Panel superior de Filtros totalmente integrado al fondo */
-.filters-panel {
-  background: transparent;
-  border: none;
-  padding: 12px 0;
-  margin: 0;
-  width: 100%;
-}
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  
+  <script src="js/app.js"></script>
+  <script src="js/app.firebase.js"></script>
 
-/* Header */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  background: transparent;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-header small {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-/* Grilla Superior (Avance + Leyenda de Estados) */
-.top-dashboard-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-@media (max-width: 768px) {
-  .top-dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Estructura de los Filtros en 3 Columnas */
-.filters-3-col {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  width: 100%;
-  margin-top: 4px;
-  margin-bottom: 16px;
-}
-
-@media (max-width: 768px) {
-  .filters-3-col {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Buscador e Inputs dentro del panel transparente */
-.filters-3-col input[type="search"],
-.filters-3-col select {
-  width: 100%;
-  height: 42px;
-  background: rgba(18, 21, 33, 0.7); 
-  border: 1px solid var(--line);
-  color: var(--txt);
-  padding: 0 14px;
-  border-radius: 10px;
-  font-size: 14px;
-  outline: none;
-  backdrop-filter: blur(8px);
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-}
-
-.filters-3-col input[type="search"]:focus,
-.filters-3-col select:focus {
-  background: var(--surface);
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-weak);
-}
-
-/* Grilla Principal (Listado de materias vs Lateral) */
-.grid {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Columna lateral sticky */
-.sidebar-sticky {
-  position: sticky;
-  top: 260px;
-  z-index: 30;
-}
-
-/* TARJETAS ORIGINALES (Se recupera su color oscuro e independiente) */
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* Progreso y KPIs */
-.progress {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.progress .bar {
-  background: var(--line);
-  height: 10px;
-  border-radius: 99px;
-  overflow: hidden;
-  position: relative;
-}
-
-.progress .bar span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--brand), #a78bfa);
-  width: 0%;
-  transition: width 0.4s ease;
-}
-
-.kpis {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.kpi {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  padding: 10px 12px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-.kpi small {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  letter-spacing: 0.03em;
-}
-
-.kpi b {
-  font-size: 18px;
-  color: var(--txt);
-}
-
-/* Listado de Semestres y Materias */
-.semester-block {
-  margin-bottom: 28px;
-}
-
-.semester-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 12px;
-  padding-left: 4px;
-  border-left: 3px solid var(--brand);
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Fila de Materia */
-.materia-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--card);
-  border: 1px solid var(--line);
-  padding: 12px 16px;
-  border-radius: 12px;
-  transition: transform 0.15s, border-color 0.15s;
-}
-
-.materia-row:hover {
-  border-color: var(--brand-line);
-  background: var(--surface);
-}
-
-.materia-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.materia-title {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.materia-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.materia-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Estados específicos por fila */
-.materia-row.is-aprobada {
-  border-color: rgba(22, 163, 74, 0.3);
-  background: rgba(22, 163, 74, 0.03);
-}
-
-.materia-row.is-cursando {
-  border-color: rgba(245, 158, 11, 0.3);
-  background: rgba(245, 158, 11, 0.03);
-}
-
-.materia-row.is-bloqueada {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Botones y Elementos Interactivos */
-button {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--txt);
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.15s;
-}
-
-button:hover {
-  background: var(--line);
-  border-color: var(--muted);
-}
-
-#btn-reset {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-}
-
-#btn-reset:hover {
-  background: var(--bad);
-  color: #fff;
-}
-
-/* Componentes de interfaz (Pills, Badges y Tags) */
-.pill {
-  background: var(--brand-weak);
-  border: 1px solid var(--brand-line);
-  color: #c084fc;
-  padding: 4px 12px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.badge.ok { background: rgba(22, 163, 74, 0.15); color: #4ade80; border: 1px solid rgba(22, 163, 74, 0.3); }
-.badge.cur { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-.badge.pen { background: var(--chip); color: var(--muted); border: 1px solid var(--line); }
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag {
-  background: var(--chip);
-  border: 1px solid var(--line);
-  color: var(--txt);
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  text-decoration: none;
-  transition: all 0.15s;
-}
-
-.tag:hover, .tag.active {
-  background: var(--brand);
-  border-color: var(--brand);
-  color: #fff;
-}
-
-/* Extras y Utilidades */
-hr {
-  border: none;
-  border-top: 1px solid var(--line);
-  margin: 16px 0;
-}
-
-.muted { color: var(--muted); }
-.empty { padding: 22px; text-align: center; color: #94a3b8; }
-
-/* Modales / Onboarding */
-.modal-back {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 50;
-}
-
-.modal {
-  max-width: 720px;
-  width: 100%;
-}
-
-.modal .card { padding: 18px; }
-.modal h2 { margin: 0 0 8px; }
-.modal p { margin: 0 0 6px; }
-.modal .foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-
-/* Checkboxes */
-input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  accent-color: var(--brand);
-}
+</body>
+</html>
