@@ -3,125 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Malla Interactiva de Administración - FCEA Udelar</title>
+  <title>Notegood · Malla de Administración</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="anonymous">
 </head>
 <body>
 
-  <header class="main-header">
-    <div class="header-container">
-      <div class="logo-area">
-        <h1>Malla Interactiva</h1>
-        <h2>Lic. en Administración — FCEA</h2>
-      </div>
-      <div id="auth-status" class="auth-status-area">
-        <button id="btn-login" class="btn-primary-auth">Iniciar Sesión con Google</button>
-      </div>
-    </div>
-  </header>
+  <div class="mobile-floating-actions">
+    <button id="btn-toggle-filters" class="fab-filters">
+      🔍 <span>Filtros</span>
+    </button>
+    <button id="btn-toggle-semestres" class="fab-semestres">
+      📅 <span>Semestres</span>
+    </button>
+  </div>
 
-  <section class="kpi-dashboard-container">
-    <div class="kpi-card">
-      <span class="kpi-title">Créditos Acumulados</span>
-      <span id="kpi-creditos" class="kpi-value">0</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-title">Materias Aprobadas</span>
-      <span id="kpi-aprobadas" class="kpi-value">0 / 42</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-title">Promedio Estimado</span>
-      <span id="kpi-promedio" class="kpi-value">0.0</span>
-    </div>
-  </section>
-
-  <div class="sticky-controls-wrapper">
-    
-    <div class="filters-panel" id="filters-sidebar">
-      <div class="filters-header-mobile">
-        <h3>Filtros Avanzados</h3>
-        <button class="btn-close-x" id="btn-close-filters">×</button>
-      </div>
+  <div class="sticky-top-container">
+    <div class="wrap-top">
       
-      <div class="filters-layout-grid custom-6-cols">
-        <input type="search" id="search-input" placeholder="Buscar materia por nombre...">
+      <header>
+        <div>
+          <h1>Malla Administración <span class="pill">FCEA</span></h1>
+          <small class="muted">Gestión de créditos, asignaturas y correlativas</small>
+        </div>
+        <div class="materia-actions">
+          <span id="userBadge" class="pill" style="display: none;"></span>
+          <button id="logoutBtn" style="display: none;">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <div class="top-dashboard-grid">
         
-        <select id="filter-area">
-          <option value="">Todas las Áreas</option>
-          <option value="Administración">Administración</option>
-          <option value="Contabilidad">Contabilidad</option>
-          <option value="Economía">Economía</option>
-          <option value="Métodos Cuantitativos">Métodos Cuantitativos</option>
-          <option value="Jurídica">Jurídica</option>
-          <option value="Integradora">Integradora y Otras</option>
-        </select>
-        
-        <select id="filter-tipo">
-          <option value="">Todos los Tipos (OB/OP)</option>
-          <option value="OB">Obligatorias (OB)</option>
-          <option value="OP">Opcionales (OP)</option>
-        </select>
-        
-        <select id="filter-estado">
-          <option value="">Todos los Estados</option>
-          <option value="aprobada">Aprobadas</option>
-          <option value="cursando">Cursando</option>
-          <option value="pendiente">Pendientes</option>
-        </select>
-        
-        <select id="filter-previas">
-          <option value="">Estado de Previas</option>
-          <option value="disponible">Disponibles p/ cursar</option>
-          <option value="bloqueada">Bloqueadas</option>
-        </select>
-        
-        <div class="calculo-col-container">
-          <select id="trayectoria-calculo">
-            <option value="recom">Trayectoria Recomendada</option>
-            <option value="min">Mínimo esfuerzo</option>
-          </select>
+        <div class="card progress" style="margin: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <b style="font-size: 16px;">Tu Progreso General</b>
+              <span id="progress-label" class="pill">0%</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-onboarding">Guía rápida</button>
+              <button id="btn-reset">Borrar progreso</button>
+            </div>
+          </div>
+          <div class="bar">
+            <span id="bar" style="width: 0%;"></span>
+          </div>
+        </div>
+
+        <div class="kpis-row">
+          <div class="kpi"><small>Aprobadas</small><b id="kpi-aprobadas">0</b></div>
+          <div class="kpi"><small>Créditos</small><b id="kpi-creditos">0</b></div>
+          <div class="kpi"><small>Totales</small><b id="kpi-totales">0</b></div>
+        </div>
+
+        <div class="card leyenda-card" style="margin: 0;">
+          <h3 style="margin: 0; font-size: 14px;">Leyenda y notas</h3>
+          <div class="tags" style="margin: 4px 0 6px 0;">
+            <span class="badge ok">Aprobada</span>
+            <span class="badge cur">Cursando</span>
+            <span class="badge pen">Pendiente</span>
+          </div>
+          <p class="muted" style="margin: 0; font-size: 11px; line-height: 1.3;">
+            Marca como <b>Aprobada</b> para sumar créditos. Si tiene <b>previas</b> se bloqueará.
+          </p>
+        </div>
+
+      </div>
+
+      <div id="filters-container" class="filters-panel">
+        <div class="filters-header-mobile">
+          <h3>Filtrar Materias</h3>
+          <button id="btn-close-filters" class="btn-close-x">✕</button>
+        </div>
+        <div class="filters-layout-grid">
+          <div><input id="q" type="search" placeholder="Buscar por código o nombre…" autocomplete="off"></div>
+          <div>
+            <select id="f-estado">
+              <option value="">Estado: Todos</option>
+              <option value="aprobada">Aprobada ✅</option>
+              <option value="cursando">Cursando ⏳</option>
+              <option value="pendiente">Pendiente</option>
+            </select>
+          </div>
+          <div><select id="f-anio"><option value="">Año: Todos</option></select></div>
+          <div><select id="f-area"><option value="">Área: Todas</option></select></div>
+          <div>
+            <select id="f-tipo">
+              <option value="">Tipo: Todas</option>
+              <option value="OB">Obligatoria</option>
+              <option value="OP">Opcional</option>
+            </select>
+          </div>
+          
+          <div class="calculo-col-container">
+            <select id="f-trayectoria-calculo">
+              <option value="">Trayectoria Cálculo: Elegir...</option>
+              <option value="MC10">Cálculo I (MC10)</option>
+              <option value="AB">Cálculo I/A y I/B (114A/128A)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="semestres-container" class="semestres-panel">
+        <div class="semestres-header-mobile">
+          <h3>Seleccionar Semestre</h3>
+          <button id="btn-close-semestres" class="btn-close-x">✕</button>
+        </div>
+        <div class="semestres-buttons-grid">
+          <button class="btn-semestre active" data-semestre="1">1° Semestre</button>
+          <button class="btn-semestre" data-semestre="2">2° Semestre</button>
+          <button class="btn-semestre" data-semestre="3">3° Semestre</button>
+          <button class="btn-semestre" data-semestre="4">4° Semestre</button>
+          <button class="btn-semestre" data-semestre="5">5° Semestre</button>
+          <button class="btn-semestre" data-semestre="6">6° Semestre</button>
+          <button class="btn-semestre" data-semestre="7">7° Semestre</button>
+          <button class="btn-semestre" data-semestre="8">8° Semestre</button>
+          <button class="btn-semestre" data-semestre="todos">Ver Todos</button>
+        </div>
+      </div>
+
+    </div>
+  </div> <div class="wrap" style="margin-top: 24px;">
+    <main id="list"></main>
+  </div>
+
+  <div id="onboarding" class="modal-back">
+    <div class="modal">
+      <div class="card">
+        <h2>✨ ¡Bienvenido a tu Malla Interactiva!</h2>
+        <p>Esta herramienta te permite mapear el progreso de tu carrera de forma visual e inteligente.</p>
+        <p>🔹 <b>Guardado Automático:</b> Tus datos se guardan de manera local y en tu nube de Firebase.</p>
+        <p>🔹 <b>Correlativas automáticas:</b> Si desmarcas una previa obligatoria, el sistema limpiará el progreso posterior para evitar inconsistencias.</p>
+        <div class="foot">
+          <button id="ob-close" class="pill" style="background: var(--brand); color: #fff; border: none; padding: 8px 20px;">Entendido</button>
         </div>
       </div>
     </div>
-
-    <div class="semestres-panel" id="semestres-sidebar">
-      <div class="semestres-header-mobile">
-        <h3>Seleccionar Semestre</h3>
-        <button class="btn-close-x" id="btn-close-semestres">×</button>
-      </div>
-      <div class="semestres-buttons-grid">
-        <button class="btn-semestre active" data-semestre="1">1° Semestre</button>
-        <button class="btn-semestre" data-semestre="2">2° Semestre</button>
-        <button class="btn-semestre" data-semestre="3">3° Semestre</button>
-        <button class="btn-semestre" data-semestre="4">4° Semestre</button>
-        <button class="btn-semestre" data-semestre="5">5° Semestre</button>
-        <button class="btn-semestre" data-semestre="6">6° Semestre</button>
-        <button class="btn-semestre" data-semestre="7">7° Semestre</button>
-        <button class="btn-semestre" data-semestre="8">8° Semestre</button>
-        <button class="btn-semestre" data-semestre="todos">Ver Todos</button>
-      </div>
-    </div>
-
   </div>
 
-  <main class="grid-content-container">
-    <div id="list" class="materias-cards-grid">
-      </div>
-  </main>
-
-  <div class="mobile-floating-actions">
-    <button id="btn-open-filters" class="btn-floating">
-      <span class="icon">🔍</span> Filtros
-    </button>
-    <button id="btn-open-semestres" class="btn-floating highlight">
-      <span class="icon">📅</span> Semestres
-    </button>
-  </div>
-
-  <script type="module" src="js/app.firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+  
+  <script>/* window.FB_CONFIG */</script>
+  
   <script src="js/app.js"></script>
+  <script src="js/app.firebase.js"></script>
+
 </body>
 </html>
