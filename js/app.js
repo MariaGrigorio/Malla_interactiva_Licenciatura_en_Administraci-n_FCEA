@@ -25,7 +25,7 @@
     aprobadas: new Set(),
     cursando: new Set(),
     planeadas: new Set(), // Guarda los códigos de las materias opcionales elegidas "A cursar"
-    trayectoriaCalculo: null, // NUEVO: 'MC10' (Cálculo I), 'AB' (Cálculo I/A y I/B) o null (No definido)
+    trayectoriaCalculo: null, // 'MC10' (Cálculo I), 'AB' (Cálculo I/A y I/B) o null (No definido)
     data: { areas: [], materias: [] },
   };
 
@@ -36,7 +36,7 @@
         aprobadas: Array.from(state.aprobadas),
         cursando: Array.from(state.cursando),
         planeadas: Array.from(state.planeadas),
-        trayectoriaCalculo: state.trayectoriaCalculo, // NUEVO: Persiste la elección de trayectoria
+        trayectoriaCalculo: state.trayectoriaCalculo,
       };
       localStorage.setItem(stateKey, JSON.stringify(obj));
     } catch (e) {
@@ -52,7 +52,7 @@
       state.aprobadas = new Set(obj.aprobadas || []);
       state.cursando = new Set(obj.cursando || []);
       state.planeadas = new Set(obj.planeadas || []);
-      state.trayectoriaCalculo = obj.trayectoriaCalculo || null; // NUEVO: Carga la elección previa
+      state.trayectoriaCalculo = obj.trayectoriaCalculo || null;
     } catch (e) {
       console.warn("No se pudo cargar el estado:", e);
     }
@@ -104,12 +104,12 @@
   }
 
   function matchesFilters(m) {
-    // NUEVO: Lógica de exclusión de trayectorias de cálculo en el listado
+    // Lógica de exclusión de trayectorias de cálculo en el listado
     if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) {
-      return false; // Si hace Cálculo I, ocultamos las versiones A y B
+      return false; 
     }
     if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") {
-      return false; // Si hace el camino dividido, ocultamos Cálculo I estándar
+      return false; 
     }
 
     const q = ($("#q")?.value || "").trim().toLowerCase();
@@ -141,7 +141,6 @@
 
   // ---------- UI: KPIs y barra ----------
   function updateKpis() {
-    // NUEVO: Filtramos las materias totales basándonos en la trayectoria activa para que los KPIs no sumen duplicados
     const materiasFiltradasPorCamino = state.data.materias.filter((m) => {
       if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
       if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
@@ -226,19 +225,17 @@
         $areasList.appendChild(span);
       });
 
-      // NUEVO: Renderizado del bloque interactivo de Trayectoria de Cálculo justo debajo del listado de Leyenda y Áreas
+      // MODIFICADO: Inyección dinámica con clases CSS condicionales para resaltar visiblemente el botón activo
       const divCalculo = document.createElement("div");
-      divCalculo.style.marginTop = "24px";
-      divCalculo.style.paddingTop = "16px";
-      divCalculo.style.borderTop = "1px solid var(--line)";
+      divCalculo.className = "calculo-selector-container";
       divCalculo.innerHTML = `
-        <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--txt);">¿Cursas Cálculo I o Cálculo I/A y I/B?</h4>
+        <h4 class="calculo-title">¿Cursas Cálculo I o Cálculo I/A y I/B?</h4>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <button id="btn-tray-mc10" class="btn" style="text-align: left; font-size: 13px; width: 100%;">
-            ${state.trayectoriaCalculo === "MC10" ? "● " : "○ "} Opción: Cálculo I (MC10)
+          <button id="btn-tray-mc10" class="btn ${state.trayectoriaCalculo === 'MC10' ? 'btn-tray-active' : ''}">
+            Cálculo I (MC10)
           </button>
-          <button id="btn-tray-ab" class="btn" style="text-align: left; font-size: 13px; width: 100%;">
-            ${state.trayectoriaCalculo === "AB" ? "● " : "○ "} Opción: Cálculo I/A (114A) y I/B (128A)
+          <button id="btn-tray-ab" class="btn ${state.trayectoriaCalculo === 'AB' ? 'btn-tray-active' : ''}">
+            Cálculo I/A (114A) y I/B (128A)
           </button>
         </div>
       `;
@@ -273,13 +270,12 @@
       });
   }
 
-  // NUEVO: Cambiar de trayectoria de cálculo limpiando la contraria de forma preventiva
+  // Cambiar de trayectoria de cálculo limpiando la contraria de forma preventiva
   function cambiarTrayectoria(tipo) {
     if (state.trayectoriaCalculo === tipo) return;
     
     state.trayectoriaCalculo = tipo;
 
-    // Limpieza preventiva para evitar créditos fantasmas de la opción abandonada
     if (tipo === "MC10") {
       state.aprobadas.delete("114A"); state.cursando.delete("114A");
       state.aprobadas.delete("128A"); state.cursando.delete("128A");
@@ -290,7 +286,7 @@
     saveState();
     updateKpis();
     
-    // Volvemos a construir los filtros para actualizar los círculos de los botones (● / ○)
+    // Remover nodo viejo del selector antes de reconstruir filtros
     const areas = $("#areas-list");
     if (areas && areas.parentNode) {
       const lastNode = areas.parentNode.lastChild;
@@ -450,7 +446,7 @@
           state.aprobadas.clear();
           state.cursando.clear();
           state.planeadas.clear();
-          state.trayectoriaCalculo = null; // Limpia también la definición de Cálculo
+          state.trayectoriaCalculo = null; 
           render();
           updateKpis();
         }
