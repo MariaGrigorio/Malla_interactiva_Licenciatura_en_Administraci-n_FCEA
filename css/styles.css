@@ -55,26 +55,34 @@ body {
 }
 
 /* =========================================================
-   CORREGIDO: Contenedor Fijo Superior Activo (Dashboard + Filtros)
-   Ahora tiene una capa sólida y desenfoque para tapar limpiamente 
-   las materias que suben en el scroll sin romper la estética.
+   COMPORTAMIENTO STICKY CONDICIONAL (MOBILE FRIENDLY)
    ========================================================= */
 .sticky-top-container {
-  position: sticky;
-  top: 0;
-  /* Capa de fondo oscura que machea el body + desenfoque de fondo */
-  background: linear-gradient(180deg, var(--bg-grad-1) 85%, rgba(10, 12, 17, 0.95) 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  
-  /* Z-index dominante para que NADA se pase por encima de este bloque */
-  z-index: 100; 
+  position: relative; /* En celular sube con el dedo de forma fluida */
+  background: transparent;
   padding-top: 4px;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(35, 40, 58, 0.5);
+  z-index: 1;
 }
 
-/* Panel superior de Filtros totalmente integrado al fondo */
+@media (min-width: 900px) {
+  .sticky-top-container {
+    position: sticky; /* En PC se congela arriba */
+    top: 0;
+    background: linear-gradient(180deg, var(--bg-grad-1) 85%, rgba(10, 12, 17, 0.95) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+}
+
+/* Elementos exclusivos de interacción móvil (ocultos en PC) */
+.fab-filters, .filters-header-mobile {
+  display: none;
+}
+
+/* Panel superior de Filtros */
 .filters-panel {
   background: transparent;
   border: none;
@@ -118,7 +126,7 @@ header small {
   }
 }
 
-/* Estructura de los Filtros en 3 Columnas */
+/* Estructura de los Filtros en 3 Columnas (PC) */
 .filters-3-col {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -127,13 +135,7 @@ header small {
   margin: 0;
 }
 
-@media (max-width: 768px) {
-  .filters-3-col {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Buscador e Inputs dentro del panel transparente con efecto cristal esmerilado */
+/* Inputs y Selectores con efecto esmerilado */
 .filters-3-col input[type="search"],
 .filters-3-col select {
   width: 100%;
@@ -145,7 +147,7 @@ header small {
   border-radius: 10px;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .filters-3-col input[type="search"]:focus,
@@ -170,14 +172,11 @@ header small {
   }
 }
 
-/* =========================================================
-   CORREGIDO: Columna lateral sticky alineada por debajo de los filtros
-   ========================================================= */
+/* Columna lateral sticky */
 .sidebar-sticky {
   position: sticky;
-  /* Se calcula dinámicamente en base al alto aproximado del bloque fijo superior */
   top: 310px; 
-  z-index: 30; /* Menor que el top container para pasar limpiamente por debajo */
+  z-index: 30; 
 }
 
 /* TARJETAS SÓLIDAS OSCURAS ORIGINALES */
@@ -202,7 +201,6 @@ header small {
   border-color: #2a3150;
 }
 
-/* Distribución interna textual por bloques */
 .course-info {
   display: flex;
   flex-direction: column;
@@ -225,7 +223,6 @@ header small {
   color: var(--muted);
 }
 
-/* Fila Superior de Atributos internos */
 .meta {
   display: flex;
   gap: 8px;
@@ -242,7 +239,6 @@ header small {
   color: #c7d2fe;
 }
 
-/* Estados de bloqueo */
 .course.locked {
   opacity: .5;                
   cursor: not-allowed;        
@@ -252,7 +248,7 @@ header small {
   cursor: not-allowed;
 }
 
-/* Área de acciones: Checkboxes apilados uno debajo del otro */
+/* Checkboxes apilados verticalmente de forma limpia */
 .act {
   display: flex;
   flex-direction: column;
@@ -272,7 +268,7 @@ header small {
   cursor: pointer;
 }
 
-/* Bordes acentuados interactivos según progreso directo en la tarjeta */
+/* Bordes acentuados según progreso */
 .card.course.is-aprobada {
   border-color: rgba(22, 163, 74, 0.4);
   background: linear-gradient(135deg, var(--card), rgba(22, 163, 74, 0.05));
@@ -334,8 +330,8 @@ header small {
   color: var(--txt);
 }
 
-/* Botones y Elementos Interactivos */
-button {
+/* Botones, Pills y Badges */
+button, .btn {
   background: var(--surface);
   border: 1px solid var(--line);
   color: var(--txt);
@@ -347,7 +343,7 @@ button {
   transition: all 0.15s;
 }
 
-button:hover {
+button:hover, .btn:hover {
   background: var(--line);
   border-color: var(--muted);
 }
@@ -357,13 +353,11 @@ button:hover {
   border-color: rgba(239, 68, 68, 0.2);
   color: #f87171;
 }
-
 #btn-reset:hover {
   background: var(--bad);
   color: #fff;
 }
 
-/* Componentes de interfaz (Pills, Badges y Tags) */
 .pill {
   background: var(--brand-weak);
   border: 1px solid var(--brand-line);
@@ -381,17 +375,11 @@ button:hover {
   font-weight: 600;
   text-transform: uppercase;
 }
-
 .badge.ok { background: rgba(22, 163, 74, 0.15); color: #4ade80; border: 1px solid rgba(22, 163, 74, 0.3); }
 .badge.cur { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
 .badge.pen { background: var(--chip); color: var(--muted); border: 1px solid var(--line); }
 
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .tag {
   background: var(--chip);
   border: 1px solid var(--line);
@@ -400,27 +388,11 @@ button:hover {
   border-radius: 8px;
   font-size: 12px;
   text-decoration: none;
-  transition: all 0.15s;
 }
 
-.tag:hover, .tag.active {
-  background: var(--brand);
-  border-color: var(--brand);
-  color: #fff;
-}
-
-/* Selector de cálculo interactivo lateral */
-.calculo-selector-container {
-  margin-top: 0;
-  padding: 20px;
-  width: 100%;
-}
-.calculo-title {
-  margin: 0 0 12px 0; 
-  font-size: 13px; 
-  font-weight: 600;
-  color: var(--txt);
-}
+/* Selector de cálculo dinámico */
+.calculo-selector-container { padding: 20px; width: 100%; }
+.calculo-title { margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: var(--txt); }
 .btn.btn-tray-active {
   background: var(--brand) !important;
   color: #ffffff !important;
@@ -429,13 +401,7 @@ button:hover {
   box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
 }
 
-/* Extras y Utilidades */
-hr {
-  border: none;
-  border-top: 1px solid var(--line);
-  margin: 16px 0;
-}
-
+hr { border: none; border-top: 1px solid var(--line); margin: 16px 0; }
 .muted { color: var(--muted); }
 .empty { padding: 22px; text-align: center; color: #94a3b8; }
 
@@ -450,22 +416,86 @@ hr {
   padding: 16px;
   z-index: 50;
 }
-
-.modal {
-  max-width: 720px;
-  width: 100%;
-}
-
+.modal { max-width: 720px; width: 100%; }
 .modal .card { padding: 18px; }
 .modal h2 { margin: 0 0 8px; }
-.modal p { margin: 0 0 6px; }
 .modal .foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 
-/* Checkboxes */
 input[type="checkbox"] {
   width: 18px;
   height: 18px;
   border-radius: 4px;
   accent-color: var(--brand);
   cursor: pointer;
+}
+
+/* =========================================================
+   SOPORTE DE TRASLACIÓN ESTRUCTURAL A MÓVIL (MÓVIL UX)
+   ========================================================= */
+@media (max-width: 900px) {
+  /* Muestra el Botón Flotante */
+  .fab-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 120;
+    background-color: var(--brand);
+    color: #ffffff;
+    border: none;
+    padding: 14px 22px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5);
+    cursor: pointer;
+  }
+
+  /* Transforma el panel de filtros en una Bottom Sheet modal */
+  .filters-panel {
+    display: none; 
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 2px solid var(--line);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px;
+    z-index: 130;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .filters-panel.open {
+    display: block;
+    animation: slideUp 0.25s ease-out;
+  }
+
+  .filters-header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 12px;
+  }
+  .filters-header-mobile h3 { margin: 0; font-size: 17px; }
+  .btn-close-x { background: transparent; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+
+  /* Redefine las 3 columnas a bloque vertical en móvil */
+  .filters-3-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .filters-3-col input, .filters-3-col select {
+    width: 100% !important;
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
