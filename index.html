@@ -48,31 +48,27 @@
     <p>Hecho con 💜 por Notegood.uy</p>
   </footer>
 
-  <!-- Firebase v12 (modular) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
-
-    // Configuración de tu proyecto Firebase
+ <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  
+  <script>
+    // Configuración real de tu proyecto Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCHAKPNdi8J0XfZZ0oHQ-gmWF9DPbvRhiQ",
       authDomain: "malla-fcea.firebaseapp.com",
       projectId: "malla-fcea",
       storageBucket: "malla-fcea.firebasestorage.app",
       messagingSenderId: "546418390812",
-      appId: "1:546418390812:web:38d4dbefde6f9829e6acd9",
-      measurementId: "G-HS9BMBSB20"
+      appId: "1:546418390812:web:38d4dbefde6f9829e6acd9"
     };
 
     // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
     // Si ya hay sesión → ir a la malla
-    onAuthStateChanged(auth, (user) => {
+    auth.onAuthStateChanged((user) => {
       if (user) {
         location.href = "malla.html";
       }
@@ -81,8 +77,8 @@
     // Click en botón login Google
     document.getElementById("loginGoogle").addEventListener("click", async () => {
       try {
-        await signInWithPopup(auth, provider);
-        location.href = "malla.html";
+        await auth.signInWithPopup(provider);
+        // El redireccionamiento lo manejará el onAuthStateChanged arriba
       } catch (e) {
         alert("Error al iniciar sesión: " + e.message);
         console.error(e);
