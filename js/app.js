@@ -1,208 +1,319 @@
-// --- CONFIGURACIÓN DE ESTADOS GLOBALES ---
-let listaMateriasOriginal = [];
-let filtroSemestreActual = "1"; // Valor por defecto requerido: Semestre 1 filtrado
+/* =========================================================
+   Grilla · Administración (UDELAR)
+   Fuente de datos: /data/materias_admin.json
+   ========================================================= */
 
-// --- INICIALIZACIÓN AL CARGAR EL DOCUMENTO ---
-document.addEventListener("DOMContentLoaded", () => {
-  cargarMateriasFcea();
-  inicializarEventosFiltros();
-  inicializarEventosResponsiveMobile();
-});
+(function () {
+  "use strict";
 
-// --- CARGA DE DATOS LOCALES (JSON MATERIAS ADMIN) ---
-function cargarMateriasFcea() {
-  // Simulamos o apuntamos al fetch de tu base de datos materias_admin.json
-  fetch("materias_admin.json")
-    .then(response => {
-      if (!response.ok) throw new Error("No se pudo cargar el archivo de materias.");
-      return response.json();
-    })
-    .then(data => {
-      listaMateriasOriginal = data;
-      
-      // Renderizado y cálculo inicial (Arranca directamente filtrado por el Semestre 1)
-      filtrarYRenderizarMaterias();
-      actualizarKPIDashboard();
-    })
-    .catch(error => {
-      console.error("Error cargando materias:", error);
-      // Fallback por si la red falla localmente mientras pruebas
-      listaMateriasOriginal = [];
-    });
-}
+  const USE_EXTERNAL_JSON = true;
+  const EXTERNAL_JSON_URL = "data/materias_admin.json";
 
-// --- VINCULACIÓN DE ESCUCHADORES DE FILTROS ---
-function inicializarEventosFiltros() {
-  // Entradas Estándar
-  document.getElementById("search-input").addEventListener("input", filtrarYRenderizarMaterias);
-  document.getElementById("filter-area").addEventListener("change", filtrarYRenderizarMaterias);
-  document.getElementById("filter-tipo").addEventListener("change", filtrarYRenderizarMaterias);
-  document.getElementById("filter-estado").addEventListener("change", filtrarYRenderizarMaterias);
-  document.getElementById("filter-previas").addEventListener("change", filtrarYRenderizarMaterias);
-  document.getElementById("trayectoria-calculo").addEventListener("change", filtrarYRenderizarMaterias);
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-  // Lógica para los nuevos 8 Botones de Semestre + Botón Todos
-  const botonesSemestre = document.querySelectorAll(".btn-semestre");
-  botonesSemestre.forEach(boton => {
-    boton.addEventListener("click", (e) => {
-      // Remover estado activo previo de toda la lista de botones
-      botonesSemestre.forEach(b => b.classList.remove("active"));
-      
-      // Asignar clase activa al botón presionado
-      e.currentTarget.classList.add("active");
-      
-      // Modificar el filtro global con el atributo del botón
-      filtroSemestreActual = e.currentTarget.getAttribute("data-semestre");
-      
-      // Ejecutar filtrado en tiempo real
-      filtrarYRenderizarMaterias();
+  const stateKey = "grilla-admin-v1";
+  const state = {
+    aprobadas: new Set(),
+    cursando: new Set(),
+    planeadas: new Set(),
+    trayectoriaCalculo: null,
+    data: { areas: [], materias: [] },
+  };
 
-      // En móviles, cerramos automáticamente el panel al hacer tap en un semestre para ver resultados
-      if (window.innerWidth <= 950) {
-        document.getElementById("semestres-sidebar").classList.remove("open");
-      }
-    });
-  });
-}
+  // Seteo del filtro de semestre inicial requerido por defecto
+  let filtroSemestreActual = "1"; 
 
-// --- MANEJO DE APERTURA/CIERRE DE PANELES FLOTANTES EN MOBILE ---
-function inicializarEventosResponsiveMobile() {
-  // Selectores de los Triggers Flotantes Inferiores
-  const btnOpenFilters = document.getElementById("btn-open-filters");
-  const btnOpenSemestres = document.getElementById("btn-open-semestres");
-  
-  // Selectores de los Botones de Cerrar (X) de los Modales
-  const btnCloseFilters = document.getElementById("btn-close-filters");
-  const btnCloseSemestres = document.getElementById("btn-close-semestres");
-  
-  // Elementos de los Contenedores
-  const filtersSidebar = document.getElementById("filters-sidebar");
-  const semestresSidebar = document.getElementById("semestres-sidebar");
-
-  // Eventos de apertura
-  if (btnOpenFilters) {
-    btnOpenFilters.addEventListener("click", () => {
-      filtersSidebar.classList.add("open");
-      semestresSidebar.classList.remove("open"); // Evita superposición
-    });
-  }
-  
-  if (btnOpenSemestres) {
-    btnOpenSemestres.addEventListener("click", () => {
-      semestresSidebar.classList.add("open");
-      filtersSidebar.classList.remove("open"); // Evita superposición
-    });
+  function saveState() {
+    try {
+      const obj = {
+        aprobadas: Array.from(state.aprobadas),
+        cursando: Array.from(state.cursando),
+        planeadas: Array.from(state.planeadas),
+        trayectoriaCalculo: state.trayectoriaCalculo,
+      };
+      localStorage.setItem(stateKey, JSON.stringify(obj));
+    } catch (e) {
+      console.warn("No se pudo guardar el estado:", e);
+    }
   }
 
-  // Eventos de cierre (X)
-  if (btnCloseFilters) {
-    btnCloseFilters.addEventListener("click", () => {
-      filtersSidebar.classList.remove("open");
-    });
+  function loadState() {
+    const raw = localStorage.getItem(stateKey);
+    if (!raw) return;
+    try {
+      const obj = JSON.parse(raw);
+      state.aprobadas = new Set(obj.aprobadas || []);
+      state.cursando = new Set(obj.cursando || []);
+      state.planeadas = new Set(obj.planeadas || []);
+      state.trayectoriaCalculo = obj.trayectoriaCalculo || null;
+    } catch (e) {
+      console.warn("No se pudo cargar el estado:", e);
+    }
   }
-  
-  if (btnCloseSemestres) {
-    btnCloseSemestres.addEventListener("click", () => {
-      semestresSidebar.classList.remove("open");
-    });
+
+  function areaName(id) {
+    const a = state.data.areas.find((x) => x.id === id);
+    return (a && a.nombre) || id || "";
   }
-}
 
-// --- FUNCIÓN NUCLEAR: FILTRADO COMPUESTO DE MATERIAS ---
-function filtrarYRenderizarMaterias() {
-  const queryBuscar = document.getElementById("search-input").value.toLowerCase().trim();
-  const areaFiltro = document.getElementById("filter-area").value;
-  const tipoFiltro = document.getElementById("filter-tipo").value;
-  const estadoFiltro = document.getElementById("filter-estado").value;
-  const previasFiltro = document.getElementById("filter-previas").value;
+  function canTake(m) {
+    const prev = Array.isArray(m.previas) ? m.previas : [];
+    return prev.every((c) => state.aprobadas.has(String(c).trim()));
+  }
 
-  // Filtrar arreglo original basándonos en criterios
-  const resultadoFiltrado = listaMateriasOriginal.filter(materia => {
-    
-    // 1. FILTRO DE SEMESTRE MODIFICADO (Utiliza los botones y la variable global)
-    if (filtroSemestreActual !== "todos") {
-      if (materia.semestre.toString() !== filtroSemestreActual) {
-        return false;
-      }
-    }
+  function getEstado(cod) {
+    if (state.aprobadas.has(cod)) return "aprobada";
+    if (state.cursando.has(cod)) return "cursando";
+    return "pendiente";
+  }
 
-    // 2. Filtro por caja de búsqueda por nombre
-    if (queryBuscar && !materia.nombre.toLowerCase().includes(queryBuscar)) {
-      return false;
-    }
+  function limpiarMateriasHuerfanas() {
+    let huboCambios = false;
+    do {
+      huboCambios = false;
+      state.data.materias.forEach((materia) => {
+        if (
+          (state.aprobadas.has(materia.codigo) || state.cursando.has(materia.codigo) || state.planeadas.has(materia.codigo)) &&
+          !canTake(materia)
+        ) {
+          state.aprobadas.delete(materia.codigo);
+          state.cursando.delete(materia.codigo);
+          state.planeadas.delete(materia.codigo);
+          huboCambios = true;
+        }
+      });
+    } while (huboCambios);
+  }
 
-    // 3. Filtro por Área Temática
-    if (areaFiltro && materia.area !== areaFiltro) {
-      return false;
-    }
+  function matchesFilters(m) {
+    if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
+    if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
 
-    // 4. Filtro por Tipo de Carácter (OB / OP)
-    if (tipoFiltro && materia.tipo !== tipoFiltro) {
-      return false;
-    }
+    // Validación del filtro de chips de semestre
+    if (filtroSemestreActual !== "todos" && m.semestre.toString() !== filtroSemestreActual) return false;
 
-    // 5. Filtro por Estados guardados (Simulado, usando localStorage en tu app)
-    const estadoGuardado = localStorage.getItem(`materia_estado_${materia.id}`) || "pendiente";
-    if (estadoFiltro && estadoGuardado !== estadoFiltro) {
-      return false;
-    }
+    const q = ($("#q")?.value || "").trim().toLowerCase();
+    const fa = $("#f-anio")?.value || "";
+    const far = $("#f-area")?.value || "";
+    const ft = $("#f-tipo")?.value || "";
+    const fe = $("#f-estado")?.value || "";
 
-    // 6. Filtro por Estado de Previas Habilitadas/Bloqueadas (Simulación de tu lógica estructural)
-    if (previasFiltro) {
-      const estaHabilitada = comprobarPreviasMateria(materia);
-      if (previasFiltro === "disponible" && !estaHabilitada) return false;
-      if (previasFiltro === "bloqueada" && estaHabilitada) return false;
-    }
+    if (q && !(String(m.nombre).toLowerCase().includes(q) || String(m.codigo).toLowerCase().includes(q))) return false;
+    if (fa && String(m.anio) !== fa) return false;
+    if (far && String(m.area) !== far) return false;
+    if (ft && String(m.tipo) !== ft) return false;
+    if (fe && getEstado(m.codigo) !== fe) return false;
 
     return true;
-  });
-
-  // Renderizar la lista resultante en el DOM
-  renderizarCardsEnMalla(resultadoFiltrado);
-}
-
-// --- RENDERIZACIÓN DE TARJETAS EN EL CONTENEDOR HTML ---
-function renderizarCardsEnMalla(materias) {
-  const contenedor = document.getElementById("list");
-  if (!contenedor) return;
-  
-  contenedor.innerHTML = "";
-
-  if (materias.length === 0) {
-    contenedor.innerHTML = `<div class="no-results-alert">No se encontraron materias con los filtros seleccionados.</div>`;
-    return;
   }
 
-  materias.forEach(materia => {
-    const estado = localStorage.getItem(`materia_estado_${materia.id}`) || "pendiente";
-    
-    const card = document.createElement("div");
-    card.className = `materia-card status-${estado}`;
-    card.setAttribute("data-id", materia.id);
-    
-    card.innerHTML = `
-      <div class="card-header-info">
-        <span class="materia-code">${materia.id}</span>
-        <span class="materia-creditos">${materia.creditos} <small>Créditos</small></span>
-      </div>
-      <h4 class="materia-title">${materia.nombre}</h4>
-      <div class="card-footer-info">
-        <span class="materia-badge-area">${materia.area}</span>
-        <span class="materia-badge-semestre">${materia.semestre}° Sem</span>
-      </div>
-    `;
-    
-    contenedor.appendChild(card);
-  });
-}
+  function updateKpis() {
+    const materiasFiltradasPorCamino = state.data.materias.filter((m) => {
+      if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
+      if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
+      return true;
+    });
 
-// --- AUXILIARES SIMULADOS (Mantenlos sincronizados con tus funciones existentes) ---
-function comprobarPreviasMateria(materia) {
-  // Aquí corre tu lógica recursiva que analiza si cumple con las previas aprobadas
-  return true; 
-}
+    const total = materiasFiltradasPorCamino.length;
+    const aprobadas = materiasFiltradasPorCamino.filter((m) => state.aprobadas.has(m.codigo)).length;
 
-function actualizarKPIDashboard() {
-  // Lógica existente de conteo y reducción de créditos ganados de localStorage
-  console.log("Métricas calculadas.");
-}
+    const credTot = materiasFiltradasPorCamino.reduce((s, m) => {
+      const esObligatoria = m.tipo === "OB";
+      const esOpcionalElegida = m.tipo === "OP" && (state.planeadas.has(m.codigo) || state.cursando.has(m.codigo) || state.aprobadas.has(m.codigo));
+      return (esObligatoria || esOpcionalElegida) ? s + Number(m.creditos || 0) : s;
+    }, 0);
+
+    const credOk = materiasFiltradasPorCamino.filter((m) => state.aprobadas.has(m.codigo)).reduce((s, m) => s + Number(m.creditos || 0), 0);
+
+    $("#kpi-aprobadas") && ($("#kpi-aprobadas").textContent = aprobadas);
+    $("#kpi-totales") && ($("#kpi-totales").textContent = total);
+    $("#kpi-creditos") && ($("#kpi-creditos").textContent = credOk);
+
+    const pct = credTot ? Math.round((credOk / credTot) * 100) : 0;
+    $("#progress-label") && ($("#progress-label").textContent = `${pct}% · ${credOk}/${credTot} cr meta`);
+    $("#bar") && ($("#bar").style.width = pct + "%");
+  }
+
+  function buildFilters() {
+    const años = [...new Set(state.data.materias.map((m) => m.anio))].sort((a, b) => a - b);
+    const $anio = $("#f-anio"), $area = $("#f-area");
+
+    if ($anio) {
+      $anio.innerHTML = '<option value="">Año: Todos</option>';
+      años.forEach((v) => $anio.insertAdjacentHTML("beforeend", `<option value="${v}">${v}° Año</option>`));
+    }
+    if ($area) {
+      $area.innerHTML = '<option value="">Área: Todas</option>';
+      state.data.areas.forEach((a) => $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`));
+    }
+
+    const $selectTrayectoria = $("#f-trayectoria-calculo");
+    if ($selectTrayectoria) {
+      $selectTrayectoria.value = state.trayectoriaCalculo || "";
+    }
+  }
+
+  function cambiarTrayectoria(tipo) {
+    if (state.trayectoriaCalculo === tipo) return;
+    
+    if (state.trayectoriaCalculo !== null) {
+      let tieneProgreso = false;
+      if (state.trayectoriaCalculo === "MC10" && (state.aprobadas.has("MC10") || state.cursando.has("MC10"))) tieneProgreso = true;
+      if (state.trayectoriaCalculo === "AB" && (state.aprobadas.has("114A") || state.cursando.has("114A") || state.aprobadas.has("128A") || state.cursando.has("128A"))) tieneProgreso = true;
+
+      if (tieneProgreso) {
+        if (!confirm("Atención: Si cambias de trayectoria se restablecerá tu progreso en el camino que abandonas. ¿Continuar?")) {
+          if ($("#f-trayectoria-calculo")) $("#f-trayectoria-calculo").value = state.trayectoriaCalculo || "";
+          return;
+        }
+      }
+    }
+
+    state.trayectoriaCalculo = tipo ? tipo : null;
+    if (tipo === "MC10") { state.aprobadas.delete("114A"); state.cursando.delete("114A"); state.aprobadas.delete("128A"); state.cursando.delete("128A"); }
+    else { state.aprobadas.delete("MC10"); state.cursando.delete("MC10"); }
+
+    limpiarMateriasHuerfanas();
+    saveState();
+    updateKpis();
+    render();
+  }
+
+  function render() {
+    const list = $("#list");
+    if (!list) return;
+
+    const items = state.data.materias.filter(matchesFilters).sort((a, b) => a.anio - b.anio || a.semestre - b.semestre || String(a.codigo).localeCompare(String(b.codigo)));
+
+    list.innerHTML = "";
+    if (!items.length) {
+      list.innerHTML = '<div class="empty">No hay materias que coincidan con los filtros.</div>';
+      updateKpis();
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+    items.forEach((m) => {
+      const est = getEstado(m.codigo);
+      const locked = !canTake(m); 
+      const prev = Array.isArray(m.previas) ? m.previas : [];
+      const prevText = prev.length ? `Previas: ${prev.map((c) => `<code>${c}</code>`).join(", ")}` : "Sin previas";
+      const badgeClass = est === "aprobada" ? "ok" : est === "cursando" ? "cur" : "pen";
+      const disabledAttr = locked ? "disabled" : "";
+
+      const opcionalCheckHTML = m.tipo === "OP" 
+        ? `<label class="muted">A cursar <input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>` : "";
+
+      const wrapper = document.createElement("div");
+      wrapper.className = `card course ${locked ? "locked" : ""} ${est === "aprobada" ? "is-aprobada" : est === "cursando" ? "is-cursando" : ""}`;
+      wrapper.innerHTML = `
+        <div class="course-info">
+          <div class="meta">
+            <span class="badge ${badgeClass}">${est}</span>
+            <span class="area">${m.area} · ${areaName(m.area)}</span>
+            <span class="badge">${m.anio}° año · ${m.semestre}° sem</span>
+            <span class="badge">${m.creditos} cr</span>
+            <span class="badge">${m.tipo === "OB" ? "Obligatoria" : "Opcional"}</span>
+          </div>
+          <h3>${m.codigo} — ${m.nombre}</h3>
+          <div class="course-footer">
+            <small class="muted">${prevText}</small>
+            ${locked ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444; font-weight: 500;">Bloqueada por previas.</div>` : ""}
+          </div>
+        </div>
+        <div class="act">
+          ${opcionalCheckHTML}
+          <label class="muted">Cursando <input type="checkbox" data-cur="${m.codigo}" ${state.cursando.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>
+          <label class="muted">Aprobada <input type="checkbox" data-ok="${m.codigo}" ${state.aprobadas.has(m.codigo) ? "checked" : ""} ${disabledAttr}></label>
+        </div>
+      `;
+      frag.appendChild(wrapper);
+    });
+
+    list.appendChild(frag);
+
+    $$('input[data-plan]').forEach((el) => el.onchange = () => { const c = el.getAttribute("data-plan"); el.checked ? state.planeadas.add(c) : state.planeadas.delete(c); saveState(); updateKpis(); });
+    $$('input[data-cur]').forEach((el) => el.onchange = () => { const c = el.getAttribute("data-cur"); el.checked ? state.cursando.add(c) : state.cursando.delete(c); saveState(); updateKpis(); render(); });
+    $$('input[data-ok]').forEach((el) => el.onchange = () => { const c = el.getAttribute("data-ok"); if (el.checked) { state.aprobadas.add(c); state.cursando.delete(c); } else { state.aprobadas.delete(c); } limpiarMateriasHuerfanas(); saveState(); updateKpis(); render(); });
+
+    updateKpis();
+  }
+
+  function wireUI() {
+    $$("#q,#f-anio,#f-area,#f-tipo,#f-estado").forEach((el) => {
+      let t; el.addEventListener("input", () => { clearTimeout(t); t = setTimeout(render, 120); });
+      el.addEventListener("change", render);
+    });
+
+    $("#f-trayectoria-calculo") && $("#f-trayectoria-calculo").addEventListener("change", (e) => {
+      cambiarTrayectoria(e.target.value);
+    });
+
+    // Lógica e interactividad de los chips/botones de Semestre
+    const chipsSemestre = $$(".btn-semestre");
+    chipsSemestre.forEach(chip => {
+      chip.onclick = (e) => {
+        chipsSemestre.forEach(c => c.classList.remove("active"));
+        e.currentTarget.classList.add("active");
+        filtroSemestreActual = e.currentTarget.getAttribute("data-semestre");
+        render();
+
+        if (window.innerWidth <= 900) {
+          $("#semestres-container")?.classList.remove("open");
+        }
+      };
+    });
+
+    // Controladores de apertura/cierre de modales responsive mobile
+    const btnToggleF = document.getElementById("btn-toggle-filters");
+    const btnToggleS = document.getElementById("btn-toggle-semestres");
+    const btnCloseF = document.getElementById("btn-close-filters");
+    const btnCloseS = document.getElementById("btn-close-semestres");
+    
+    const panelFilters = document.getElementById("filters-container");
+    const panelSemestres = document.getElementById("semestres-container");
+
+    btnToggleF?.addEventListener("click", () => { panelFilters?.classList.add("open"); panelSemestres?.classList.remove("open"); });
+    btnToggleS?.addEventListener("click", () => { panelSemestres?.classList.add("open"); panelFilters?.classList.remove("open"); });
+    btnCloseF?.addEventListener("click", () => panelFilters?.classList.remove("open"));
+    btnCloseS?.addEventListener("click", () => panelSemestres?.classList.remove("open"));
+
+    $("#btn-reset") && ($("#btn-reset").onclick = () => {
+      if (confirm("¿Borrar todo el progreso guardado?")) {
+        localStorage.removeItem(stateKey);
+        state.aprobadas.clear(); state.cursando.clear(); state.planeadas.clear(); state.trayectoriaCalculo = null;
+        if ($("#f-trayectoria-calculo")) $("#f-trayectoria-calculo").value = "";
+        
+        // Volver por defecto al semestre 1
+        chipsSemestre.forEach(c => c.classList.remove("active"));
+        if (chipsSemestre[0]) chipsSemestre[0].classList.add("active");
+        filtroSemestreActual = "1";
+
+        render(); updateKpis();
+      }
+    });
+
+    const $ob = $("#onboarding");
+    $("#btn-onboarding") && ($("#btn-onboarding").onclick = () => $ob && ($ob.style.display = "flex"));
+    $("#ob-close") && ($("#ob-close").onclick = () => $ob && ($ob.style.display = "none"));
+    if ($ob && !localStorage.getItem("grilla-admin-onb")) { $ob.style.display = "flex"; localStorage.setItem("grilla-admin-onb", "1"); }
+  }
+
+  async function loadData() {
+    if (!USE_EXTERNAL_JSON) return;
+    try {
+      const r = await fetch(EXTERNAL_JSON_URL, { cache: "no-store" });
+      const json = await r.json();
+      state.data = {
+        areas: json.areas || [],
+        materias: (json.materias || []).map((m) => ({ ...m, previas: Array.isArray(m.previas) ? m.previas : String(m.previas || "").split(/[,\\s;]+/).filter(Boolean) }))
+      };
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function init() { loadState(); await loadData(); buildFilters(); wireUI(); render(); }
+  document.readyState !== "loading" ? init() : document.addEventListener("DOMContentLoaded", init);
+})();
