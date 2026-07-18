@@ -149,30 +149,10 @@
       state.data.areas.forEach((a) => $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`));
     }
 
-    // ELIMINADO EL LISTADO DE ÁREAS DEL SIDEBAR POR REDUNDANCIA
-    const $sidebar = $("#sidebar-aside");
-    if ($sidebar) {
-      const selectorViejo = $(".calculo-selector-container");
-      if (selectorViejo) selectorViejo.remove();
-
-      // REUBICACIÓN MÓVIL/PC: Inyecta el selector al principio de la barra lateral
-      const divCalculo = document.createElement("div");
-      divCalculo.className = "card calculo-selector-container";
-      divCalculo.innerHTML = `
-        <h4 class="calculo-title" style="margin-top:0; margin-bottom: 12px;">¿Cursas Cálculo I o Cálculo I/A y I/B?</h4>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <button id="btn-tray-mc10" class="btn ${state.trayectoriaCalculo === 'MC10' ? 'btn-tray-active' : ''}" style="text-align: left; width: 100%;">
-            Cálculo I (MC10)
-          </button>
-          <button id="btn-tray-ab" class="btn ${state.trayectoriaCalculo === 'AB' ? 'btn-tray-active' : ''}" style="text-align: left; width: 100%;">
-            Cálculo I/A (114A) y I/B (128A)
-          </button>
-        </div>
-      `;
-      $sidebar.insertBefore(divCalculo, $sidebar.firstChild);
-
-      $("#btn-tray-mc10").onclick = () => cambiarTrayectoria("MC10");
-      $("#btn-tray-ab").onclick = () => cambiarTrayectoria("AB");
+    // Sincroniza el estado guardado con el select unificado de la barra superior
+    const $selectTrayectoria = $("#f-trayectoria-calculo");
+    if ($selectTrayectoria) {
+      $selectTrayectoria.value = state.trayectoriaCalculo || "";
     }
   }
 
@@ -185,20 +165,26 @@
       if (state.trayectoriaCalculo === "AB" && (state.aprobadas.has("114A") || state.cursando.has("114A") || state.aprobadas.has("128A") || state.cursando.has("128A"))) tieneProgreso = true;
 
       if (tieneProgreso) {
-        if (!confirm("Atención: Si cambias de trayectoria se restablecerá tu progreso en el camino que abandonas. ¿Continuar?")) return;
+        if (!confirm("Atención: Si cambias de trayectoria se restablecerá tu progreso en el camino que abandonas. ¿Continuar?")) {
+          // Si cancela, volvemos a poner el select en el valor que estaba
+          if ($("#f-trayectoria-calculo")) $("#f-trayectoria-calculo").value = state.trayectoriaCalculo || "";
+          return;
+        }
       }
     }
 
-    state.trayectoriaCalculo = tipo;
-    if (tipo === "MC10") { state.aprobadas.delete("114A"); state.cursando.delete("114A"); state.aprobadas.delete("128A"); state.cursando.delete("128A"); }
-    else { state.aprobadas.delete("MC10"); state.cursando.delete("MC10"); }
+    state.trayectoriaCalculo = tipo ? tipo : null;
+    
+    if (tipo === "MC10") { 
+      state.aprobadas.delete("114A"); state.cursando.delete("114A"); 
+      state.aprobadas.delete("128A"); state.cursando.delete("128A"); 
+    } else if (tipo === "AB") { 
+      state.aprobadas.delete("MC10"); state.cursando.delete("MC10"); 
+    }
 
     limpiarMateriasHuerfanas();
     saveState();
     updateKpis();
-    const selectorViejo = $(".calculo-selector-container");
-    if (selectorViejo) selectorViejo.remove();
-    buildFilters();
     render();
   }
 
@@ -268,6 +254,11 @@
       el.addEventListener("change", render);
     });
 
+    // Escuchador de cambio de trayectoria de cálculo unificado de la fila superior
+    $("#f-trayectoria-calculo") && $("#f-trayectoria-calculo").addEventListener("change", (e) => {
+      cambiarTrayectoria(e.target.value);
+    });
+
     const btnToggle = document.getElementById("btn-toggle-filters");
     const btnClose = document.getElementById("btn-close-filters");
     const filtersPanel = document.getElementById("filters-container");
@@ -279,6 +270,7 @@
       if (confirm("¿Borrar todo el progreso guardado?")) {
         localStorage.removeItem(stateKey);
         state.aprobadas.clear(); state.cursando.clear(); state.planeadas.clear(); state.trayectoriaCalculo = null;
+        if ($("#f-trayectoria-calculo")) $("#f-trayectoria-calculo").value = "";
         render(); updateKpis();
       }
     });
