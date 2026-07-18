@@ -1,6 +1,9 @@
 {
   "areas": [
     {
+      "id": "A",
+      "nombre": "ADMINISTRACIÓN"
+    },{
       "id": "C",
       "nombre": "CONTABILIDAD E IMPUESTOS"
     },
