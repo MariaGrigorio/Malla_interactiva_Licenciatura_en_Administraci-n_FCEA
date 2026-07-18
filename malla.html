@@ -14,7 +14,7 @@
     🔍 <span>Filtros</span>
   </button>
 
-  <!-- CONTENEDOR SUPERIOR FIJO EXTENDIDO (Toma todo el ancho de la pantalla) -->
+  <!-- CONTENEDOR SUPERIOR FIJO EXTENDIDO (100% Pantalla en PC) -->
   <div class="sticky-top-container">
     <div class="wrap-top">
       
@@ -50,7 +50,7 @@
           </div>
         </div>
 
-        <!-- Bloque de KPIs distribuidos de forma independiente -->
+        <!-- Bloque de KPIs distribuidos -->
         <div class="kpis-row">
           <div class="kpi"><small>Aprobadas</small><b id="kpi-aprobadas">0</b></div>
           <div class="kpi"><small>Créditos</small><b id="kpi-creditos">0</b></div>
@@ -60,7 +60,7 @@
         <!-- Bloque de Leyenda y notas -->
         <div class="card leyenda-card" style="margin: 0;">
           <h3 style="margin: 0; font-size: 14px;">Leyenda y notas</h3>
-          <div class="tags">
+          <div class="tags" style="margin: 4px 0 6px 0;">
             <span class="badge ok">Aprobada</span>
             <span class="badge cur">Cursando</span>
             <span class="badge pen">Pendiente</span>
@@ -72,12 +72,13 @@
 
       </div>
 
-      <!-- Fila 2: PANEL DE FILTROS EN 6 COLUMNAS AUTOMÁTICAS -->
+      <!-- Fila 2: PANEL DE FILTROS + TRAYECTORIA DE CÁLCULO UNIFICADA -->
       <div id="filters-container" class="filters-panel">
         <div class="filters-header-mobile">
-          <h3>Filtrar Materias</h3>
+          <h3>Filtrar y Configurar Malla</h3>
           <button id="btn-close-filters" class="btn-close-x">✕</button>
         </div>
+        
         <div class="filters-layout-grid">
           <div><input id="q" type="search" placeholder="Buscar por código o nombre…" autocomplete="off"></div>
           <div>
@@ -98,25 +99,24 @@
               <option value="OP">Opcional</option>
             </select>
           </div>
+          
+          <!-- Selector Unificado de Trayectoria de Cálculo (7ma Columna en PC / Superior en Móvil) -->
+          <div class="calculo-col-container">
+            <select id="f-trayectoria-calculo">
+              <option value="">Trayectoria Cálculo: Elegir...</option>
+              <option value="MC10">Cálculo I (MC10)</option>
+              <option value="AB">Cálculo I/A y I/B (114A/128A)</option>
+            </select>
+          </div>
         </div>
       </div>
 
     </div>
   </div> <!-- FIN STICKY TOP -->
 
-  <!-- CONTENEDOR DE LA GRILLA INFERIOR (MATERIAS + TRAYECTORIA) -->
-  <div class="wrap">
-    <div class="grid">
-      
-      <!-- Listado Principal Dinámico -->
-      <main id="list"></main>
-
-      <!-- BARRA LATERAL STICKY (Solo Trayectoria de Cálculo) -->
-      <aside class="sidebar-sticky" id="sidebar-aside">
-        <!-- El bloque de Trayectoria de Cálculo se insertará aquí dinámicamente desde JS -->
-      </aside>
-
-    </div>
+  <!-- LISTADO DE MATERIAS (PANTALLA COMPLETA PANORÁMICA SIN ASIDE ORIGINAL) -->
+  <div class="wrap" style="margin-top: 24px;">
+    <main id="list"></main>
   </div>
 
   <!-- Modal onboarding (Guía) -->
