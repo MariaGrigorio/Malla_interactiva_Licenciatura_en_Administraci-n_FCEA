@@ -152,7 +152,6 @@
       state.aprobadas.has(m.codigo)
     ).length;
 
-    // El total de créditos meta se calcula de forma dinámica:
     const credTot = materiasFiltradasPorCamino.reduce((s, m) => {
       const esObligatoria = m.tipo === "OB";
       const esOpcionalElegida = m.tipo === "OP" && (state.planeadas.has(m.codigo) || state.cursando.has(m.codigo) || state.aprobadas.has(m.codigo));
@@ -190,27 +189,21 @@
       $area = $("#f-area");
 
     if ($anio) {
+      $anio.innerHTML = '<option value="">Año: Todos</option>';
       años.forEach((v) => {
-        $anio.insertAdjacentHTML(
-          "beforeend",
-          `<option value="${v}">${v}°</option>`
-        );
+        $anio.insertAdjacentHTML("beforeend", `<option value="${v}">${v}° Año</option>`);
       });
     }
     if ($sem) {
+      $sem.innerHTML = '<option value="">Semestre: Todos</option>';
       sems.forEach((v) => {
-        $sem.insertAdjacentHTML(
-          "beforeend",
-          `<option value="${v}">${v}°</option>`
-        );
+        $sem.insertAdjacentHTML("beforeend", `<option value="${v}">${v}° Semestre</option>`);
       });
     }
     if ($area) {
+      $area.innerHTML = '<option value="">Área: Todas</option>';
       state.data.areas.forEach((a) => {
-        $area.insertAdjacentHTML(
-          "beforeend",
-          `<option value="${a.id}">${a.nombre}</option>`
-        );
+        $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`);
       });
     }
 
@@ -221,11 +214,13 @@
       state.data.areas.forEach((a) => {
         const span = document.createElement("span");
         span.className = "tag";
+        span.style.width = "100%";
+        span.style.textAlign = "left";
         span.textContent = `${a.id} · ${a.nombre}`;
         $areasList.appendChild(span);
       });
 
-      // Inyección dinámica con clases CSS condicionales para resaltar visiblemente el botón activo
+      // Inyección dinámica del Selector de Trayectoria de Cálculo
       const divCalculo = document.createElement("div");
       divCalculo.className = "calculo-selector-container";
       divCalculo.innerHTML = `
@@ -241,73 +236,42 @@
       `;
       $areasList.parentNode.appendChild(divCalculo);
 
-      // Eventos de selección de trayectoria
       $("#btn-tray-mc10").onclick = () => cambiarTrayectoria("MC10");
       $("#btn-tray-ab").onclick = () => cambiarTrayectoria("AB");
     }
 
     // Accesos rápidos
-    $("#quick-ob") &&
-      $("#quick-ob").addEventListener("click", (e) => {
-        e.preventDefault();
-        $("#f-tipo").value = "OB";
-        render();
-      });
-    $("#quick-op") &&
-      $("#quick-op").addEventListener("click", (e) => {
-        e.preventDefault();
-        $("#f-tipo").value = "OP";
-        render();
-      });
-    $("#quick-clear") &&
-      $("#quick-clear").addEventListener("click", (e) => {
-        e.preventDefault();
-        $$("#f-anio,#f-sem,#f-area,#f-tipo,#f-estado").forEach(
-          (el) => (el.value = "")
-        );
-        $("#q") && ($("#q").value = "");
-        render();
-      });
+    $("#quick-ob") && $("#quick-ob").addEventListener("click", (e) => { e.preventDefault(); $("#f-tipo").value = "OB"; render(); });
+    $("#quick-op") && $("#quick-op").addEventListener("click", (e) => { e.preventDefault(); $("#f-tipo").value = "OP"; render(); });
+    $("#quick-clear") && $("#quick-clear").addEventListener("click", (e) => {
+      e.preventDefault();
+      $$("#f-anio,#f-sem,#f-area,#f-tipo,#f-estado").forEach((el) => el.value = "");
+      if ($("#q")) $("#q").value = "";
+      render();
+    });
   }
 
-  /**
-   * Cambiar de trayectoria de cálculo con confirmación y limpieza recursiva.
-   * NUEVO: Si el usuario ya tenía progreso guardado en las materias del camino actual,
-   * se le pide confirmación antes de descartar y limpiar el avance.
-   */
   function cambiarTrayectoria(tipo) {
     if (state.trayectoriaCalculo === tipo) return;
     
-    // Si ya había seleccionado un camino anteriormente, evaluamos si tiene progreso que podría perderse
     if (state.trayectoriaCalculo !== null) {
       let tieneProgresoEnTrayectoriaActual = false;
-
       if (state.trayectoriaCalculo === "MC10") {
-        // Verifica si tiene registrada la materia estándar
-        if (state.aprobadas.has("MC10") || state.cursando.has("MC10")) {
-          tieneProgresoEnTrayectoriaActual = true;
-        }
+        if (state.aprobadas.has("MC10") || state.cursando.has("MC10")) tieneProgresoEnTrayectoriaActual = true;
       } else if (state.trayectoriaCalculo === "AB") {
-        // Verifica si tiene alguna de las dos materias del camino dividido
-        if (state.aprobadas.has("114A") || state.cursando.has("114A") || state.aprobadas.has("128A") || state.cursando.has("128A")) {
-          tieneProgresoEnTrayectoriaActual = true;
-        }
+        if (state.aprobadas.has("114A") || state.cursando.has("114A") || state.aprobadas.has("128A") || state.cursando.has("128A")) tieneProgresoEnTrayectoriaActual = true;
       }
 
-      // Si se detectó progreso, alertamos con una ventana interactiva
       if (tieneProgresoEnTrayectoriaActual) {
         const confirmarCambio = confirm(
           "Atención: Si cambias de trayectoria de cálculo, se restablecerá y perderá todo el progreso (aprobado/cursando) que tengas registrado en el camino que abandonas. ¿Deseas continuar?"
         );
-        // Si el usuario cancela la operación, detenemos la ejecución y dejamos todo intacto
         if (!confirmarCambio) return;
       }
     }
 
-    // Si pasó la validación o no tenía progreso previo, aplicamos la redefinición
     state.trayectoriaCalculo = tipo;
 
-    // Limpieza selectiva para evitar créditos fantasmas
     if (tipo === "MC10") {
       state.aprobadas.delete("114A"); state.cursando.delete("114A");
       state.aprobadas.delete("128A"); state.cursando.delete("128A");
@@ -315,13 +279,10 @@
       state.aprobadas.delete("MC10"); state.cursando.delete("MC10");
     }
 
-    // Ejecutamos también el dominó por si alguna materia avanzada requería específicamente de las que acabamos de borrar
     limpiarMateriasHuerfanas();
-
     saveState();
     updateKpis();
     
-    // Remover nodo viejo del selector antes de reconstruir filtros laterales
     const areas = $("#areas-list");
     if (areas && areas.parentNode) {
       const lastNode = areas.parentNode.lastChild;
@@ -348,8 +309,7 @@
 
     list.innerHTML = "";
     if (!items.length) {
-      list.innerHTML =
-        '<div class="empty">No hay materias que coincidan con los filtros.</div>';
+      list.innerHTML = '<div class="empty">No hay materias que coincidan con los filtros.</div>';
       updateKpis();
       return;
     }
@@ -375,8 +335,9 @@
            </label>` 
         : "";
 
+      // TARJETA DE MATERIA: Recupera la clase card y inyecta la distribución por niveles
       const wrapper = document.createElement("div");
-      wrapper.className = `course ${locked ? "locked" : ""}`;
+      wrapper.className = `card course ${locked ? "locked" : ""} ${est === "aprobada" ? "is-aprobada" : est === "cursando" ? "is-cursando" : ""}`;
       wrapper.innerHTML = `
         <div class="course-info">
           <div class="meta">
@@ -393,7 +354,7 @@
             <small class="muted">${prevText}</small>
             ${
               locked
-                ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444;">Debes aprobar ${prev
+                ? `<div class="muted" style="font-size:12px; margin-top: 4px; color: #ef4444; font-weight: 500;">Debes aprobar ${prev
                     .map((c) => `<b>${c}</b>`)
                     .join(", ")} para cursar o aprobar.</div>`
                 : ""
@@ -413,45 +374,31 @@
 
     list.appendChild(frag);
 
-    // Escuchador de eventos para el checkbox "A cursar"
+    // Escuchadores de eventos para checks
     $$('input[data-plan]').forEach((el) => {
       el.onchange = () => {
         const cod = el.getAttribute("data-plan");
         if (el.checked) state.planeadas.add(cod);
         else state.planeadas.delete(cod);
-        saveState();
-        updateKpis();
-        render();
+        saveState(); updateKpis(); render();
       };
     });
 
-    // Eventos de checks (Cursando)
     $$('input[data-cur]').forEach((el) => {
       el.onchange = () => {
         const cod = el.getAttribute("data-cur");
         if (el.checked) state.cursando.add(cod);
         else state.cursando.delete(cod);
-        saveState();
-        updateKpis();
-        render(); 
+        saveState(); updateKpis(); render(); 
       };
     });
     
-    // Eventos de checks (Aprobada)
     $$('input[data-ok]').forEach((el) => {
       el.onchange = () => {
         const cod = el.getAttribute("data-ok");
-        if (el.checked) {
-          state.aprobadas.add(cod);
-          state.cursando.delete(cod);
-        } else {
-          state.aprobadas.delete(cod);
-        }
-
-        limpiarMateriasHuerfanas();
-        saveState();
-        updateKpis();
-        render(); 
+        if (el.checked) { state.aprobadas.add(cod); state.cursando.delete(cod); }
+        else { state.aprobadas.delete(cod); }
+        limpiarMateriasHuerfanas(); saveState(); updateKpis(); render(); 
       };
     });
 
@@ -462,57 +409,31 @@
   function wireUI() {
     $$("#q,#f-anio,#f-sem,#f-area,#f-tipo,#f-estado").forEach((el) => {
       let t;
-      el.addEventListener("input", () => {
-        clearTimeout(t);
-        t = setTimeout(render, 120);
-      });
+      el.addEventListener("input", () => { clearTimeout(t); t = setTimeout(render, 120); });
       el.addEventListener("change", render);
     });
 
-    // Reset progreso
-    $("#btn-reset") &&
-      ($("#btn-reset").onclick = () => {
-        if (
-          confirm(
-            "Esto borrará tu progreso guardado en este navegador. ¿Deseas continuar?"
-          )
-        ) {
-          localStorage.removeItem(stateKey);
-          state.aprobadas.clear();
-          state.cursando.clear();
-          state.planeadas.clear();
-          state.trayectoriaCalculo = null; 
-          render();
-          updateKpis();
-        }
-      });
+    $("#btn-reset") && ($("#btn-reset").onclick = () => {
+      if (confirm("Esto borrará tu progreso guardado en este navegador. ¿Deseas continuar?")) {
+        localStorage.removeItem(stateKey);
+        state.aprobadas.clear(); state.cursando.clear(); state.planeadas.clear();
+        state.trayectoriaCalculo = null;
+        render(); updateKpis();
+      }
+    });
 
-    // Onboarding
     const seenKey = "grilla-admin-onb";
     const $ob = $("#onboarding");
-    function openOnb() {
-      if ($ob) $ob.style.display = "flex";
-    }
-    function closeOnb() {
-      if ($ob) $ob.style.display = "none";
-      localStorage.setItem(seenKey, "1");
-    }
+    function openOnb() { if ($ob) $ob.style.display = "flex"; }
+    function closeOnb() { if ($ob) $ob.style.display = "none"; localStorage.setItem(seenKey, "1"); }
     $("#btn-onboarding") && ($("#btn-onboarding").onclick = openOnb);
     $("#ob-close") && ($("#ob-close").onclick = closeOnb);
-    $ob &&
-      $ob.addEventListener("click", (e) => {
-        if (e.target === $ob) closeOnb();
-      });
+    $ob && $ob.addEventListener("click", (e) => { if (e.target === $ob) closeOnb(); });
     if ($ob && !localStorage.getItem(seenKey)) openOnb();
   }
 
-  // ---------- Carga de datos ----------
   async function loadData() {
-    if (!USE_EXTERNAL_JSON) {
-      console.error("Config: USE_EXTERNAL_JSON=false.");
-      state.data = { areas: [], materias: [] };
-      return;
-    }
+    if (!USE_EXTERNAL_JSON) { state.data = { areas: [], materias: [] }; return; }
     try {
       const r = await fetch(EXTERNAL_JSON_URL, { cache: "no-store" });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -527,21 +448,15 @@
           : [],
       }));
 
-      state.data = {
-        areas: Array.isArray(json.areas) ? json.areas : [],
-        materias,
-      };
+      state.data = { areas: Array.isArray(json.areas) ? json.areas : [], materias };
     } catch (e) {
       console.error("No se pudo cargar el JSON externo:", e);
       state.data = { areas: [], materias: [] };
       const list = $("#list");
-      list &&
-        (list.innerHTML =
-          '<div class="empty">Error cargando la malla. Revisa la ruta <code>data/materias_admin.json</code>.</div>');
+      if (list) list.innerHTML = '<div class="empty">Error cargando la malla. Revisa la ruta <code>data/materias_admin.json</code>.</div>';
     }
   }
 
-  // ---------- Init ----------
   async function init() {
     loadState();
     await loadData();
@@ -551,7 +466,5 @@
     updateKpis();
   }
 
-  document.readyState !== "loading"
-    ? init()
-    : document.addEventListener("DOMContentLoaded", init);
+  document.readyState !== "loading" ? init() : document.addEventListener("DOMContentLoaded", init);
 })();
