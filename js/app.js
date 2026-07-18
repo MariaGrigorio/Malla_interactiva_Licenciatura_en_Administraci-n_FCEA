@@ -127,7 +127,7 @@
     $("#kpi-creditos") && ($("#kpi-creditos").textContent = credOk);
 
     const pct = credTot ? Math.round((credOk / credTot) * 100) : 0;
-    $("#progress-label") && ($("#progress-label").textContent = `${pct}% · ${credOk}/${credTot} cr`);
+    $("#progress-label") && ($("#progress-label").textContent = `${pct}% · ${credOk}/${credTot} cr meta`);
     $("#bar") && ($("#bar").style.width = pct + "%");
   }
 
@@ -149,26 +149,15 @@
       state.data.areas.forEach((a) => $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`));
     }
 
-    const $areasList = $("#areas-list");
+    // ELIMINADO EL LISTADO DE ÁREAS DEL SIDEBAR POR REDUNDANCIA
     const $sidebar = $("#sidebar-aside");
-
-    if ($areasList && $sidebar) {
-      $areasList.innerHTML = "";
-      state.data.areas.forEach((a) => {
-        const span = document.createElement("span");
-        span.className = "tag";
-        span.style.width = "100%";
-        span.style.textAlign = "left";
-        span.textContent = `${a.id} · ${a.nombre}`;
-        $areasList.appendChild(span);
-      });
-
+    if ($sidebar) {
       const selectorViejo = $(".calculo-selector-container");
       if (selectorViejo) selectorViejo.remove();
 
+      // REUBICACIÓN MÓVIL/PC: Inyecta el selector al principio de la barra lateral
       const divCalculo = document.createElement("div");
       divCalculo.className = "card calculo-selector-container";
-      divCalculo.style.marginBottom = "16px";
       divCalculo.innerHTML = `
         <h4 class="calculo-title" style="margin-top:0; margin-bottom: 12px;">¿Cursas Cálculo I o Cálculo I/A y I/B?</h4>
         <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -279,7 +268,6 @@
       el.addEventListener("change", render);
     });
 
-    // Controladores de apertura/cierre del panel de filtros en Móvil
     const btnToggle = document.getElementById("btn-toggle-filters");
     const btnClose = document.getElementById("btn-close-filters");
     const filtersPanel = document.getElementById("filters-container");
