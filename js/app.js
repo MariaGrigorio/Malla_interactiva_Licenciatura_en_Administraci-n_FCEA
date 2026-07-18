@@ -1,106 +1,208 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notegood · Malla de Administración</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+/* =========================================================
+   Grilla · Administración (UDELAR)
+   ========================================================= */
 
-  <div class="mobile-floating-actions">
-    <button id="btn-toggle-filters" class="fab-filters">🔍 <span>Filtros</span></button>
-    <button id="btn-toggle-semestres" class="fab-semestres">📅 <span>Semestres</span></button>
-  </div>
+(function () {
+  "use strict";
 
-  <div class="sticky-top-container">
-    <div class="wrap-top">
-      <header>
-        <div>
-          <h1>Malla Administración <span class="pill">FCEA</span></h1>
-          <small class="muted">Gestión de créditos, asignaturas y correlativas</small>
+  const USE_EXTERNAL_JSON = true;
+  const EXTERNAL_JSON_URL = "data/materias_admin.json";
+
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  const stateKey = "grilla-admin-v1";
+  const state = {
+    aprobadas: new Set(),
+    cursando: new Set(),
+    planeadas: new Set(),
+    trayectoriaCalculo: null,
+    data: { areas: [], materias: [] },
+  };
+
+  let filtroSemestreActual = "1"; 
+
+  function saveState() {
+    try {
+      const obj = {
+        aprobadas: Array.from(state.aprobadas),
+        cursando: Array.from(state.cursando),
+        planeadas: Array.from(state.planeadas),
+        trayectoriaCalculo: state.trayectoriaCalculo,
+      };
+      localStorage.setItem(stateKey, JSON.stringify(obj));
+    } catch (e) { console.warn("No se pudo guardar:", e); }
+  }
+
+  function loadState() {
+    const raw = localStorage.getItem(stateKey);
+    if (!raw) return;
+    try {
+      const obj = JSON.parse(raw);
+      state.aprobadas = new Set(obj.aprobadas || []);
+      state.cursando = new Set(obj.cursando || []);
+      state.planeadas = new Set(obj.planeadas || []);
+      state.trayectoriaCalculo = obj.trayectoriaCalculo || null;
+    } catch (e) { console.warn("Error carga:", e); }
+  }
+
+  function areaName(id) {
+    const a = state.data.areas.find((x) => x.id === id);
+    return (a && a.nombre) || id || "";
+  }
+
+  function canTake(m) {
+    const prev = Array.isArray(m.previas) ? m.previas : [];
+    return prev.every((c) => state.aprobadas.has(String(c).trim()));
+  }
+
+  function getEstado(cod) {
+    if (state.aprobadas.has(cod)) return "aprobada";
+    if (state.cursando.has(cod)) return "cursando";
+    return "pendiente";
+  }
+
+  function limpiarMateriasHuerfanas() {
+    let huboCambios = false;
+    do {
+      huboCambios = false;
+      state.data.materias.forEach((m) => {
+        if ((state.aprobadas.has(m.codigo) || state.cursando.has(m.codigo) || state.planeadas.has(m.codigo)) && !canTake(m)) {
+          state.aprobadas.delete(m.codigo); state.cursando.delete(m.codigo); state.planeadas.delete(m.codigo);
+          huboCambios = true;
+        }
+      });
+    } while (huboCambios);
+  }
+
+  function matchesFilters(m) {
+    if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
+    if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
+    
+    if (filtroSemestreActual !== "todos" && m.semestre.toString() !== filtroSemestreActual) return false;
+
+    // Filtro Optativas: Si es OP, solo mostrar si el usuario la seleccionó
+    if (m.tipo === 'OP' && !state.planeadas.has(m.codigo)) return false;
+
+    const q = ($("#q")?.value || "").trim().toLowerCase();
+    const far = $("#f-area")?.value || "";
+    const ft = $("#f-tipo")?.value || "";
+    const fe = $("#f-estado")?.value || "";
+
+    if (q && !(String(m.nombre).toLowerCase().includes(q) || String(m.codigo).toLowerCase().includes(q))) return false;
+    if (far && String(m.area) !== far) return false;
+    if (ft && String(m.tipo) !== ft) return false;
+    if (fe && getEstado(m.codigo) !== fe) return false;
+
+    return true;
+  }
+
+  function updateKpis() {
+    const total = state.data.materias.length;
+    const aprobadas = state.data.materias.filter((m) => state.aprobadas.has(m.codigo)).length;
+    const credTot = state.data.materias.reduce((s, m) => (m.tipo === "OB" || state.planeadas.has(m.codigo)) ? s + Number(m.creditos || 0) : s, 0);
+    const credOk = state.data.materias.filter((m) => state.aprobadas.has(m.codigo)).reduce((s, m) => s + Number(m.creditos || 0), 0);
+
+    $("#kpi-aprobadas") && ($("#kpi-aprobadas").textContent = aprobadas);
+    $("#kpi-totales") && ($("#kpi-totales").textContent = total);
+    $("#kpi-creditos") && ($("#kpi-creditos").textContent = credOk);
+
+    const pct = credTot ? Math.round((credOk / credTot) * 100) : 0;
+    $("#progress-label") && ($("#progress-label").textContent = `${pct}%`);
+    $("#bar") && ($("#bar").style.width = pct + "%");
+  }
+
+  function buildFilters() {
+    const $area = $("#f-area");
+    if ($area) {
+      $area.innerHTML = '<option value="">Área: Todas</option>';
+      state.data.areas.forEach((a) => $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`));
+    }
+  }
+
+  function render() {
+    const list = $("#list");
+    if (!list) return;
+
+    const items = state.data.materias.filter(matchesFilters).sort((a, b) => a.semestre - b.semestre || a.codigo.localeCompare(b.codigo));
+    list.innerHTML = "";
+    if (!items.length) { list.innerHTML = '<div class="empty">No hay materias.</div>'; updateKpis(); return; }
+
+    const frag = document.createDocumentFragment();
+    items.forEach((m) => {
+      const est = getEstado(m.codigo);
+      const locked = !canTake(m);
+      const wrapper = document.createElement("div");
+      wrapper.className = `card course ${locked ? "locked" : ""}`;
+      wrapper.innerHTML = `
+        <div class="course-info"><h3>${m.codigo} — ${m.nombre}</h3><span class="badge">${m.semestre}° sem</span></div>
+        <div class="act">
+          <label>Cursando <input type="checkbox" data-cur="${m.codigo}" ${state.cursando.has(m.codigo) ? "checked" : ""} ${locked ? "disabled":""}></label>
+          <label>Aprobada <input type="checkbox" data-ok="${m.codigo}" ${state.aprobadas.has(m.codigo) ? "checked" : ""} ${locked ? "disabled":""}></label>
         </div>
-        <div class="materia-actions">
-          <span id="userBadge" class="pill" style="display: none;"></span>
-          <button id="loginBtn">Iniciar sesión</button>
-          <button id="logoutBtn" style="display: none;">Cerrar sesión</button>
-        </div>
-      </header>
+      `;
+      frag.appendChild(wrapper);
+    });
+    list.appendChild(frag);
 
-      <div class="top-dashboard-grid">
-        <div class="card progress" style="margin: 0;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <b>Tu Progreso General</b>
-              <span id="progress-label" class="pill">0%</span>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button id="btn-onboarding">Guía rápida</button>
-              <button id="btn-reset">Borrar progreso</button>
-            </div>
-          </div>
-          <div class="bar"><span id="bar" style="width: 0%;"></span></div>
-        </div>
-        <div class="kpis-row">
-          <div class="kpi"><small>Aprobadas</small><b id="kpi-aprobadas">0</b></div>
-          <div class="kpi"><small>Créditos</small><b id="kpi-creditos">0</b></div>
-          <div class="kpi"><small>Totales</small><b id="kpi-totales">0</b></div>
-        </div>
-        <div class="card leyenda-card" style="margin: 0;">
-            <h3 style="margin: 0; font-size: 14px;">Leyenda y notas</h3>
-            <div class="tags" style="margin: 4px 0 6px 0;">
-                <span class="badge ok">Aprobada</span>
-                <span class="badge cur">Cursando</span>
-                <span class="badge pen">Pendiente</span>
-            </div>
-            <p class="muted" style="margin: 0; font-size: 11px; line-height: 1.3;">
-                Marca como <b>Aprobada</b> para sumar créditos. Si tiene <b>previas</b> se bloqueará.
-            </p>
-        </div>
-      </div>
+    // Listeners de Checkbox
+    $$('input[data-cur]').forEach(el => el.onchange = (e) => { 
+        e.target.checked ? state.cursando.add(e.target.dataset.cur) : state.cursando.delete(e.target.dataset.cur);
+        saveState(); updateKpis(); 
+    });
+    $$('input[data-ok]').forEach(el => el.onchange = (e) => { 
+        if(e.target.checked) { state.aprobadas.add(e.target.dataset.ok); state.cursando.delete(e.target.dataset.ok); }
+        else { state.aprobadas.delete(e.target.dataset.ok); }
+        limpiarMateriasHuerfanas(); saveState(); render(); 
+    });
+    updateKpis();
+  }
 
-      <div id="filters-container" class="filters-panel">
-        <div class="filters-header-mobile"><h3>Filtrar Materias</h3><button id="btn-close-filters" class="btn-close-x">✕</button></div>
-        <div class="filters-layout-grid">
-          <input id="q" type="search" placeholder="Buscar…" autocomplete="off">
-          <select id="f-estado"><option value="">Estado: Todos</option><option value="aprobada">Aprobada</option><option value="cursando">Cursando</option></select>
-          <select id="f-area"><option value="">Área: Todas</option></select>
-          <select id="f-tipo"><option value="">Tipo: Todas</option><option value="OB">Obligatoria</option><option value="OP">Opcional</option></select>
-          <select id="f-trayectoria-calculo">
-            <option value="">Cálculo: Elegir...</option>
-            <option value="MC10">Cálculo I (MC10)</option>
-            <option value="AB">Cálculo I/A y I/B</option>
-          </select>
-          <button id="btn-open-optativas" class="btn-opt" style="background:var(--brand); color:white;">Optativas</button>
-        </div>
-      </div>
+  function wireUI() {
+    // Listeners de filtros
+    $$("#q,#f-area,#f-tipo,#f-estado").forEach(el => el.oninput = el.onchange = render);
+    
+    // Botones Semestre
+    $$(".btn-semestre").forEach(btn => btn.onclick = (e) => {
+      $$(".btn-semestre").forEach(b => b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      filtroSemestreActual = e.currentTarget.dataset.semestre;
+      render();
+    });
 
-      <div id="semestres-container" class="semestres-panel">
-        <div class="semestres-header-mobile"><h3>Semestres</h3><button id="btn-close-semestres" class="btn-close-x">✕</button></div>
-        <div class="semestres-buttons-grid">
-          <button class="btn-semestre active" data-semestre="1">1°</button><button class="btn-semestre" data-semestre="2">2°</button>
-          <button class="btn-semestre" data-semestre="3">3°</button><button class="btn-semestre" data-semestre="4">4°</button>
-          <button class="btn-semestre" data-semestre="5">5°</button><button class="btn-semestre" data-semestre="6">6°</button>
-          <button class="btn-semestre" data-semestre="7">7°</button><button class="btn-semestre" data-semestre="8">8°</button>
-          <button class="btn-semestre" data-semestre="todos">Todos</button>
-        </div>
-      </div>
-    </div>
-  </div>
+    // Lógica Optativas
+    $("#btn-open-optativas").onclick = () => {
+      const list = $("#optativas-list");
+      list.innerHTML = "";
+      state.data.materias.filter(m => m.tipo === 'OP').forEach(m => {
+        list.insertAdjacentHTML('beforeend', `<div><input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? 'checked' : ''}> ${m.nombre} (Sem ${m.semestre})</div>`);
+      });
+      $("#modal-optativas").style.display = "flex";
+    };
 
-  <div class="wrap" style="margin-top: 24px;"><main id="list"></main></div>
+    $("#btn-close-optativas").onclick = () => {
+      $("#modal-optativas").style.display = "none";
+      $("#optativas-list").querySelectorAll('input').forEach(i => {
+        i.checked ? state.planeadas.add(i.dataset.plan) : state.planeadas.delete(i.dataset.plan);
+      });
+      saveState(); render();
+    };
 
-  <div id="onboarding" class="modal-back"><div class="modal"><div class="card"><h2>Guía rápida</h2><p>Selecciona optativas para incluirlas en tu malla.</p><button id="ob-close">Entendido</button></div></div></div>
-  <div id="modal-optativas" class="modal-back"><div class="modal"><div class="card">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h2>Optativas</h2><button id="btn-close-optativas">✕</button></div>
-    <div id="optativas-list" style="max-height: 300px; overflow-y: auto;"></div>
-  </div></div></div>
+    // Botones Mobile
+    $("#btn-toggle-filters")?.addEventListener("click", () => $("#filters-container").classList.add("open"));
+    $("#btn-close-filters")?.addEventListener("click", () => $("#filters-container").classList.remove("open"));
+    $("#btn-toggle-semestres")?.addEventListener("click", () => $("#semestres-container").classList.add("open"));
+    $("#btn-close-semestres")?.addEventListener("click", () => $("#semestres-container").classList.remove("open"));
+  }
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/app.firebase.js"></script>
-  <script src="js/app.js"></script>
-</body>
-</html>
+  async function loadData() {
+    try {
+      const r = await fetch(EXTERNAL_JSON_URL, { cache: "no-store" });
+      const json = await r.json();
+      state.data = { areas: json.areas || [], materias: json.materias || [] };
+    } catch (e) { console.error(e); }
+  }
+
+  async function init() { loadState(); await loadData(); buildFilters(); wireUI(); render(); }
+  init();
+})();
