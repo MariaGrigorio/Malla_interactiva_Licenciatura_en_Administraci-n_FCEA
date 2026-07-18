@@ -10,17 +10,12 @@
 <body>
 
   <div class="mobile-floating-actions">
-    <button id="btn-toggle-filters" class="fab-filters">
-      🔍 <span>Filtros</span>
-    </button>
-    <button id="btn-toggle-semestres" class="fab-semestres">
-      📅 <span>Semestres</span>
-    </button>
+    <button id="btn-toggle-filters" class="fab-filters">🔍 <span>Filtros</span></button>
+    <button id="btn-toggle-semestres" class="fab-semestres">📅 <span>Semestres</span></button>
   </div>
 
   <div class="sticky-top-container">
     <div class="wrap-top">
-      
       <header>
         <div>
           <h1>Malla Administración <span class="pill">FCEA</span></h1>
@@ -28,16 +23,16 @@
         </div>
         <div class="materia-actions">
           <span id="userBadge" class="pill" style="display: none;"></span>
+          <button id="loginBtn">Iniciar sesión</button>
           <button id="logoutBtn" style="display: none;">Cerrar sesión</button>
         </div>
       </header>
 
       <div class="top-dashboard-grid">
-        
         <div class="card progress" style="margin: 0;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-              <b style="font-size: 16px;">Tu Progreso General</b>
+              <b>Tu Progreso General</b>
               <span id="progress-label" class="pill">0%</span>
             </div>
             <div style="display: flex; gap: 8px;">
@@ -45,111 +40,59 @@
               <button id="btn-reset">Borrar progreso</button>
             </div>
           </div>
-          <div class="bar">
-            <span id="bar" style="width: 0%;"></span>
-          </div>
+          <div class="bar"><span id="bar" style="width: 0%;"></span></div>
         </div>
-
         <div class="kpis-row">
           <div class="kpi"><small>Aprobadas</small><b id="kpi-aprobadas">0</b></div>
           <div class="kpi"><small>Créditos</small><b id="kpi-creditos">0</b></div>
           <div class="kpi"><small>Totales</small><b id="kpi-totales">0</b></div>
         </div>
-
         <div class="card leyenda-card" style="margin: 0;">
           <h3 style="margin: 0; font-size: 14px;">Leyenda y notas</h3>
-          <div class="tags" style="margin: 4px 0 6px 0;">
-            <span class="badge ok">Aprobada</span>
-            <span class="badge cur">Cursando</span>
-            <span class="badge pen">Pendiente</span>
-          </div>
-          <p class="muted" style="margin: 0; font-size: 11px; line-height: 1.3;">
-            Marca como <b>Aprobada</b> para sumar créditos. Si tiene <b>previas</b> se bloqueará.
-          </p>
+          <p class="muted" style="margin: 0; font-size: 11px;">Marca como Aprobada para sumar créditos.</p>
         </div>
-
       </div>
 
       <div id="filters-container" class="filters-panel">
-        <div class="filters-header-mobile">
-          <h3>Filtrar Materias</h3>
-          <button id="btn-close-filters" class="btn-close-x">✕</button>
-        </div>
+        <div class="filters-header-mobile"><h3>Filtrar Materias</h3><button id="btn-close-filters" class="btn-close-x">✕</button></div>
         <div class="filters-layout-grid">
-          <div><input id="q" type="search" placeholder="Buscar por código o nombre…" autocomplete="off"></div>
-          <div>
-            <select id="f-estado">
-              <option value="">Estado: Todos</option>
-              <option value="aprobada">Aprobada ✅</option>
-              <option value="cursando">Cursando ⏳</option>
-              <option value="pendiente">Pendiente</option>
-            </select>
-          </div>
-          <div><select id="f-anio"><option value="">Año: Todos</option></select></div>
-          <div><select id="f-area"><option value="">Área: Todas</option></select></div>
-          <div>
-            <select id="f-tipo">
-              <option value="">Tipo: Todas</option>
-              <option value="OB">Obligatoria</option>
-              <option value="OP">Opcional</option>
-            </select>
-          </div>
-          
-          <div class="calculo-col-container">
-            <select id="f-trayectoria-calculo">
-              <option value="">Trayectoria Cálculo: Elegir...</option>
-              <option value="MC10">Cálculo I (MC10)</option>
-              <option value="AB">Cálculo I/A y I/B (114A/128A)</option>
-            </select>
-          </div>
+          <input id="q" type="search" placeholder="Buscar…" autocomplete="off">
+          <select id="f-estado"><option value="">Estado: Todos</option><option value="aprobada">Aprobada</option><option value="cursando">Cursando</option></select>
+          <select id="f-area"><option value="">Área: Todas</option></select>
+          <select id="f-tipo"><option value="">Tipo: Todas</option><option value="OB">Obligatoria</option><option value="OP">Opcional</option></select>
+          <select id="f-trayectoria-calculo">
+            <option value="">Cálculo: Elegir...</option>
+            <option value="MC10">Cálculo I (MC10)</option>
+            <option value="AB">Cálculo I/A y I/B</option>
+          </select>
+          <button id="btn-open-optativas" class="btn" style="background:var(--brand); color:white;">Optativas</button>
         </div>
       </div>
 
       <div id="semestres-container" class="semestres-panel">
-        <div class="semestres-header-mobile">
-          <h3>Seleccionar Semestre</h3>
-          <button id="btn-close-semestres" class="btn-close-x">✕</button>
-        </div>
         <div class="semestres-buttons-grid">
-          <button class="btn-semestre active" data-semestre="1">1° Semestre</button>
-          <button class="btn-semestre" data-semestre="2">2° Semestre</button>
-          <button class="btn-semestre" data-semestre="3">3° Semestre</button>
-          <button class="btn-semestre" data-semestre="4">4° Semestre</button>
-          <button class="btn-semestre" data-semestre="5">5° Semestre</button>
-          <button class="btn-semestre" data-semestre="6">6° Semestre</button>
-          <button class="btn-semestre" data-semestre="7">7° Semestre</button>
-          <button class="btn-semestre" data-semestre="8">8° Semestre</button>
-          <button class="btn-semestre" data-semestre="todos">Ver Todos</button>
-        </div>
-      </div>
-
-    </div>
-  </div> <div class="wrap" style="margin-top: 24px;">
-    <main id="list"></main>
-  </div>
-
-  <div id="onboarding" class="modal-back">
-    <div class="modal">
-      <div class="card">
-        <h2>✨ ¡Bienvenido a tu Malla Interactiva!</h2>
-        <p>Esta herramienta te permite mapear el progreso de tu carrera de forma visual e inteligente.</p>
-        <p>🔹 <b>Guardado Automático:</b> Tus datos se guardan de manera local y en tu nube de Firebase.</p>
-        <p>🔹 <b>Correlativas automáticas:</b> Si desmarcas una previa obligatoria, el sistema limpiará el progreso posterior para evitar inconsistencias.</p>
-        <div class="foot">
-          <button id="ob-close" class="pill" style="background: var(--brand); color: #fff; border: none; padding: 8px 20px;">Entendido</button>
+          <button class="btn-semestre active" data-semestre="1">1°</button><button class="btn-semestre" data-semestre="2">2°</button>
+          <button class="btn-semestre" data-semestre="3">3°</button><button class="btn-semestre" data-semestre="4">4°</button>
+          <button class="btn-semestre" data-semestre="5">5°</button><button class="btn-semestre" data-semestre="6">6°</button>
+          <button class="btn-semestre" data-semestre="7">7°</button><button class="btn-semestre" data-semestre="8">8°</button>
+          <button class="btn-semestre" data-semestre="todos">Todos</button>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="wrap" style="margin-top: 24px;"><main id="list"></main></div>
+
+  <div id="onboarding" class="modal-back"><div class="modal"><div class="card"><h2>Guía</h2><p>Selecciona optativas para incluirlas en tu malla.</p><button id="ob-close">Entendido</button></div></div></div>
+  <div id="modal-optativas" class="modal-back"><div class="modal"><div class="card">
+    <div style="display:flex; justify-content:space-between;"><h2>Optativas</h2><button id="btn-close-optativas">✕</button></div>
+    <div id="optativas-list" style="max-height: 300px; overflow-y: auto;"></div>
+  </div></div></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
-  
-  <script>/* window.FB_CONFIG */</script>
-  
   <script src="js/app.js"></script>
   <script src="js/app.firebase.js"></script>
-
 </body>
 </html>
