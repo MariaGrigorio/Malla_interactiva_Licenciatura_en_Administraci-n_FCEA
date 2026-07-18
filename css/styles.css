@@ -35,12 +35,11 @@ body {
 }
 
 .wrap {
-  max-width: 1400px; /* Ancho extendido en PC */
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
 }
 
-/* Envoltura interna del bloque fijo superior */
 .wrap-top {
   max-width: 1400px;
   margin: 0 auto;
@@ -48,23 +47,22 @@ body {
 }
 
 /* =========================================================
-   CONFIGURACIÓN STICKY PANORÁMICA (FONDO ANCHO COMPLETO)
+   STICKY CONFIGURADO EN EL FLUJO CORRECTO DE CAPAS
    ========================================================= */
 .sticky-top-container {
   position: relative;
   background: var(--bg-grad-1);
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(35, 40, 58, 0.6);
-  z-index: 10;
+  z-index: 90;
 }
 
 @media (min-width: 900px) {
   .sticky-top-container {
-    position: sticky;
+    position: sticky !important; /* Forzado de fijación absoluta al scroll */
     top: 0;
-    background: #07090d; /* Fondo unificado oscuro e independiente que abarca el 100% de la pantalla */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    z-index: 90; /* Por debajo de modales pero por encima de las cartas */
+    background: #07090d !important; 
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -79,7 +77,7 @@ header {
 header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
 header small { color: var(--muted); font-size: 12px; }
 
-/* REESTRUCTURACIÓN FILA 1 PANORÁMICA (PC) */
+/* REESTRUCTURACIÓN FILA 1 PANORÁMICA */
 .top-dashboard-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
@@ -92,18 +90,17 @@ header small { color: var(--muted); font-size: 12px; }
   .top-dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
 }
 
-/* Fila de KPIs independientes continuos */
 .kpis-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-/* REESTRUCTURACIÓN FILA 2: FILTROS EN 6 COLUMNAS COMPLETAS (PC) */
+/* REESTRUCTURACIÓN FILA 2: NUEVA DISTRIBUCIÓN ADAPTATIVA DE 7 COLUMNAS */
 .filters-panel { width: 100%; }
 .filters-layout-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 10px;
 }
 
@@ -126,23 +123,22 @@ header small { color: var(--muted); font-size: 12px; }
   background: var(--surface);
 }
 
-/* Estructura del Grid de contenido inferior */
-.grid {
+/* Resaltador estético para el select de cálculo en PC */
+.calculo-col-container select {
+  border-color: rgba(124, 58, 237, 0.4);
+  background: rgba(124, 58, 237, 0.05);
+  font-weight: 500;
+}
+
+/* Listado de materias extendido */
+#list {
   display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 20px;
-  align-items: start;
-  margin-top: 24px;
-}
-@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-
-.sidebar-sticky {
-  position: sticky;
-  top: 230px; /* Alineación por debajo de las dos filas del bloque fijo superior */
-  z-index: 20; 
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
 }
 
-/* TARJETAS */
+/* TARJETAS DE MATERIA */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -151,8 +147,7 @@ header small { color: var(--muted); font-size: 12px; }
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* DISEÑO VERTICAL DE MATERIAS */
-.course { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 14px 16px; margin-bottom: 12px; }
+.course { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 14px 16px; }
 .course-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .course h3 { margin: 0; font-size: 15px; font-weight: 600; }
 .course-footer { display: flex; flex-direction: column; }
@@ -169,7 +164,7 @@ header small { color: var(--muted); font-size: 12px; }
 
 /* Barras y KPIs */
 .progress { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
-.progress .bar { background: var(--line); height: 8px; border-radius: 99px; overflow: hidden; position: relative; }
+.progress .bar { background: var(--line); height: 8px; border-radius: 999px; overflow: hidden; position: relative; }
 .progress .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #a78bfa); width: 0%; transition: width 0.4s; }
 
 .kpi { background: var(--surface); border: 1px solid var(--line); padding: 8px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
@@ -190,34 +185,28 @@ button:hover, .btn:hover { background: var(--line); }
 .tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .tag { background: var(--chip); border: 1px solid var(--line); color: var(--txt); padding: 3px 8px; border-radius: 6px; font-size: 11px; }
 
-.calculo-selector-container { padding: 4px 0 0 0; width: 100%; background: transparent !important; border: none !important; box-shadow: none !important; }
-.calculo-title { margin: 0 0 10px 0; font-size: 13px; font-weight: 600; }
-.btn.btn-tray-active { background: var(--brand) !important; color: #fff !important; border-color: var(--brand) !important; box-shadow: 0 0 10px rgba(124, 58, 237, 0.3); }
-
 .empty { padding: 20px; text-align: center; color: #94a3b8; }
 
-/* MODAL / GUÍA TOTALMENTE ADELANTE POR DEFAULT (Z-INDEX CRÍTICO) */
+/* MODAL / GUÍA PERFECCIONADO (Z-INDEX SUPERIOR TOTAL) */
 .modal-back {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.8) !important;
   display: none;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 9999 !important; /* Capa definitiva por encima de headers, sticky-containers y selects móviles */
+  z-index: 99999 !important; /* Capa definitiva sobre paneles fijos */
 }
-.modal { max-width: 600px; width: 100%; z-index: 10000; }
+.modal { max-width: 600px; width: 100%; z-index: 100000; }
 .modal .card { padding: 24px; border-color: var(--brand-line); background: #131726; }
 .modal h2 { margin: 0 0 12px 0; font-size: 20px; }
 .modal p { margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; }
-.modal ul { padding-left: 20px; font-size: 13px; color: #cbd5e1; margin-bottom: 16px; }
-.modal li { margin-bottom: 6px; }
 
 input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
 
 /* =========================================================
-   ESTILOS EXCLUSIVOS MOBILE (FAB Y MENÚ FLOTANTE RESPONSIVO)
+   ESTILOS EXCLUSIVOS MOBILE (MODAL DE CAPAS UNIFICADO)
    ========================================================= */
 @media (max-width: 900px) {
   .wrap-top { padding: 12px 12px 0 12px; }
@@ -229,7 +218,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 2000 !important; /* Siempre flotando por delante de las cartas de asignaturas */
+    z-index: 2000 !important;
     background-color: var(--brand);
     color: #ffffff;
     border: none;
@@ -248,9 +237,9 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     border-top: 2px solid var(--brand);
     border-radius: 20px 20px 0 0;
     padding: 24px 20px;
-    z-index: 3000 !important; /* Por delante del botón flotante y el contenido general */
+    z-index: 3000 !important;
     box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
   }
 
