@@ -1,27 +1,36 @@
-/* Notegood Malla – v42 (completo)
-   - Toast con un solo OK
-   - Listeners seguros
-   - Auth + Firestore sync
-   - Confeti, frases, notas, calificaciones
-   - Tema claro/oscuro (no persistente)
-*/
-console.log('Notegood Malla v42');
+/* Notegood Malla – v42 (Completo y Corregido) */
+console.log('Notegood Malla v42 - Cargando Firebase y Estructura...');
 
-(function () {
+document.addEventListener('DOMContentLoaded', () => {
   try { boot(); }
-  catch (e) {
-    console.error(e);
-    const m = document.getElementById('malla');
-    if (m) {
-      m.innerHTML = '<div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;max-width:960px;margin:1rem auto;font-weight:600;color:#7f1d1d">Error: ' + e.message + '</div>';
-    }
-  }
-})();
+  catch (e) { console.error("Error crítico:", e); }
+});
 
 function boot() {
-  if (!firebase.apps?.length) firebase.initializeApp(window.FB_CONFIG || {});
+  // 1. Inicialización de Firebase
+  if (!firebase.apps || !firebase.apps.length) {
+    firebase.initializeApp(window.FB_CONFIG || {});
+  }
+  
   const auth = firebase.auth();
-  const db   = firebase.firestore();
+  const db = firebase.firestore();
+
+  // 2. REFERENCIAS A BOTONES DE LOGIN
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const badge = document.getElementById('userBadge');
+
+  loginBtn?.addEventListener('click', async () => {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      await auth.signInWithPopup(provider);
+    } catch (e) { console.error(e); }
+  });
+
+  logoutBtn?.addEventListener('click', async () => {
+    await auth.signOut();
+    location.reload();
+  });
 
   /* ========== PLAN (igual al acordado) ========== */
   const PLAN = [
@@ -359,43 +368,22 @@ function boot() {
     render();
   });
 
-  /* ========== Auth ==========
-     - Redirige a landing si no hay sesión
-     - Muestra primer nombre, Login/Logout */
-  const loginBtn = document.getElementById('loginGoogle');
-  const logoutBtn= document.getElementById('logoutBtn');
-  const badge    = document.getElementById('userBadge');
-
-  loginBtn?.addEventListener('click', async ()=>{
-    try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-    catch(e){ console.error(e); toast('No se pudo iniciar sesión ❌', 2500); }
-  });
-  logoutBtn?.addEventListener('click', async ()=>{
-    await auth.signOut();
-    location.href='index.html';
-  });
-
-  auth.onAuthStateChanged(async (u)=>{
-    if (!u) { location.href='index.html?redirect=malla.html'; return; }
-
-    const first=(u.displayName||u.email||'Usuario').split(' ')[0];
-    if (badge){ badge.style.display=''; badge.textContent=`Hola, ${first}`; }
-    if (logoutBtn) logoutBtn.style.display='';
-    if (loginBtn)  loginBtn.style.display='none';
-
-    // Perfil + sync
-    await db.collection('users').doc(u.uid).set({
-      uid:u.uid, email:u.email||null, displayName:u.displayName||null,
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge:true });
-
-    const cloud=await cloudLoad();
-    if (cloud){
-      Object.assign(estado, cloud.estado||{});
-      Object.assign(notas,  cloud.notas ||{});
-      Object.assign(grades, cloud.grades||{});
-      save(KEY,estado); save(NOTES_KEY,notas); save(GRADES_KEY,grades);
+  // 5. ESTADO DE AUTENTICACIÓN
+  auth.onAuthStateChanged(async (u) => {
+    if (u) {
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+      if (badge) { badge.style.display = 'inline-block'; badge.textContent = `Hola, ${u.displayName?.split(' ')[0] || 'Admin'}`; }
+      
+      // Sincronización
+      await db.collection('users').doc(u.uid).set({
+        email: u.email,
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } else {
+      loginBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+      if (badge) badge.style.display = 'none';
     }
-    render();
   });
 }
