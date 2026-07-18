@@ -5,28 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Grilla · Administración (UDELAR)</title>
 
-  <!-- Estilos Notegood -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <div>
-        <h1>Grilla · Administración</h1>
-        <small>Facultad de Ciencias Económicas y de Administración · UDELAR</small>
-      </div>
-      <span class="pill">Hecho con 💜 por Notegood.uy</span>
-    </header>
+    
+    <div class="sticky-top-container">
+      <header>
+        <div>
+          <h1>Grilla · Administración</h1>
+          <small>Facultad de Ciencias Económicas y de Administración · UDELAR</small>
+        </div>
+        <span class="pill">Hecho con 💜 por Notegood.uy</span>
+      </header>
 
-    <!-- (Opcional) Si querés el sello centrado como footer del header, usá esto:
-    <div class="footer-note">
-      <span class="pill">Hecho con 💜 y muuucho café por Notegood.uy — @notegood.uy</span>
-    </div>
-    -->
-
-    <div class="grid">
-      <!-- Columna principal -->
-      <section class="card">
+      <div class="card" style="border-radius: 12px;">
         <div class="progress">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div>
@@ -45,8 +38,9 @@
             <div class="kpi"><small>Créditos aprobados</small><b id="kpi-creditos">0</b></div>
           </div>
         </div>
-
-        <!-- Filtros -->
+      </div>
+    </div> <div class="grid">
+      <section class="card">
         <div class="filters">
           <input id="q" type="search" placeholder="Buscar por código o nombre…" />
           <select id="f-estado">
@@ -65,37 +59,35 @@
           </select>
         </div>
 
-        <!-- Listado -->
         <div class="list" id="list"></div>
       </section>
 
-      <!-- Lateral -->
-      <aside class="card" style="padding:16px">
-        <h3 style="margin-top:0">Leyenda y notas</h3>
-        <div class="tags">
-          <span class="badge ok">Aprobada</span>
-          <span class="badge cur">Cursando</span>
-          <span class="badge pen">Pendiente</span>
-        </div>
-        <p class="muted" style="margin-top:10px">
-          Marca como <b>Aprobada</b> para sumar créditos. Si una materia tiene <b>previas</b>,
-          verás el detalle y se bloqueará hasta que las cumplas.
-        </p>
-        <hr style="border-color:#202746;border-top:none;margin:16px 0" />
-        <h4>Áreas</h4>
-        <div id="areas-list" class="tags"></div>
-        <hr style="border-color:#202746;border-top:none;margin:16px 0" />
-        <h4>Accesos rápidos</h4>
-        <div class="tags">
-          <a class="tag" href="#" id="quick-ob">Solo obligatorias</a>
-          <a class="tag" href="#" id="quick-op">Solo opcionales</a>
-          <a class="tag" href="#" id="quick-clear">Limpiar filtros</a>
-        </div>
-      </aside>
-    </div>
+      <div class="sidebar-sticky">
+        <aside class="card" style="padding:16px">
+          <h3 style="margin-top:0">Leyenda y notas</h3>
+          <div class="tags">
+            <span class="badge ok">Aprobada</span>
+            <span class="badge cur">Cursando</span>
+            <span class="badge pen">Pendiente</span>
+          </div>
+          <p class="muted" style="margin-top:10px; font-size: 13px;">
+            Marca como <b>Aprobada</b> para sumar créditos. Si una materia tiene <b>previas</b>,
+            verás el detalle y se bloqueará hasta que las cumplas.
+          </p>
+          <hr style="border-color:#202746;border-top:none;margin:16px 0" />
+          <h4>Áreas</h4>
+          <div id="areas-list" class="tags"></div>
+          <hr style="border-color:#202746;border-top:none;margin:16px 0" />
+          <h4>Accesos rápidos</h4>
+          <div class="tags">
+            <a class="tag" href="#" id="quick-ob">Solo obligatorias</a>
+            <a class="tag" href="#" id="quick-op">Solo opcionales</a>
+            <a class="tag" href="#" id="quick-clear">Limpiar filtros</a>
+          </div>
+        </aside>
+      </div> </div>
   </div>
 
-  <!-- Modal onboarding -->
   <div class="modal-back" id="onboarding">
     <div class="modal">
       <div class="card">
@@ -113,10 +105,6 @@
     </div>
   </div>
 
-  <!-- (Opcional) Capa para confetti a pantalla completa -->
-  <!-- <canvas id="confetti" class="confetti-layer"></canvas> -->
-
-  <!-- App (sin lógica inline duplicada) -->
   <script src="js/app.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
@@ -126,4 +114,3 @@
 
 </body>
 </html>
-
