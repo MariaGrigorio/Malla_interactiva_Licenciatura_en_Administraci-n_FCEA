@@ -1,6 +1,5 @@
 /* ================================================
    Notegood · Grilla Interactiva (styles.css)
-   Estética dark limpia + acentos violeta
    ================================================ */
 
 :root {
@@ -34,6 +33,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Envoltura del listado de materias inferiores */
 .wrap {
   max-width: 1200px;
   padding: 0 24px;
@@ -41,13 +41,16 @@ body {
   position: relative;
 }
 
+/* Envoltura interna del contenido del bloque fijo superior */
 .wrap-top {
   max-width: 1200px;
-  padding: 16px 0;
+  padding: 16px 24px; /* paddings simétricos alineados con las materias */
   margin: 0 auto;
 }
 
-/* CONTENEDOR FIJO DE ANCHO CONTROLADO NATIVO */
+/* =========================================================
+   FIJACIÓN SUPERIOR PANORÁMICA (FONDO 100% ANCHO EN PC)
+   ========================================================= */
 .sticky-top-container {
   position: relative;
   width: 100%;
@@ -59,19 +62,19 @@ body {
 
 @media (min-width: 900px) {
   .sticky-top-container {
-    position: fixed !important;
+    position: fixed !important; /* Congelado absoluto e inmóvil en monitor */
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 1200px;
-    width: calc(100% - 48px);
-    background: #07090d !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    left: 0;
+    right: 0;
+    width: 100% !important; /* Forzado de punta a punta de la pantalla */
+    background: #07090d !important; /* Color sólido unificado sin fugas en los laterales */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
     z-index: 999;
   }
 
+  /* Colchón superior ampliado para evitar que las materias queden ocultas */
   body {
-    padding-top: 255px; /* Ajuste del colchón para incluir las 3 filas */
+    padding-top: 300px; 
   }
 }
 
@@ -140,7 +143,7 @@ header small { color: var(--muted); font-size: 12px; }
   font-weight: 600;
 }
 
-/* FILA 3: CHIPS DE SEMESTRES (ESTILO BOTÓN) */
+/* FILA 3: BOTONES SEMESTRES */
 .semestres-panel { width: 100%; margin-top: 14px; }
 .semestres-buttons-grid {
   display: grid;
@@ -176,7 +179,6 @@ header small { color: var(--muted); font-size: 12px; }
 /* LISTADO DE MATERIAS */
 #list { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
 
-/* TARJETAS DE ASIGNATURAS */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -200,7 +202,6 @@ header small { color: var(--muted); font-size: 12px; }
 .card.course.is-aprobada { border-color: rgba(22, 163, 74, 0.35); background: linear-gradient(135deg, var(--card), rgba(22, 163, 74, 0.04)); }
 .card.course.is-cursando { border-color: rgba(245, 158, 11, 0.35); background: linear-gradient(135deg, var(--card), rgba(245, 158, 11, 0.04)); }
 
-/* Barras e indicadores */
 .progress { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
 .progress .bar { background: var(--line); height: 8px; border-radius: 999px; overflow: hidden; position: relative; }
 .progress .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #a78bfa); width: 0%; transition: width 0.4s; }
@@ -214,6 +215,9 @@ button:hover, .btn:hover { background: var(--line); }
 #btn-reset { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.15); color: #f87171; }
 #btn-reset:hover { background: var(--bad); color: #fff; }
 
+#loginBtn { background: var(--brand); color: #fff; border-color: var(--brand); font-weight: 500; }
+#loginBtn:hover { background: #6d28d9; }
+
 .pill { background: var(--brand-weak); border: 1px solid var(--brand-line); color: #c084fc; padding: 2px 10px; border-radius: 99px; font-size: 11px; }
 .badge { padding: 3px 6px; border-radius: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
 .badge.ok { background: rgba(22, 163, 74, 0.15); color: #4ade80; }
@@ -224,7 +228,6 @@ button:hover, .btn:hover { background: var(--line); }
 .tag { background: var(--chip); border: 1px solid var(--line); color: var(--txt); padding: 3px 8px; border-radius: 6px; font-size: 11px; }
 .empty { padding: 20px; text-align: center; color: #94a3b8; }
 
-/* MODALES Z-INDEX ABSOLUTO */
 .modal-back {
   position: fixed;
   inset: 0;
@@ -242,12 +245,11 @@ button:hover, .btn:hover { background: var(--line); }
 input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
 
 /* =========================================================
-   ESTILOS EXCLUSIVOS MOBILE (MODALES INDEPENDIENTES)
+   MOBILE RESPONSIVE
    ========================================================= */
 @media (max-width: 900px) {
   .wrap-top { padding: 12px 12px 0 12px; }
   
-  /* Contenedor Flotante de los 2 triggers en celular */
   .mobile-floating-actions {
     display: flex;
     position: fixed;
@@ -281,7 +283,6 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
   }
 
-  /* Bottom Sheets móviles */
   .filters-panel, .semestres-panel {
     display: none; 
     position: fixed;
