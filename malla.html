@@ -92,16 +92,28 @@
   <div class="wrap" style="margin-top: 24px;"><main id="list"></main></div>
 
   <div id="onboarding" class="modal-back"><div class="modal"><div class="card"><h2>Guía rápida</h2><p>Esta herramienta te permite mapear el progreso de tu carrera de forma visual e inteligente.</p><button id="ob-close">Entendido</button></div></div></div>
-  <div id="modal-optativas" class="modal-back"><div class="modal"><div class="card">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h2>Optativas</h2><button id="btn-close-optativas">✕</button></div>
-    <div id="optativas-list" style="max-height: 300px; overflow-y: auto;"></div>
-  </div></div></div>
+  
+  <div id="modal-optativas" class="modal-back">
+    <div class="modal">
+      <div class="card" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px; width: 100%;">
+        <div style="border-bottom: 1px solid var(--border, #eee); padding-bottom: 8px;">
+          <h2 style="margin: 0;">Asignaturas Optativas</h2>
+        </div>
+        
+        <div id="optativas-list" style="max-height: 350px; overflow-y: auto; padding-right: 5px;"></div>
+        
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border, #eee); padding-top: 12px;">
+          <button id="btn-close-optativas" class="btn ghost" style="padding: 8px 16px;">Cerrar</button>
+          <button id="btn-save-optativas" class="btn-pri" style="padding: 8px 16px; background: var(--brand, #6f42c1); color: white; border:none; border-radius: 6px; cursor:pointer;">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script>
-  // Se agregaron las credenciales reales de tu proyecto
   window.FB_CONFIG = {
     apiKey: "AIzaSyCHAKPNdi8J0XfZZ0oHQ-gmWF9DPbvRhiQ",
     authDomain: "malla-fcea.firebaseapp.com",
