@@ -46,7 +46,6 @@
     location.reload();
   });
 
-  // Referencia al progreso del usuario en la base de datos
   const progressRef = () => auth.currentUser ? db.collection('progress').doc(auth.currentUser.uid) : null;
 
   let saveTimer = null;
@@ -76,7 +75,7 @@
   }
 
   // ==========================================
-  // 2. MANEJO DE ESTADO (LOCAL Y NUBE)
+  // 2. MANEJO DE ESTADO
   // ==========================================
   function saveState() {
     try {
@@ -89,10 +88,7 @@
       localStorage.setItem(stateKey, JSON.stringify(obj));
     } catch (e) { console.warn("No se pudo guardar local:", e); }
     
-    // Guardar en Firebase si hay sesión iniciada
-    if (auth.currentUser) {
-        cloudSaveDebounced();
-    }
+    if (auth.currentUser) cloudSaveDebounced();
   }
 
   function loadStateFromObj(obj) {
@@ -105,9 +101,8 @@
   function loadLocalState() {
     const raw = localStorage.getItem(stateKey);
     if (raw) {
-      try {
-        loadStateFromObj(JSON.parse(raw));
-      } catch (e) { console.warn("Error carga local:", e); }
+      try { loadStateFromObj(JSON.parse(raw)); } 
+      catch (e) { console.warn("Error carga local:", e); }
     }
   }
 
@@ -193,8 +188,11 @@
     items.forEach((m) => {
       const est = getEstado(m.codigo);
       const locked = !canTake(m);
+      
       const wrapper = document.createElement("div");
-      wrapper.className = `card course ${locked ? "locked" : ""}`;
+      // ESTILOS DE COLOR: Se inyecta la clase "aprobada", "cursando" o "pendiente"
+      wrapper.className = `card course ${locked ? "locked" : ""} ${est}`;
+      
       wrapper.innerHTML = `
         <div class="course-info"><h3>${m.codigo} — ${m.nombre}</h3><span class="badge">${m.semestre}° sem</span></div>
         <div class="act">
@@ -208,7 +206,7 @@
 
     $$('input[data-cur]').forEach(el => el.onchange = (e) => { 
         e.target.checked ? state.cursando.add(e.target.dataset.cur) : state.cursando.delete(e.target.dataset.cur);
-        saveState(); updateKpis(); 
+        saveState(); updateKpis(); render(); // Volvemos a renderizar para que cambie el color
     });
     $$('input[data-ok]').forEach(el => el.onchange = (e) => { 
         if(e.target.checked) { state.aprobadas.add(e.target.dataset.ok); state.cursando.delete(e.target.dataset.ok); }
@@ -228,24 +226,69 @@
       render();
     });
 
+    // === MODAL OPTATIVAS ===
     if ($("#btn-open-optativas")) {
         $("#btn-open-optativas").onclick = () => {
           const list = $("#optativas-list");
           list.innerHTML = "";
-          state.data.materias.filter(m => m.tipo === 'OP').forEach(m => {
-            list.insertAdjacentHTML('beforeend', `<div><input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? 'checked' : ''}> ${m.nombre} (Sem ${m.semestre})</div>`);
+          
+          const optativas = state.data.materias.filter(m => m.tipo === 'OP');
+          const optativasPorSemestre = {};
+          
+          optativas.forEach(m => {
+              if (!optativasPorSemestre[m.semestre]) optativasPorSemestre[m.semestre] = [];
+              optativasPorSemestre[m.semestre].push(m);
           });
+          
+          const semestresOrdenados = Object.keys(optativasPorSemestre).sort((a, b) => a - b);
+          
+          semestresOrdenados.forEach(sem => {
+              const header = document.createElement('h4');
+              header.style.margin = "15px 0 8px 0";
+              header.style.color = "var(--brand, #6f42c1)";
+              header.style.fontSize = "14px";
+              header.style.borderBottom = "1px dashed #ccc";
+              header.textContent = `Semestre ${sem}:`;
+              list.appendChild(header);
+              
+              optativasPorSemestre[sem].forEach(m => {
+                  const row = document.createElement('div');
+                  row.style.display = "flex";
+                  row.style.justifyContent = "space-between";
+                  row.style.alignItems = "center";
+                  row.style.padding = "6px 0";
+                  row.style.fontSize = "13px";
+                  
+                  row.innerHTML = `
+                    <span style="max-width: 85%;">${m.nombre}</span>
+                    <input type="checkbox" data-plan="${m.codigo}" ${state.planeadas.has(m.codigo) ? 'checked' : ''} style="cursor: pointer; transform: scale(1.1);">
+                  `;
+                  list.appendChild(row);
+              });
+          });
+          
           $("#modal-optativas").style.display = "flex";
         };
+    }
+
+    function guardarSeleccionOptativas() {
+        $("#optativas-list").querySelectorAll('input[data-plan]').forEach(i => {
+            i.checked ? state.planeadas.add(i.dataset.plan) : state.planeadas.delete(i.dataset.plan);
+        });
+        saveState(); 
+        render();
     }
 
     if ($("#btn-close-optativas")) {
         $("#btn-close-optativas").onclick = () => {
           $("#modal-optativas").style.display = "none";
-          $("#optativas-list").querySelectorAll('input').forEach(i => {
-            i.checked ? state.planeadas.add(i.dataset.plan) : state.planeadas.delete(i.dataset.plan);
-          });
-          saveState(); render();
+        };
+    }
+
+    if ($("#btn-save-optativas")) {
+        $("#btn-save-optativas").onclick = () => {
+          guardarSeleccionOptativas();
+          $("#modal-optativas").style.display = "none";
         };
     }
 
@@ -254,14 +297,10 @@
     $("#btn-toggle-semestres")?.addEventListener("click", () => $("#semestres-container").classList.add("open"));
     $("#btn-close-semestres")?.addEventListener("click", () => $("#semestres-container").classList.remove("open"));
     
-    // Botón borrar progreso
     $("#btn-reset")?.addEventListener('click', async () => {
       if(!confirm('¿Seguro que querés borrar TODO tu avance?')) return;
-      state.aprobadas.clear();
-      state.cursando.clear();
-      state.planeadas.clear();
+      state.aprobadas.clear(); state.cursando.clear(); state.planeadas.clear();
       saveState();
-      
       if (auth.currentUser) {
         const r = progressRef();
         if (r) await r.set({ aprobadas: [], cursando: [], planeadas: [], updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
@@ -282,39 +321,31 @@
   // 4. ARRANQUE (INIT)
   // ==========================================
   function init() { 
-      // 1. Cargar datos locales primero para mostrar algo rápido
       loadLocalState(); 
-      
-      // 2. Buscar las materias del JSON
       loadData().then(() => {
           buildFilters(); 
           wireUI(); 
           render();
           
-          // 3. Revisar si hay un usuario conectado
           auth.onAuthStateChanged(async (u) => {
             if (u) {
               if (loginBtn) loginBtn.style.display = 'none';
               if (logoutBtn) logoutBtn.style.display = 'inline-block';
               if (badge) { badge.style.display = 'inline-block'; badge.textContent = `Hola, ${u.displayName?.split(' ')[0] || 'Usuario'}`; }
               
-              // Actualizar fecha de última visita del usuario
               await db.collection('users').doc(u.uid).set({
                 email: u.email,
                 lastSeen: firebase.firestore.FieldValue.serverTimestamp()
               }, { merge: true });
               
-              // Cargar progreso desde la nube
               const cloudData = await cloudLoad();
               if (cloudData) {
-                  loadStateFromObj(cloudData); // Pisar estado local con la nube
-                  saveState(); // Forzar guardado en LocalStorage
-                  render(); // Redibujar materias
+                  loadStateFromObj(cloudData); 
+                  saveState(); 
+                  render(); 
               } else {
-                  // Si no tiene datos en la nube pero sí locales, subirlos
                   cloudSaveDebounced(0);
               }
-              
             } else {
               if (loginBtn) loginBtn.style.display = 'inline-block';
               if (logoutBtn) logoutBtn.style.display = 'none';
