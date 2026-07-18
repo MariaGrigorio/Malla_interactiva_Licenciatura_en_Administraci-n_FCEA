@@ -292,6 +292,25 @@
         };
     }
 
+     // Botón para resetear todas las optativas
+    if ($("#btn-reset-optativas")) {
+        $("#btn-reset-optativas").onclick = () => {
+          if(!confirm('¿Seguro que quieres desmarcar todas las optativas?')) return;
+          
+          // 1. Desmarcar visualmente todos los checkboxes en el modal
+          $("#optativas-list").querySelectorAll('input[data-plan]').forEach(i => {
+              i.checked = false;
+          });
+          
+          // 2. Limpiar el estado interno y guardar en Firebase/Local
+          state.data.materias.filter(m => m.tipo === 'OP').forEach(m => {
+              state.planeadas.delete(m.codigo);
+          });
+          saveState(); 
+          render(); // Actualizar la grilla de fondo
+        };
+    }
+
     $("#btn-toggle-filters")?.addEventListener("click", () => $("#filters-container").classList.add("open"));
     $("#btn-close-filters")?.addEventListener("click", () => $("#filters-container").classList.remove("open"));
     $("#btn-toggle-semestres")?.addEventListener("click", () => $("#semestres-container").classList.add("open"));
