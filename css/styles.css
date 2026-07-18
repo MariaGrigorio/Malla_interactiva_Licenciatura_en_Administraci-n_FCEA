@@ -141,7 +141,7 @@ header .pill{margin-left:auto}
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1; /* Ocupa todo el espacio horizontal disponible */
+  flex: 1;
 }
 
 /* Estilos para reflejar de forma clara el bloqueo de correlativas */
@@ -191,13 +191,13 @@ header .pill{margin-left:auto}
   color:#ffc0c0;border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12)
 }
 
-/* Área de acciones: Checkboxes uno debajo del otro, alineados a la derecha */
+/* Área de acciones */
 .act{
   display:flex;
   flex-direction: column;
   gap:8px;           
   align-items: flex-start;
-  min-width: 110px; /* Previene distorsión por anchos variables de texto */
+  min-width: 110px;
 }
 
 /* Etiquetas internas de los controles */
@@ -205,7 +205,7 @@ header .pill{margin-left:auto}
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%; /* Empuja el checkbox al extremo derecho de su columnita */
+  width: 100%;
   gap: 10px;
   font-size: 13px;
   user-select: none;
@@ -238,6 +238,28 @@ button:active,.btn:active{transform:translateY(1px)}
 input[type="checkbox"]{
   width:18px;height:18px;border-radius:4px;accent-color:var(--brand);
   cursor: pointer;
+}
+
+/* ====== NUEVO: Contenedor y Botones de Trayectoria de Cálculo ====== */
+.calculo-selector-container {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.calculo-title {
+  margin: 0 0 12px 0; 
+  font-size: 13px; 
+  font-weight: 600;
+  color: var(--txt);
+  letter-spacing: 0.3px;
+}
+/* Estilo interactivo dinámico para resaltar el botón seleccionado */
+.btn.btn-tray-active {
+  background: var(--brand) !important;
+  color: #ffffff !important;
+  border-color: var(--brand) !important;
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
 }
 
 /* ====== Toasts / Notas ====== */
