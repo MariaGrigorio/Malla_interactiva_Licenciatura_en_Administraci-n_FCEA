@@ -203,6 +203,22 @@
     } catch (e) { console.error(e); }
   }
 
-  async function init() { loadState(); await loadData(); buildFilters(); wireUI(); render(); }
-  init();
+// Asegúrate de que wireUI solo corra cuando el DOM esté listo
+  function init() { 
+      loadState(); 
+      loadData().then(() => {
+          buildFilters(); 
+          wireUI(); 
+          render();
+          
+          // FORZAR verificación de Firebase Auth aquí si es necesario
+          if(typeof firebase !== 'undefined') {
+              console.log("Firebase inicializado correctamente");
+          }
+      });
+  }
+
+  // Cambio: Usar DOMContentLoaded explícito para evitar que el script corra antes de tiempo
+  document.addEventListener("DOMContentLoaded", init);
+})();
 })();
