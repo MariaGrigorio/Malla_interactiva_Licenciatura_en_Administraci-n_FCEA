@@ -63,7 +63,7 @@ body {
   padding-bottom: 8px;
 }
 
-/* NUEVA CLASE: Panel superior de Filtros totalmente integrado al fondo */
+/* Panel superior de Filtros totalmente integrado al fondo */
 .filters-panel {
   background: transparent;
   border: none;
@@ -123,7 +123,7 @@ header small {
   }
 }
 
-/* Buscador e Inputs dentro del panel transparente */
+/* Buscador e Inputs dentro del panel transparente con efecto cristal esmerilado */
 .filters-3-col input[type="search"],
 .filters-3-col select {
   width: 100%;
@@ -152,6 +152,7 @@ header small {
   grid-template-columns: 3fr 1fr;
   gap: 20px;
   align-items: start;
+  margin-top: 16px;
 }
 
 @media (max-width: 900px) {
@@ -167,7 +168,7 @@ header small {
   z-index: 30;
 }
 
-/* TARJETAS ORIGINALES (Se recupera su color oscuro e independiente) */
+/* TARJETAS SÓLIDAS OSCURAS ORIGINALES */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -175,6 +176,98 @@ header small {
   padding: 20px;
   margin-bottom: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* DISEÑO VERTICAL DE CADA FILA DE ASIGNATURA (NUEVO) */
+.course {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+}
+.course:hover {
+  border-color: #2a3150;
+}
+
+/* Distribución interna textual por bloques */
+.course-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.course h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.course-footer {
+  display: flex;
+  flex-direction: column;
+}
+
+.course small {
+  color: var(--muted);
+}
+
+/* Fila Superior de Atributos internos */
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 2px 0;
+}
+
+.area {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #2a2f47;
+  background: #0f1526;
+  color: #c7d2fe;
+}
+
+/* Estados de bloqueo */
+.course.locked {
+  opacity: .5;                
+  cursor: not-allowed;        
+}
+.course.locked input[type="checkbox"],
+.course.locked label {
+  cursor: not-allowed;
+}
+
+/* Área de acciones: Checkboxes apilados uno debajo del otro */
+.act {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;           
+  align-items: flex-start;
+  min-width: 110px;
+}
+
+.act label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  font-size: 13px;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Bordes acentuados interactivos según progreso directo en la tarjeta */
+.card.course.is-aprobada {
+  border-color: rgba(22, 163, 74, 0.4);
+  background: linear-gradient(135deg, var(--card), rgba(22, 163, 74, 0.05));
+}
+.card.course.is-cursando {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, var(--card), rgba(245, 158, 11, 0.05));
 }
 
 /* Progreso y KPIs */
@@ -227,84 +320,6 @@ header small {
 .kpi b {
   font-size: 18px;
   color: var(--txt);
-}
-
-/* Listado de Semestres y Materias */
-.semester-block {
-  margin-bottom: 28px;
-}
-
-.semester-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 12px;
-  padding-left: 4px;
-  border-left: 3px solid var(--brand);
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Fila de Materia */
-.materia-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--card);
-  border: 1px solid var(--line);
-  padding: 12px 16px;
-  border-radius: 12px;
-  transition: transform 0.15s, border-color 0.15s;
-}
-
-.materia-row:hover {
-  border-color: var(--brand-line);
-  background: var(--surface);
-}
-
-.materia-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.materia-title {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.materia-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.materia-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Estados específicos por fila */
-.materia-row.is-aprobada {
-  border-color: rgba(22, 163, 74, 0.3);
-  background: rgba(22, 163, 74, 0.03);
-}
-
-.materia-row.is-cursando {
-  border-color: rgba(245, 158, 11, 0.3);
-  background: rgba(245, 158, 11, 0.03);
-}
-
-.materia-row.is-bloqueada {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 /* Botones y Elementos Interactivos */
@@ -382,6 +397,27 @@ button:hover {
   color: #fff;
 }
 
+/* Selector de cálculo interactivo lateral */
+.calculo-selector-container {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  width: 100%;
+}
+.calculo-title {
+  margin: 0 0 12px 0; 
+  font-size: 13px; 
+  font-weight: 600;
+  color: var(--txt);
+}
+.btn.btn-tray-active {
+  background: var(--brand) !important;
+  color: #ffffff !important;
+  border-color: var(--brand) !important;
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+}
+
 /* Extras y Utilidades */
 hr {
   border: none;
@@ -392,7 +428,7 @@ hr {
 .muted { color: var(--muted); }
 .empty { padding: 22px; text-align: center; color: #94a3b8; }
 
-/* Modales / Onboarding */
+/* Modales */
 .modal-back {
   position: fixed;
   inset: 0;
@@ -420,4 +456,5 @@ input[type="checkbox"] {
   height: 18px;
   border-radius: 4px;
   accent-color: var(--brand);
+  cursor: pointer;
 }
