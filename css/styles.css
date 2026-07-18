@@ -1,287 +1,269 @@
-/* ================================================
-   Notegood · Grilla Interactiva (styles.css)
-   Estética dark limpia + acentos violeta
-   ================================================ */
-
+/* VARIABLES GLOBALES Y PALETA MODERNA */
 :root {
-  --bg: #0b0d12;
-  --bg-grad-1: #0a0c11;
-  --bg-grad-2: #0f1421;
-  --card: #121521;
-  --surface: #111628;
-  --line: #23283a;
-  --line-2: #202746;
-  --muted: #94a3b8;
-  --txt: #e2e8f0;
+  --bg: #0b0d19;
+  --surface: #121526;
+  --surface-card: #1a1d36;
+  --line: rgba(255, 255, 255, 0.08);
+  --txt: #f3f4f6;
+  --muted: #9ca3af;
   --brand: #7c3aed;
-  --brand-weak: rgba(124, 58, 237, .15);
-  --brand-line: rgba(124, 58, 237, .35);
-  --ok: #16a34a;
-  --warn: #f59e0b;
-  --bad: #ef4444;
-  --chip: #1f2433;
+  --brand-hover: #6d28d9;
+  --success: #10b981;
+  --warning: #f59e0b;
 }
 
-* { box-sizing: border-box; }
-html, body { height: 100%; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  margin: 0;
-  background: linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2) 45%, var(--bg-grad-1) 100%);
-  background-attachment: fixed;
+  background-color: var(--bg);
   color: var(--txt);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 90px; /* Colchón por botones flotantes en mobile */
 }
 
-/* =========================================================
-   ESTRUCTURA DE ANCHOS ORIGINALES RESTAURADA
-   ========================================================= */
-.wrap {
-  max-width: 1200px; /* Ancho máximo original estricto y elegante */
-  padding: 0 24px;
+/* HEADER */
+.main-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 15px 20px;
+}
+.header-container {
+  max-width: 1400px;
   margin: 0 auto;
-  position: relative;
-}
-
-/* Envoltura interna de elementos superiores del dashboard */
-.wrap-top {
-  max-width: 1200px;
-  padding: 16px 0; /* Removido paddings laterales que deformaban la simetría */
-  margin: 0 auto;
-}
-
-/* =========================================================
-   FIJACIÓN SUPERIOR INCOMPRESIBLE (SOLUCIÓN DEFINITIVA)
-   Mantiene el ancho del diseño sin estirarse al infinito
-   ========================================================= */
-.sticky-top-container {
-  position: relative;
-  width: 100%;
-  background: var(--bg-grad-1);
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(35, 40, 58, 0.6);
-  z-index: 100;
-}
-
-@media (min-width: 900px) {
-  .sticky-top-container {
-    position: fixed !important;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%); /* Centrado absoluto perfecto en pantalla */
-    max-width: 1200px; /* Fuerza al bloque a medir EXACTAMENTE lo mismo que .wrap */
-    width: calc(100% - 48px); /* Descuenta los márgenes laterales */
-    background: #07090d !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    z-index: 999;
-  }
-
-  /* Colchón preciso en PC para empujar las materias abajo del bloque fijo */
-  body {
-    padding-top: 210px; 
-  }
-}
-
-.fab-filters, .filters-header-mobile { display: none; }
-
-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  align-items: center;
 }
-header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
-header small { color: var(--muted); font-size: 12px; }
+.logo-area h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.logo-area h2 { font-size: 13px; color: var(--muted); font-weight: 400; }
+.btn-primary-auth {
+  background: var(--brand);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+}
 
-/* FILA 1: DASHBOARD DE CONTROL */
-.top-dashboard-grid {
+/* KPI DASHBOARD */
+.kpi-dashboard-container {
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 0 20px;
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-  align-items: stretch;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 15px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.kpi-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi-value { font-size: 24px; font-weight: 700; color: #fff; margin-top: 5px; }
+
+/* CONTENEDOR DE CONTROLES - DESKTOP FIRST */
+.sticky-controls-wrapper {
+  max-width: 1400px;
+  margin: 0 auto 25px auto;
+  padding: 0 20px;
 }
 
-@media (max-width: 900px) {
-  .top-dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
+/* GRILLA DE FILTROS */
+.filters-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 15px;
+  border-radius: 10px;
+}
+.filters-header-mobile, .semestres-header-mobile {
+  display: none; /* Oculto en PC */
 }
 
-.kpis-row {
+.filters-layout-grid.custom-6-cols {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: 2fr repeat(5, 1fr);
+  gap: 12px;
+  align-items: center;
 }
 
-/* =========================================================
-   FILA 2: LOS 7 FILTROS ALINEADOS EN UNA FILA ÚNICA
-   ========================================================= */
-.filters-panel { 
-  width: 100%; 
-}
-
-.filters-layout-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr) !important;
-  gap: 10px;
-  width: 100%;
-}
-
-.filters-layout-grid input[type="search"],
-.filters-layout-grid select {
-  width: 100%;
-  height: 40px;
-  background: rgba(18, 21, 33, 0.8); 
+.filters-layout-grid input, .filters-layout-grid select {
+  background: #181b30;
   border: 1px solid var(--line);
   color: var(--txt);
-  padding: 0 12px;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
   font-size: 13px;
   outline: none;
-  transition: border-color 0.2s;
-}
-
-.filters-layout-grid input[type="search"]:focus,
-.filters-layout-grid select:focus {
-  border-color: var(--brand);
-  background: var(--surface);
-}
-
-.calculo-col-container select {
-  border-color: rgba(124, 58, 237, 0.5) !important;
-  background: rgba(124, 58, 237, 0.08) !important;
-  font-weight: 600;
-}
-
-/* LISTADO DE ASIGNATURAS CONTINUO */
-#list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
   width: 100%;
 }
+.filters-layout-grid input:focus, .filters-layout-grid select:focus {
+  border-color: var(--brand);
+}
 
-/* TARJETAS DE MATERIAS */
-.card {
-  background: var(--card);
+/* FILA DE BOTONES DE SEMESTRE (ESTILO CHIPS / PESTAÑAS) */
+.semestres-panel {
+  margin-top: 15px;
+}
+.semestres-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 10px;
+}
+.btn-semestre {
+  background: rgba(24, 27, 48, 0.7);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  color: var(--muted);
+  padding: 12px 6px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-semestre:hover {
+  background: var(--surface-card);
+  color: #fff;
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.btn-semestre.active {
+  background: var(--brand) !important;
+  color: #fff !important;
+  border-color: var(--brand) !important;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 }
 
-.course { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 14px 16px; margin-bottom: 4px; }
-.course-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-.course h3 { margin: 0; font-size: 15px; font-weight: 600; }
-.course-footer { display: flex; flex-direction: column; }
-.course small { color: var(--muted); }
-.meta { display: flex; gap: 6px; flex-wrap: wrap; }
-.area { font-size: 11px; padding: 2px 6px; border-radius: 6px; border: 1px solid #2a2f47; background: #0f1526; color: #c7d2fe; }
-
-.course.locked { opacity: .5; cursor: not-allowed; }
-.act { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-width: 105px; }
-.act label { display: inline-flex; align-items: center; justify-content: space-between; width: 100%; font-size: 12px; cursor: pointer; }
-
-.card.course.is-aprobada { border-color: rgba(22, 163, 74, 0.35); background: linear-gradient(135deg, var(--card), rgba(22, 163, 74, 0.04)); }
-.card.course.is-cursando { border-color: rgba(245, 158, 11, 0.35); background: linear-gradient(135deg, var(--card), rgba(245, 158, 11, 0.04)); }
-
-/* Barras y KPIs */
-.progress { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
-.progress .bar { background: var(--line); height: 8px; border-radius: 999px; overflow: hidden; position: relative; }
-.progress .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #a78bfa); width: 0%; transition: width 0.4s; }
-
-.kpi { background: var(--surface); border: 1px solid var(--line); padding: 8px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
-.kpi small { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; margin-bottom: 2px; }
-.kpi b { font-size: 16px; color: var(--txt); }
-
-button, .btn { background: var(--surface); border: 1px solid var(--line); color: var(--txt); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; transition: all 0.15s; }
-button:hover, .btn:hover { background: var(--line); }
-#btn-reset { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.15); color: #f87171; }
-#btn-reset:hover { background: var(--bad); color: #fff; }
-
-.pill { background: var(--brand-weak); border: 1px solid var(--brand-line); color: #c084fc; padding: 2px 10px; border-radius: 99px; font-size: 11px; }
-.badge { padding: 3px 6px; border-radius: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
-.badge.ok { background: rgba(22, 163, 74, 0.15); color: #4ade80; }
-.badge.cur { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-.badge.pen { background: var(--chip); color: var(--muted); }
-
-.tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.clip-container { display: inline-block; }
-.tag { background: var(--chip); border: 1px solid var(--line); color: var(--txt); padding: 3px 8px; border-radius: 6px; font-size: 11px; }
-.empty { padding: 20px; text-align: center; color: #94a3b8; }
-
-/* MODAL DE AYUDA / GUÍA */
-.modal-back {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85) !important;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 999999 !important;
+/* GRILLA DE MATERIAS */
+.grid-content-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
-.modal { max-width: 600px; width: 100%; z-index: 1000000; }
-.modal .card { padding: 24px; border-color: var(--brand-line); background: #131726; }
-.modal h2 { margin: 0 0 12px 0; font-size: 20px; }
-.modal p { margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; }
+.materias-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
 
-input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
+/* BOTONES FLOTANTES MÓVIL */
+.mobile-floating-actions {
+  display: none; /* Oculto en PC */
+}
 
-/* =========================================================
-   ESTILOS MOBILE EXCLUSIVOS
-   ========================================================= */
-@media (max-width: 900px) {
-  .wrap-top { padding: 12px 12px 0 12px; }
-  
-  .fab-filters {
+/* --- ADAPTACIÓN RESPONSIVE COMPLETA (MOBILE Y TABLETS) --- */
+@media (max-width: 950px) {
+  body {
+    padding-top: 10px;
+  }
+
+  /* Transformar los paneles en Drawers Flotantes desde el lateral o fondo */
+  .filters-panel, .semestres-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #0e1122;
+    border-radius: 20px 20px 0 0;
+    border-top: 2px solid var(--brand);
+    z-index: 2000;
+    padding: 24px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+    
+    /* Efecto ocultación inicial por defecto */
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Clase activa que inyectaremos por JS */
+  .filters-panel.open, .semestres-panel.open {
+    transform: translateY(0);
+  }
+
+  /* Encabezados internos de los modales móviles */
+  .filters-header-mobile, .semestres-header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+  }
+  .filters-header-mobile h3, .semestres-header-mobile h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .btn-close-x {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 26px;
+    cursor: pointer;
+  }
+
+  /* Re-alinear los inputs de filtros en formato vertical apilado */
+  .filters-layout-grid.custom-6-cols {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* Re-alinear los botones de semestres en una grilla compacta de 3 columnas */
+  .semestres-buttons-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .btn-semestre {
+    padding: 14px 5px;
+    font-size: 13px;
+  }
+
+  /* Contenedor fijo de botones inferiores */
+  .mobile-floating-actions {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 12px;
+    z-index: 1000;
+    width: 90%;
+    max-width: 400px;
+  }
+  .btn-floating {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: #fff;
+    padding: 14px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 5000 !important;
-    background-color: var(--brand);
-    color: #ffffff;
-    border: none;
-    padding: 14px 22px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 14px;
-    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.6);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: background 0.2s;
   }
-
-  .filters-panel {
-    display: none; 
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: #0d101a;
-    border-top: 2px solid var(--brand);
-    border-radius: 20px 20px 0 0;
-    padding: 24px 20px;
-    z-index: 6000 !important;
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
-    max-height: 85vh;
-    overflow-y: auto;
+  .btn-floating:active {
+    background: var(--surface-card);
   }
-
-  .filters-panel.open { display: block; animation: slideUp 0.2s ease-out; }
-  .filters-header-mobile { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
-  .filters-header-mobile h3 { margin: 0; font-size: 16px; }
-  .btn-close-x { background: transparent; border: none; color: var(--muted); font-size: 20px; }
-
-  .filters-layout-grid { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
+  .btn-floating.highlight {
+    background: var(--brand);
+    border-color: var(--brand);
   }
-  .filters-layout-grid input, .filters-layout-grid select { 
-    width: 100% !important; 
+  .btn-floating.highlight:active {
+    background: var(--brand-hover);
   }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
 }
