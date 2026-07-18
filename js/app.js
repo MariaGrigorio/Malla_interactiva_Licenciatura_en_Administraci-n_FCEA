@@ -79,7 +79,6 @@
     if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
     if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
     
-    // Filtro Semestre
     if (filtroSemestreActual !== "todos" && m.semestre.toString() !== filtroSemestreActual) return false;
 
     // Filtro Optativas: Si es OP, solo mostrar si el usuario la seleccionó
@@ -99,20 +98,10 @@
   }
 
   function updateKpis() {
-    const materiasFiltradasPorCamino = state.data.materias.filter((m) => {
-      if (state.trayectoriaCalculo === "MC10" && (m.codigo === "114A" || m.codigo === "128A")) return false;
-      if (state.trayectoriaCalculo === "AB" && m.codigo === "MC10") return false;
-      return true;
-    });
-
-    const total = materiasFiltradasPorCamino.length;
-    const aprobadas = materiasFiltradasPorCamino.filter((m) => state.aprobadas.has(m.codigo)).length;
-    const credTot = materiasFiltradasPorCamino.reduce((s, m) => {
-      const esObligatoria = m.tipo === "OB";
-      const esOpcionalElegida = m.tipo === "OP" && (state.planeadas.has(m.codigo) || state.cursando.has(m.codigo) || state.aprobadas.has(m.codigo));
-      return (esObligatoria || esOpcionalElegida) ? s + Number(m.creditos || 0) : s;
-    }, 0);
-    const credOk = materiasFiltradasPorCamino.filter((m) => state.aprobadas.has(m.codigo)).reduce((s, m) => s + Number(m.creditos || 0), 0);
+    const total = state.data.materias.length;
+    const aprobadas = state.data.materias.filter((m) => state.aprobadas.has(m.codigo)).length;
+    const credTot = state.data.materias.reduce((s, m) => (m.tipo === "OB" || state.planeadas.has(m.codigo)) ? s + Number(m.creditos || 0) : s, 0);
+    const credOk = state.data.materias.filter((m) => state.aprobadas.has(m.codigo)).reduce((s, m) => s + Number(m.creditos || 0), 0);
 
     $("#kpi-aprobadas") && ($("#kpi-aprobadas").textContent = aprobadas);
     $("#kpi-totales") && ($("#kpi-totales").textContent = total);
@@ -129,28 +118,13 @@
       $area.innerHTML = '<option value="">Área: Todas</option>';
       state.data.areas.forEach((a) => $area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`));
     }
-    if ($("#f-trayectoria-calculo")) $("#f-trayectoria-calculo").value = state.trayectoriaCalculo || "";
-  }
-
-  function cambiarTrayectoria(tipo) {
-    if (state.trayectoriaCalculo === tipo) return;
-    if (state.trayectoriaCalculo !== null) {
-      if (!confirm("Atención: Si cambias de trayectoria se restablecerá el progreso. ¿Continuar?")) {
-        if ($("#f-trayectoria-calculo")) $("#f-trayectoria-calculo").value = state.trayectoriaCalculo || "";
-        return;
-      }
-    }
-    state.trayectoriaCalculo = tipo ? tipo : null;
-    if (tipo === "MC10") { state.aprobadas.delete("114A"); state.aprobadas.delete("128A"); }
-    else if (tipo === "AB") { state.aprobadas.delete("MC10"); }
-    limpiarMateriasHuerfanas(); saveState(); render();
   }
 
   function render() {
     const list = $("#list");
     if (!list) return;
 
-    const items = state.data.materias.filter(matchesFilters).sort((a, b) => a.anio - b.anio || a.semestre - b.semestre || String(a.codigo).localeCompare(String(b.codigo)));
+    const items = state.data.materias.filter(matchesFilters).sort((a, b) => a.semestre - b.semestre || a.codigo.localeCompare(b.codigo));
     list.innerHTML = "";
     if (!items.length) { list.innerHTML = '<div class="empty">No hay materias.</div>'; updateKpis(); return; }
 
@@ -170,12 +144,33 @@
       frag.appendChild(wrapper);
     });
     list.appendChild(frag);
-    // (Añadir listeners de checkbox aquí como en tu original)
+
+    // Listeners de Checkbox
+    $$('input[data-cur]').forEach(el => el.onchange = (e) => { 
+        e.target.checked ? state.cursando.add(e.target.dataset.cur) : state.cursando.delete(e.target.dataset.cur);
+        saveState(); updateKpis(); 
+    });
+    $$('input[data-ok]').forEach(el => el.onchange = (e) => { 
+        if(e.target.checked) { state.aprobadas.add(e.target.dataset.ok); state.cursando.delete(e.target.dataset.ok); }
+        else { state.aprobadas.delete(e.target.dataset.ok); }
+        limpiarMateriasHuerfanas(); saveState(); render(); 
+    });
     updateKpis();
   }
 
   function wireUI() {
-    // --- LÓGICA DE OPTATIVAS ---
+    // Listeners de filtros
+    $$("#q,#f-area,#f-tipo,#f-estado").forEach(el => el.oninput = el.onchange = render);
+    
+    // Botones Semestre
+    $$(".btn-semestre").forEach(btn => btn.onclick = (e) => {
+      $$(".btn-semestre").forEach(b => b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      filtroSemestreActual = e.currentTarget.dataset.semestre;
+      render();
+    });
+
+    // Lógica Optativas
     $("#btn-open-optativas").onclick = () => {
       const list = $("#optativas-list");
       list.innerHTML = "";
@@ -193,7 +188,11 @@
       saveState(); render();
     };
 
-    // ... (resto de listeners de filtros, reset, onboarding, modales) ...
+    // Botones Mobile
+    $("#btn-toggle-filters")?.addEventListener("click", () => $("#filters-container").classList.add("open"));
+    $("#btn-close-filters")?.addEventListener("click", () => $("#filters-container").classList.remove("open"));
+    $("#btn-toggle-semestres")?.addEventListener("click", () => $("#semestres-container").classList.add("open"));
+    $("#btn-close-semestres")?.addEventListener("click", () => $("#semestres-container").classList.remove("open"));
   }
 
   async function loadData() {
