@@ -336,3 +336,30 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     border-left: 5px solid #fd7e14;
     background-color: rgba(253, 126, 20, 0.05); /* Un fondo naranja muy suavecito */
 }
+
+/* =========================================
+   Estilos personalizados para el Scrollbar 
+   ========================================= */
+.custom-scroll::-webkit-scrollbar {
+    width: 8px; /* Ancho de la barra */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04); /* Fondo sutil de la pista */
+    border-radius: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: var(--brand, #6f42c1); /* Color principal */
+    border-radius: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: #5a32a3; /* Un tono más oscuro al pasar el mouse */
+}
+
+/* Soporte para Firefox */
+.custom-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand, #6f42c1) rgba(0, 0, 0, 0.04);
+}
