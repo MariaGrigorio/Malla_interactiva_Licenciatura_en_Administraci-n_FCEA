@@ -24,6 +24,46 @@
         </div>
       </header>
 
+      <div class="top-dashboard-grid">
+        
+        <div class="card progress" style="margin: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <b style="font-size: 16px;">Tu Progreso General</b>
+            <span id="progress-label" class="pill">0%</span>
+          </div>
+          <div class="bar">
+            <span id="bar" style="width: 0%;"></span>
+          </div>
+          <div class="kpis">
+            <div class="kpi">
+              <small>Aprobadas</small>
+              <b id="kpi-aprobadas">0</b>
+            </div>
+            <div class="kpi">
+              <small>Créditos</small>
+              <b id="kpi-creditos">0</b>
+            </div>
+            <div class="kpi">
+              <small>Totales</small>
+              <b id="kpi-totales">0</b>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+          <h3 style="margin: 0; font-size: 15px;">Leyenda y notas</h3>
+          <div class="tags">
+            <span class="badge ok">Aprobada</span>
+            <span class="badge cur">Cursando</span>
+            <span class="badge pen">Pendiente</span>
+          </div>
+          <p class="muted" style="margin: 0; font-size: 12px; line-height: 1.4;">
+            Marca como <b>Aprobada</b> para sumar créditos. Si una materia tiene <b>previas</b>, verás el detalle y se bloqueará hasta que las cumplas.
+          </p>
+        </div>
+
+      </div>
+
       <div class="filters-panel">
         <div class="filters-3-col">
           <div>
@@ -37,30 +77,16 @@
               <option value="pendiente">Pendiente</option>
             </select>
           </div>
-          
           <div>
             <select id="f-anio">
               <option value="">Año: Todos</option>
-              <option value="1">1º Año</option>
-              <option value="2">2º Año</option>
-              <option value="3">3º Año</option>
-              <option value="4">4º Año</option>
             </select>
           </div>
           <div>
             <select id="f-sem">
               <option value="">Semestre: Todos</option>
-              <option value="1">1º Semestre</option>
-              <option value="2">2º Semestre</option>
-              <option value="3">3º Semestre</option>
-              <option value="4">4º Semestre</option>
-              <option value="5">5º Semestre</option>
-              <option value="6">6º Semestre</option>
-              <option value="7">7º Semestre</option>
-              <option value="8">8º Semestre</option>
             </select>
           </div>
-          
           <div>
             <select id="f-area">
               <option value="">Área: Todas</option>
@@ -76,61 +102,28 @@
         </div>
       </div>
 
-    </div> <div class="top-dashboard-grid">
+    </div> <div class="grid">
       
-      <div class="card progress">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <b style="font-size: 16px;">Tu Progreso General</b>
-          <span id="progress-label" class="pill">0%</span>
-        </div>
-        <div class="bar">
-          <span id="bar" style="width: 0%;"></span>
-        </div>
-        <div class="kpis">
-          <div class="kpi">
-            <small>Aprobadas</small>
-            <b id="kpi-aprobadas">0</b>
+      <main id="list"></main>
+
+      <aside class="sidebar-sticky" id="sidebar-aside">
+        <div class="card" style="margin-bottom: 16px;">
+          <h4 style="margin-top: 0; margin-bottom: 12px;">Accesos rápidos</h4>
+          <div class="tags" style="display: flex; flex-direction: column; gap: 8px;">
+            <button id="quick-ob" class="btn" style="text-align: left; width: 100%;">Solo obligatorias</button>
+            <button id="quick-op" class="btn" style="text-align: left; width: 100%;">Solo opcionales</button>
+            <button id="quick-clear" class="btn" style="text-align: left; width: 100%; background: rgba(239, 68, 68, 0.05); color: #f87171; border-color: rgba(239, 68, 68, 0.15);">Limpiar filtros</button>
           </div>
-          <div class="kpi">
-            <small>Créditos</small>
-            <b id="kpi-creditos">0</b>
-          </div>
-          <div class="kpi">
-            <small>Totales</small>
-            <b id="kpi-totales">0</b>
+          <hr style="margin: 12px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <button id="btn-onboarding" style="font-size: 11px; padding: 4px 8px;">ℹ️ Guía</button>
+            <button id="btn-reset">Reiniciar</button>
           </div>
         </div>
-      </div>
 
-      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
-        <div>
-          <b style="font-size: 14px; display: block; margin-bottom: 8px;">Accesos Rápidos</b>
-          <div class="tags">
-            <button id="quick-ob" class="tag">Ver Obligatorias</button>
-            <button id="quick-op" class="tag">Ver Opcionales</button>
-            <button id="quick-clear" class="tag">Limpiar Filtros</button>
-          </div>
-        </div>
-        <hr>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <button id="btn-onboarding">ℹ️ Ayuda</button>
-          <button id="btn-reset">Reiniciar Todo</button>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="grid">
-      
-      <main id="list">
-        <div class="empty">Cargando asignaturas y plan de estudios...</div>
-      </main>
-
-      <aside class="sidebar-sticky">
         <div class="card">
-          <h3 style="margin-top: 0; font-size: 16px;">Áreas de Conocimiento</h3>
-          <div id="areas-list" class="tags" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-            </div>
+          <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px;">Áreas de conocimiento</h3>
+          <div id="areas-list" class="tags" style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px;"></div>
         </div>
       </aside>
 
@@ -141,8 +134,8 @@
       <div class="card">
         <h2>✨ ¡Bienvenido a tu Malla Interactiva!</h2>
         <p>Esta herramienta te permite mapear el progreso de tu carrera de forma visual e inteligente.</p>
-        <p>🔹 <b>Guardado Automático:</b> Tus datos se sincronizan con tu cuenta de Google y almacenamiento local.</p>
-        <p>🔹 <b>Correlativas automáticas:</b> Al marcar una asignatura como aprobada, se comprobarán los prerrequisitos necesarios para destrabar los cursos avanzados.</p>
+        <p>🔹 <b>Guardado Automático:</b> Tus datos se guardan de manera local y en tu nube de Firebase.</p>
+        <p>🔹 <b>Correlativas automáticas:</b> Si desmarcas una previa obligatoria, el sistema limpiará el progreso posterior para evitar inconsistencias.</p>
         <div class="foot">
           <button id="ob-close" class="pill" style="background: var(--brand); color: #fff; border: none; padding: 8px 20px;">Entendido</button>
         </div>
@@ -153,7 +146,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  
   <script src="js/app.js"></script>
   <script src="js/app.firebase.js"></script>
 
