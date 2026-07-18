@@ -6,11 +6,44 @@
   <title>Grilla · Administración (UDELAR)</title>
 
   <link rel="stylesheet" href="css/styles.css">
+  
+  <style>
+    /* Contenedor del panel superior para dividir Avance y Leyenda de estados */
+    .top-dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 768px) {
+      .top-dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Rediseño de filtros en 3 columnas */
+    .filters-3-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin-top: 12px;
+    }
+    @media (max-width: 768px) {
+      .filters-3-col {
+        grid-template-columns: 1fr;
+      }
+    }
+    .filters-3-col input, .filters-3-col select {
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
     
-    <div class="sticky-top-container">
+    <div class="sticky-top-container" style="background: var(--bg); padding-bottom: 12px; z-index: 40;">
       <header>
         <div>
           <h1>Grilla · Administración</h1>
@@ -19,29 +52,45 @@
         <span class="pill">Hecho con 💜 por Notegood.uy</span>
       </header>
 
-      <div class="card" style="border-radius: 12px;">
-        <div class="progress">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div>
-              <b>Tu avance:</b>
-              <span class="muted" id="progress-label">0% · 0/0 créditos</span>
+      <div class="top-dashboard-grid">
+        
+        <div class="card" style="padding: 16px; margin: 0;">
+          <div class="progress">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div>
+                <b>Tu avance:</b>
+                <span class="muted" id="progress-label">0% · 0/0 créditos</span>
+              </div>
+              <div>
+                <button id="btn-onboarding">Guía rápida</button>
+                <button id="btn-reset">Borrar progreso</button>
+              </div>
             </div>
-            <div>
-              <button id="btn-onboarding">Guía rápida</button>
-              <button id="btn-reset">Borrar progreso</button>
+            <div class="bar"><span id="bar"></span></div>
+            <div class="kpis">
+              <div class="kpi"><small>Materias aprobadas</small><b id="kpi-aprobadas">0</b></div>
+              <div class="kpi"><small>Materias totales</small><b id="kpi-totales">0</b></div>
+              <div class="kpi"><small>Créditos aprobados</small><b id="kpi-creditos">0</b></div>
             </div>
-          </div>
-          <div class="bar"><span id="bar"></span></div>
-          <div class="kpis">
-            <div class="kpi"><small>Materias aprobadas</small><b id="kpi-aprobadas">0</b></div>
-            <div class="kpi"><small>Materias totales</small><b id="kpi-totales">0</b></div>
-            <div class="kpi"><small>Créditos aprobados</small><b id="kpi-creditos">0</b></div>
           </div>
         </div>
+
+        <div class="card" style="padding: 16px; margin: 0;">
+          <h4 style="margin-top:0; margin-bottom: 8px;">Leyenda y notas</h4>
+          <div class="tags" style="margin-bottom: 8px;">
+            <span class="badge ok">Aprobada</span>
+            <span class="badge cur">Cursando</span>
+            <span class="badge pen">Pendiente</span>
+          </div>
+          <p class="muted" style="margin: 0; font-size: 11.5px; line-height: 1.4;">
+            Marca como <b>Aprobada</b> para sumar créditos. Si una materia tiene <b>previas</b>, verás el detalle y se bloqueará hasta que las cumplas.
+          </p>
+        </div>
+
       </div>
-    </div> <div class="grid">
-      <section class="card">
-        <div class="filters">
+
+      <div class="card" style="padding: 12px; margin: 0;">
+        <div class="filters-3-col">
           <input id="q" type="search" placeholder="Buscar por código o nombre…" />
           <select id="f-estado">
             <option value="">Estado: Todos</option>
@@ -49,8 +98,10 @@
             <option value="cursando">Cursando</option>
             <option value="pendiente">Pendiente</option>
           </select>
+          
           <select id="f-anio"><option value="">Año: Todos</option></select>
           <select id="f-sem"><option value="">Semestre: Todos</option></select>
+          
           <select id="f-area"><option value="">Área: Todas</option></select>
           <select id="f-tipo">
             <option value="">Tipo: Todas</option>
@@ -58,24 +109,16 @@
             <option value="OP">Opcional</option>
           </select>
         </div>
+      </div>
 
+    </div> <div class="grid" style="margin-top: 16px;">
+      <section>
         <div class="list" id="list"></div>
       </section>
 
       <div class="sidebar-sticky">
-        <aside class="card" style="padding:16px">
-          <h3 style="margin-top:0">Leyenda y notas</h3>
-          <div class="tags">
-            <span class="badge ok">Aprobada</span>
-            <span class="badge cur">Cursando</span>
-            <span class="badge pen">Pendiente</span>
-          </div>
-          <p class="muted" style="margin-top:10px; font-size: 13px;">
-            Marca como <b>Aprobada</b> para sumar créditos. Si una materia tiene <b>previas</b>,
-            verás el detalle y se bloqueará hasta que las cumplas.
-          </p>
-          <hr style="border-color:#202746;border-top:none;margin:16px 0" />
-          <h4>Áreas</h4>
+        <aside class="card" style="padding:16px; margin-top: 0;">
+          <h4 style="margin-top:0">Áreas de estudio</h4>
           <div id="areas-list" class="tags"></div>
           <hr style="border-color:#202746;border-top:none;margin:16px 0" />
           <h4>Accesos rápidos</h4>
