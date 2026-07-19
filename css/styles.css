@@ -404,3 +404,13 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
     color: #a9b3ce; 
     background-color: rgba(74, 78, 105, 0.15);
 }
+
+/* =========================================
+   Corrección de superposición de paneles en Mobile
+   ========================================= */
+.filters-panel, 
+.semestres-panel {
+    /* Agrega 100px de espacio al fondo para que el contenido 
+       haga scroll por encima de los botones flotantes */
+    padding-bottom: 100px !important; 
+}
