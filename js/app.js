@@ -363,10 +363,22 @@
         };  
     }
 
-    $("#btn-toggle-filters")?.addEventListener("click", () => $("#filters-container").classList.add("open"));
-    $("#btn-close-filters")?.addEventListener("click", () => $("#filters-container").classList.remove("open"));
-    $("#btn-toggle-semestres")?.addEventListener("click", () => $("#semestres-container").classList.add("open"));
-    $("#btn-close-semestres")?.addEventListener("click", () => $("#semestres-container").classList.remove("open"));
+// === BOTONES FLOTANTES MOBILE (Cierre automático cruzado) ===
+    $("#btn-toggle-filters")?.addEventListener("click", () => {
+        $("#filters-container").classList.add("open");
+        $("#semestres-container").classList.remove("open"); // Cierra semestres si estaba abierto
+    });
+    $("#btn-close-filters")?.addEventListener("click", () => {
+        $("#filters-container").classList.remove("open");
+    });
+
+    $("#btn-toggle-semestres")?.addEventListener("click", () => {
+        $("#semestres-container").classList.add("open");
+        $("#filters-container").classList.remove("open"); // Cierra filtros si estaba abierto
+    });
+    $("#btn-close-semestres")?.addEventListener("click", () => {
+        $("#semestres-container").classList.remove("open");
+    });
     
     $("#btn-reset")?.addEventListener('click', async () => {
       if(!confirm('¿Seguro que querés borrar TODO tu avance?')) return;
