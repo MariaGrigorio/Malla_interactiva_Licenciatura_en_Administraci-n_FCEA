@@ -400,6 +400,36 @@ async function cloudLoad() {
       }
       render();
     });
+
+     // === LÓGICA DE LA GUÍA RÁPIDA (ONBOARDING) ===
+    $("#btn-onboarding")?.addEventListener("click", () => {
+        $("#onboarding").style.display = "flex";
+    });
+    $("#ob-close")?.addEventListener("click", () => {
+        $("#onboarding").style.display = "none";
+    });
+
+    // === LÓGICA DEL MODO CLARO / OSCURO ===
+    const themeBtn = $("#themeToggleBtn");
+    if (themeBtn) {
+        // Al cargar, revisamos si el usuario ya había elegido el modo claro
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            themeBtn.textContent = '🌙'; // Cambia el ícono a la luna
+        }
+        
+        // Al hacer clic, alternamos el modo
+        themeBtn.addEventListener("click", () => {
+            document.body.classList.toggle("light-mode");
+            if (document.body.classList.contains("light-mode")) {
+                localStorage.setItem("theme", "light");
+                themeBtn.textContent = '🌙';
+            } else {
+                localStorage.setItem("theme", "dark");
+                themeBtn.textContent = '☀️';
+            }
+        });
+    }
   }
 
   async function loadData() {
