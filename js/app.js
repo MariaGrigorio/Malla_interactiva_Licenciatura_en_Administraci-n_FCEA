@@ -260,18 +260,26 @@
     if (selCalculo) {
         selCalculo.value = state.trayectoriaCalculo || ""; 
         selCalculo.onchange = (e) => {
+            // 1. Lanzar advertencia
+            if (!confirm('¿Seguro que quieres cambiar la trayectoria de cálculo?\n\nEsto borrará el avance que tengas guardado en las materias de la opción anterior.')) {
+                // Si el usuario cancela, devolvemos visualmente el selector al valor que tenía antes
+                e.target.value = state.trayectoriaCalculo || "";
+                return;
+            }
+            
+            // 2. Si acepta, borramos el progreso específico de las materias de cálculo (las 3 posibles)
+            const materiasCalculo = ["MC10", "114A", "128A"];
+            materiasCalculo.forEach(cod => {
+                state.aprobadas.delete(cod);
+                state.cursando.delete(cod);
+            });
+
+            // 3. Guardar el nuevo estado y redibujar
             state.trayectoriaCalculo = e.target.value; 
             saveState(); 
             render();    
         };
     }
-
-    $$(".btn-semestre").forEach(btn => btn.onclick = (e) => {
-      $$(".btn-semestre").forEach(b => b.classList.remove("active"));
-      e.currentTarget.classList.add("active");
-      filtroSemestreActual = e.currentTarget.dataset.semestre;
-      render();
-    });
 
     // === MODAL OPTATIVAS ===
     if ($("#btn-open-optativas")) {
