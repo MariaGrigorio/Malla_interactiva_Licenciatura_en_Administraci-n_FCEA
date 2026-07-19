@@ -406,11 +406,12 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
 }
 
 /* =========================================
-   Corrección de superposición de paneles en Mobile
+   Corrección de superposición de paneles (SOLO MOBILE)
    ========================================= */
-.filters-panel, 
-.semestres-panel {
-    /* Agrega 100px de espacio al fondo para que el contenido 
-       haga scroll por encima de los botones flotantes */
-    padding-bottom: 100px !important; 
+@media (max-width: 992px) {
+    .filters-panel, 
+    .semestres-panel {
+        /* Agrega espacio al fondo solo en pantallas de celulares/tablets */
+        padding-bottom: 100px !important; 
+    }
 }
