@@ -447,3 +447,50 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); 
         padding-bottom: 100px !important; 
     }
 }
+
+
+
+
+/* =========================================================
+   CORRECCIONES DE CONTRASTE Y ESTILOS (MODO CLARO Y OSCURO)
+   ========================================================= */
+
+/* 1. Variable dinámica para los textos violetas según el modo */
+:root {
+    --brand-text: #c084fc; /* Lila claro para que resalte en fondo oscuro */
+}
+body.light-mode {
+    --brand-text: #6d28d9; /* Violeta intenso para que resalte en fondo claro */
+}
+
+/* 2. Corregimos el color del texto de la píldora de avance */
+.pill {
+    color: var(--brand-text) !important;
+}
+
+/* 3. Arreglamos los filtros para que usen el fondo del tema (blanco/oscuro) */
+.filters-layout-grid input[type="search"],
+.filters-layout-grid select {
+    background: var(--card) !important;
+    color: var(--txt) !important;
+}
+
+/* 4. Arreglamos los botones inactivos de Semestres */
+.btn-semestre {
+    background: var(--card) !important;
+    color: var(--muted) !important;
+}
+.btn-semestre:hover {
+    background: var(--surface) !important;
+    color: var(--txt) !important;
+}
+
+/* 5. Estilo "Pill" (Fondo claro, letra violeta) para Semestre Activo y Optativas */
+.btn-semestre.active,
+#btn-open-optativas {
+    background: var(--brand-weak) !important;
+    color: var(--brand-text) !important;
+    border: 1px solid var(--brand-line) !important;
+    font-weight: 600 !important;
+    box-shadow: none !important; /* Quitamos la sombra dura original */
+}
