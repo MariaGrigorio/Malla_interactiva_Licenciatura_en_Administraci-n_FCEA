@@ -494,3 +494,18 @@ body.light-mode {
     font-weight: 600 !important;
     box-shadow: none !important; /* Quitamos la sombra dura original */
 }
+
+/* =========================================================
+   CORRECCIONES DE MODALES Y BOTÓN FLOTANTE
+   ========================================================= */
+
+/* 1. Hacemos que el fondo de las ventanas flotantes (Modales) responda al tema */
+.modal .card {
+    background: var(--card) !important;
+    border-color: var(--line) !important;
+}
+
+/* 2. Corregimos el color de texto del botón "Filtros" en mobile para que no quede blanco sobre blanco */
+.fab-filters {
+    color: var(--txt) !important;
+}
