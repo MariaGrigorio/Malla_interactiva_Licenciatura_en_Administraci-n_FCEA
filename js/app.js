@@ -67,11 +67,17 @@
     }, ms);
   }
 
-  async function cloudLoad() {
+async function cloudLoad() {
     const r = progressRef();
     if (!r) return null;
-    const s = await r.get();
-    return s.exists ? s.data() : null;
+    
+    try {
+      const s = await r.get();
+      return s.exists ? s.data() : null;
+    } catch (e) {
+      console.error("No se pudo cargar desde la nube. Revisa los permisos de Firestore:", e);
+      return null;
+    }
   }
 
   // ==========================================
