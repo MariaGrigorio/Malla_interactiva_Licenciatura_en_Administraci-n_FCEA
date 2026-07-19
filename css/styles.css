@@ -21,6 +21,38 @@
   --chip: #1f2433;
 }
 
+/* ================================================
+   VARIABLES MODO CLARO
+   ================================================ */
+body.light-mode {
+  --bg: #f8fafc;
+  --bg-grad-1: #f1f5f9;
+  --bg-grad-2: #e2e8f0;
+  --card: #ffffff;
+  --surface: #f8fafc;
+  --line: #cbd5e1;
+  --line-2: #e2e8f0;
+  --muted: #64748b;
+  --txt: #0f172a;
+  --chip: #e2e8f0;
+}
+
+/* Forzar que el menú fijo superior cambie a blanco en PC en modo claro */
+@media (min-width: 900px) {
+  body.light-mode .sticky-top-container {
+    background: #ffffff !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Forzar el color de fondo de los menús flotantes en celular en modo claro */
+@media (max-width: 900px) {
+  body.light-mode .filters-panel, 
+  body.light-mode .semestres-panel {
+    background: #ffffff;
+  }
+}
+
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 
