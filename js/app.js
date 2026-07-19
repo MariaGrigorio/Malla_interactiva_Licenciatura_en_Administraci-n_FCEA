@@ -190,15 +190,50 @@
       const est = getEstado(m.codigo);
       const locked = !canTake(m);
       
+      // --- 1. Calcular atributos dinámicos para la tarjeta ---
+      const anio = Math.ceil(m.semestre / 2);
+      const tipoText = m.tipo === "OB" ? "OBLIGATORIA" : (m.tipo === "OP" ? "OPTATIVA" : m.tipo);
+      const previasText = Array.isArray(m.previas) && m.previas.length > 0 ? "Previas: " + m.previas.join(", ") : "Sin previas";
+      
+      // Buscar el nombre del área (ej: "MC - MÉTODOS CUANTITATIVOS")
+      const areaObj = state.data.areas.find(a => a.id === m.area);
+      const areaText = areaObj ? `${m.area} · ${areaObj.nombre}`.toUpperCase() : String(m.area).toUpperCase();
+      const estadoUpper = est.toUpperCase();
+      
       const wrapper = document.createElement("div");
-      // ESTILOS DE COLOR: Se inyecta la clase "aprobada", "cursando" o "pendiente"
       wrapper.className = `card course ${locked ? "locked" : ""} ${est}`;
       
+      // --- 2. Nueva estructura visual idéntica a tu diseño ---
       wrapper.innerHTML = `
-        <div class="course-info"><h3>${m.codigo} — ${m.nombre}</h3><span class="badge">${m.semestre}° sem</span></div>
-        <div class="act">
-          <label>Cursando <input type="checkbox" data-cur="${m.codigo}" ${state.cursando.has(m.codigo) ? "checked" : ""} ${locked ? "disabled":""}></label>
-          <label>Aprobada <input type="checkbox" data-ok="${m.codigo}" ${state.aprobadas.has(m.codigo) ? "checked" : ""} ${locked ? "disabled":""}></label>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 15px;">
+          
+          <div class="course-info" style="flex: 1; min-width: 260px;">
+            <!-- Fila 1: Atributos y Etiquetas -->
+            <div class="course-tags" style="display: flex; gap: 12px; align-items: center; margin-bottom: 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; flex-wrap: wrap;">
+              <span class="badge-estado ${est}">${estadoUpper}</span>
+              <span class="badge-area">${areaText}</span>
+              <span>${anio}° AÑO - ${m.semestre}° SEM</span>
+              <span>CRÉDITOS: ${m.creditos || 0}</span>
+              <span>${tipoText}</span>
+            </div>
+            
+            <!-- Fila 2: Título de la materia -->
+            <h3 style="margin: 0 0 6px 0; font-size: 16px;">${m.codigo} — ${m.nombre}</h3>
+            
+            <!-- Fila 3: Previas -->
+            <div style="font-size: 13px; color: var(--muted, #999);">${previasText}</div>
+          </div>
+          
+          <!-- Checkboxes alineados a la derecha -->
+          <div class="act" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end; min-width: 100px;">
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; user-select: none;">
+              Cursando <input type="checkbox" data-cur="${m.codigo}" ${state.cursando.has(m.codigo) ? "checked" : ""} ${locked ? "disabled":""} style="transform: scale(1.2); cursor: pointer;">
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; user-select: none;">
+              Aprobada <input type="checkbox" data-ok="${m.codigo}" ${state.aprobadas.has(m.codigo) ? "checked" : ""} ${locked ? "disabled":""} style="transform: scale(1.2); cursor: pointer;">
+            </label>
+          </div>
+          
         </div>
       `;
       frag.appendChild(wrapper);
@@ -216,7 +251,7 @@
     });
     updateKpis();
   }
-
+   
   function wireUI() {
     $$("#q,#f-area,#f-tipo,#f-estado").forEach(el => el.oninput = el.onchange = render);
     
