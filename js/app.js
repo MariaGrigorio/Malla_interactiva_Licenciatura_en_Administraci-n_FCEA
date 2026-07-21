@@ -246,14 +246,31 @@ async function cloudLoad() {
     });
     list.appendChild(frag);
 
+  // === LÓGICA DE CHECKBOXES MUTUAMENTE EXCLUYENTES ===
     $$('input[data-cur]').forEach(el => el.onchange = (e) => { 
-        e.target.checked ? state.cursando.add(e.target.dataset.cur) : state.cursando.delete(e.target.dataset.cur);
-        saveState(); updateKpis(); render(); 
+        const cod = e.target.dataset.cur;
+        if (e.target.checked) {
+            state.cursando.add(cod);
+            state.aprobadas.delete(cod); // Desmarca "Aprobada" si se marca "Cursando"
+        } else {
+            state.cursando.delete(cod);
+        }
+        limpiarMateriasHuerfanas(); // Recalcula las previas por si perdió el estado de aprobada
+        saveState(); 
+        render(); // render ya actualiza los KPIs automáticamente
     });
+
     $$('input[data-ok]').forEach(el => el.onchange = (e) => { 
-        if(e.target.checked) { state.aprobadas.add(e.target.dataset.ok); state.cursando.delete(e.target.dataset.ok); }
-        else { state.aprobadas.delete(e.target.dataset.ok); }
-        limpiarMateriasHuerfanas(); saveState(); render(); 
+        const cod = e.target.dataset.ok;
+        if (e.target.checked) { 
+            state.aprobadas.add(cod); 
+            state.cursando.delete(cod); // Desmarca "Cursando" si se marca "Aprobada"
+        } else { 
+            state.aprobadas.delete(cod); 
+        }
+        limpiarMateriasHuerfanas(); 
+        saveState(); 
+        render(); 
     });
     updateKpis();
   }
